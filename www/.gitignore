@@ -1,0 +1,4 @@
+# Folder should be empty, since vuejs compiles into it
+*
+*/
+!.gitignore
