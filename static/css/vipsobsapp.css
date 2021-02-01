@@ -1,0 +1,24 @@
+.navbar {
+	background-color: #3d8052 !important;
+}
+
+.offcanvas-collapse {
+	background-color: white;
+	border-left: 1px solid #3d8052;
+	
+}
+
+a.nav-link{
+	color: black !important;
+}
+
+.btn-outline-success {
+	color: #3d8052;
+	border-color: #3d8052;
+}
+
+.btn-outline-success:hover {
+	color: white;
+	background-color: #3d8052;
+	border-color: #3d8052;
+}
