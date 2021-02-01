@@ -12,4 +12,13 @@ new Vue({
   router,
   components: { App },
   template: '<App/>'
-})
+});
+
+/**
+ * Hope this works. It's for adding router functionality to the menu,
+ * which is outside the main app
+ */
+new Vue({
+  el: '#vipsobsappmenu',
+  router
+});
