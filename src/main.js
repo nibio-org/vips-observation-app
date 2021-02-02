@@ -14,10 +14,8 @@ const init = () => {
 	  components: { App },
 	  template: '<App/>',
 	  data: {
-		deviceIsReady: false
 	  },
 	  methods: {
-		
 	  },
 	  created() {
 		console.info("Vue is ready")

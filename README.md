@@ -48,6 +48,20 @@ cordova emulate android
 ```
 
 ## Develop the code
+### Don't touch the /www folder!
+Normally in Cordova you would put your code here, but this is where vue-cli is putting the things that it builds. 
+
 ### Main template
-The main layout is based on a very simple template snatched from Bootstrap.
+The main layout is based on a very simple template snatched from Bootstrap. You find it in /html (at the project root level).
+Everything that Vuejs operates on happens inside the `main` element
+
+``` html
+<main id="app" role="main" class="container"></main>
+```
+
+You find all the Vuejs code in the `/src` folder
+
+Looking at /src/main.js, the Vue app is not started until Cordova fires the deviceready event.
+
+The router components (the "pages" in the Single Page Application that you manage) are found in `/src/components`. The router (paths + components definitions) is found in `/src/router/index.js`
 
