@@ -2,6 +2,18 @@
 
 > The Field Pest Observation App for VIPS users
 
+## Prerequisites: node, npm, vue-cli and cordova
+Make sure you have the correct versions of npm and nodejs
+Use nvm to install, here's [how to install nvm in the first place](https://github.com/nvm-sh/nvm#installing-and-updating)
+
+Then run:
+
+``` bash
+nvm install --lts
+sudo npm install -g @vue/cli --unsafe-perm
+sudo npm install -g cordova --unsafe-perm
+``` 
+
 ## Build Setup (vuejs)
 
 ``` bash
