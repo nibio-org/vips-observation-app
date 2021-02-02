@@ -47,4 +47,7 @@ cordova emulate browser
 cordova emulate android
 ```
 
+## Develop the code
+### Main template
+The main layout is based on a very simple template snatched from Bootstrap.
 
