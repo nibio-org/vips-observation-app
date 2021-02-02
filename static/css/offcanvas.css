@@ -7,7 +7,7 @@ body {
   padding-top: 56px;
 }
 
-@media (max-width: 991.98px) {
+
   .offcanvas-collapse {
     position: fixed;
     top: 56px; /* Height of navbar */
@@ -29,7 +29,7 @@ body {
     -webkit-transform: translateX(-80%);
     transform: translateX(-80%);
   }
-}
+
 
 .nav-scroller {
   position: relative;
@@ -85,8 +85,4 @@ body {
         user-select: none;
       }
 
-@media (min-width: 768px) {
-   .bd-placeholder-img-lg {
-          font-size: 3.5rem;
-   }
-}
+

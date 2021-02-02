@@ -1,6 +1,10 @@
 <template>
   <div class="hello">
     <h1>{{ msg }}</h1>
+    <router-link to="/observation" custom v-slot="{navigate}">
+      <button type="button" class="btn btn-primary" @click="navigate">+</button>
+    </router-link>
+    
     </div>
 </template>
 
