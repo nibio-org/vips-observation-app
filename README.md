@@ -67,3 +67,38 @@ The router components (the "pages" in the Single Page Application that you manag
 
 ### Checking out new code
 Remember to always run `npm install` after checking out new code from the repository. That way, new dependencies will be installed.
+
+### Translation
+[This tutorial](https://www.codeandweb.com/babeledit/tutorials/how-to-translate-your-vue-app-with-vue-i18n) has been used to enable translation.
+
+I couldn't get the per-component translation thing working (where you embed it in `<i18n>` tags),
+so all translations go into the `/locales/[languagecode].json` files.
+
+
+There's a simple translation example in /components/ObservationList.js:
+
+``` html
+<template>
+  <div class="hello">
+    <h1>{{ $t('startpage') }}</h1>
+    <router-link to="/observation" custom v-slot="{navigate}">
+      <button type="button" class="btn btn-primary" @click="navigate">+</button>
+    </router-link>
+    
+    </div>
+</template>
+```
+
+(TODO: Update this documentation when code in ObservationList changes)
+
+Change the startup language in the app here in `/i18n.js`:
+
+``` javascript
+export default new VueI18n({
+  locale: process.env.VUE_APP_I18N_LOCALE || 'nb', // Here you can customize
+  fallbackLocale: process.env.VUE_APP_I18N_FALLBACK_LOCALE || 'en',
+  messages: loadLocaleMessages()
+})
+```
+
+

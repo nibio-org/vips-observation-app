@@ -3,24 +3,31 @@
 import Vue from 'vue'
 import App from './App'
 import router from './router'
+import i18n from './i18n'
 
 Vue.config.productionTip = false
 
 /* eslint-disable no-new */
 const init = () => {
 	new Vue({
-	  el: '#app',
-	  router,
-	  components: { App },
-	  template: '<App/>',
-	  data: {
+      el: '#app',
+      router,
+      components: { App },
+      template: '<App/>',
+
+      data: {
 	  },
-	  methods: {
+
+      methods: {
 	  },
-	  created() {
-		console.info("Vue is ready")
+
+      i18n,
+
+      created() {
+		console.info("Vue is ready");
+		console.info("User's preferred language is " + navigator.language);
 	  }
-	});
+    });
 };
 
 /**
@@ -29,7 +36,8 @@ const init = () => {
  */
 new Vue({
   el: '#vipsobsappmenu',
-  router
+  router,
+  i18n,
 });
 
 // Wait for the deviceready event to start the render
