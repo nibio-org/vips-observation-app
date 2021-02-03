@@ -65,3 +65,5 @@ Looking at /src/main.js, the Vue app is not started until Cordova fires the devi
 
 The router components (the "pages" in the Single Page Application that you manage) are found in `/src/components`. The router (paths + components definitions) is found in `/src/router/index.js`
 
+### Checking out new code
+Remember to always run `npm install` after checking out new code from the repository. That way, new dependencies will be installed.
