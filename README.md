@@ -101,4 +101,7 @@ export default new VueI18n({
 })
 ```
 
+### Adding Internationalization 
+``` bash
+npm install vue-i18n --save
 
