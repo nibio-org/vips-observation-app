@@ -2,10 +2,19 @@
 <template>
   <div id="divCropCategory">
     <h1>Crop Category List</h1>
-    <li v-for="item in listCropCategoris">
-      <input type="checkbox" v-bind:value='item.cropCategoryId' v-model="listSelectedCropCategoris" v-on:click="funSaveCategoryId()"> {{ item.defaultName }}
-    </li>
-    <span>Checked names: {{ listSelectedCropCategoris }}</span>
+    <ul class="list-group">
+      <li class="list-group-item" v-for="item in listCropCategoris">
+        <input
+          
+          type="checkbox"
+          v-bind:value="item.cropCategoryId"
+          v-model="listSelectedIds"
+          v-on:click="funSaveCategoryId()"
+        />
+        {{ item.defaultName }}
+      </li>
+    </ul>
+    <span>Checked names: {{ listSelectedIds }}</span>
   </div>
 </template>
 
@@ -13,21 +22,24 @@
 export default {
   name: "cropCategory",
   data() {
-
     return {
-      listSelectedCropCategoris:[],
-      listCropCategoris: []
-      }
-
+      listSelectedIds: [],
+      listCropCategoris: [],
+    };
+  },
+  watch: {
+    listSelectedIds: function (val) {
+      localStorage.setItem("cropIds", this.listSelectedIds);
+    },
   },
   methods: {
     funFetchCropCategory(organizationId) {
-//        this.$nextTick(function () {
+      //        this.$nextTick(function () {
       fetch(
         "https://logic.vips.nibio.no/rest/organism/cropcategory/" +
           organizationId
-          
-/*           ,
+
+        /*           ,
         {
           method: "GET",
           headers: {
@@ -35,40 +47,32 @@ export default {
             
           },
         } */
-      ).then(response => response.json())
-      .then((data) => {
-        this.listCropCategoris = data;
-      });
- //   })
+      )
+        .then((response) => response.json())
+        .then((data) => {
+          this.listCropCategoris = data;
+        });
+      //   })
     },
-    funSaveCategoryId : function(){
-    //if (event.target.checked) 
-        
-      localStorage.cropIds=this.listSelectedCropCategoris;
-      console.log('before store : '+this.listSelectedCropCategoris);
-      console.log('localstorage 1: '+localStorage.cropIds);
-      console.log('localstorage 2: '+localStorage.getItem('cropIds'));
-    },
+    funSaveCategoryId: function () {
+      //if (event.target.checked)
 
+      //localStorage.cropIds=this.listSelectedIds;
+      localStorage.setItem("cropIds", this.listSelectedIds);
+    },
   },
-  created()
-  {
-      this.funFetchCropCategory(1);
-      console.log('localstorage 3: '+localStorage.getItem('cropIds'));
-/*
-      if( 
-                (null != localStorage.getItem('cropIds')) 
-            &&  (localStorage.getItem('cropIds') != '')
-            &&  (typeof(localStorage.getItem('cropIds'))!= undefined)
-                )
-            {
-                this.listSelectedCropCategoris  = localStorage.getItem('cropIds');
-            }
-  */    
-  }
+  created() {
+    //localStorage.removeItem('cropIds');
+    this.funFetchCropCategory(1);
+    if (
+      null != localStorage.getItem("cropIds") &&
+      localStorage.getItem("cropIds") != "" &&
+      typeof localStorage.getItem("cropIds") != "undefined"
+    ) {
+      this.listSelectedIds = localStorage.getItem("cropIds").split(",");
+    }
+  },
 };
-
-
 </script>
 
 <style  scoped>
