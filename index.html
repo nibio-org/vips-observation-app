@@ -29,15 +29,20 @@
   </button>
 
   <div class="navbar-collapse offcanvas-collapse" >
-	<form class="my-2 my-lg-0">
+	<form v-if="sharedState.uuid == '' " class="my-2 my-lg-0">
       <div class="form-group">
-      <input class="form-control mr-sm-2" type="text" placeholder="Brukernavn" aria-label="Brukernavn">
+      <input class="form-control mr-sm-2" type="text" placeholder="Brukernavn" aria-label="Brukernavn" v-model="username" >
       </div>
       <div class="form-group">
-      <input class="form-control mr-sm-2" type="password" placeholder="Passord" aria-label="Passord">
+      <input class="form-control mr-sm-2" type="password" placeholder="Passord" aria-label="Passord" v-model="password">
       </div>
-      <button class="btn btn-primary" type="submit">Logg inn</button>
+      <button class="btn btn-primary" type="button" v-on:click="handleLogin()">Logg inn</button>
     </form>
+  </v-if>
+  <div v-else>
+    <span>{{sharedState.user.firstName}} {{sharedState.user.lastName}}</span><br/>
+    <button class="btn btn-primary" type="button" v-on:click="handleLogout()">Logg out</button>
+  </div>
 	<hr/>
     <ul class="navbar-nav mr-auto">
       <li class="nav-item">

@@ -7,6 +7,15 @@ import i18n from './i18n'
 
 Vue.config.productionTip = false
 
+var store = {
+    debug: true,
+    state: {
+      user:{},
+      uuid:""
+    }
+}
+
+
 /* eslint-disable no-new */
 const init = () => {
 	new Vue({
@@ -16,7 +25,8 @@ const init = () => {
       template: '<App/>',
 
       data: {
-	  },
+          sharedState : store.state
+	    },
 
       methods: {
 	  },
@@ -38,6 +48,21 @@ new Vue({
   el: '#vipsobsappmenu',
   router,
   i18n,
+  data: {
+    sharedState: store.state,
+    username: "",
+    password:""
+  },
+  methods: {
+    handleLogin(){
+      //this.sharedState.user=
+      console.log('username : '+username+' password : '+password)
+    },
+    hankdleLogout()
+    {
+
+    }
+  }
 });
 
 // Wait for the deviceready event to start the render
