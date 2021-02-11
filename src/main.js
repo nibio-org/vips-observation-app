@@ -75,28 +75,27 @@ new Vue({
           this.jsonServerResponse = data;
           if(this.jsonServerResponse.success == true)
           {
-            console.log ('uuid : '+this.jsonServerResponse.UUID);
+            this.username='';
+            this.password='';
+
             this.sharedState.uuid = this.jsonServerResponse.UUID;
 
              /** Fetch to get details */
 
-             let jsonHeader = JSON.stringify({"Content-Type": "application/json", "Authorization":this.jsonServerResponse.UUID});
+             let jsonHeader = {Authorization:this.jsonServerResponse.UUID};
              
              fetch(
               "http://vipslogic-local.no/rest/auth/uuid",
               {
-                method: "GET",
+                method:"GET",
                 headers: jsonHeader,
               } 
             )
               .then((response) => response.json())
               .then((data) => {
-                console.log('user details : '+data);
+                let loggedUser = data;
+                this.sharedState.user = {"firstName":loggedUser.firstName, "lastName":loggedUser.lastName};
               });
-
-
-             //******************** */
-
 
           }
         });
