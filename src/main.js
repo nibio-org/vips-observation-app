@@ -7,6 +7,15 @@ import i18n from './i18n'
 
 Vue.config.productionTip = false
 
+var store = {
+    debug: true,
+    state: {
+      user:{},
+      uuid:""
+    }
+}
+
+
 /* eslint-disable no-new */
 const init = () => {
 	new Vue({
@@ -16,7 +25,8 @@ const init = () => {
       template: '<App/>',
 
       data: {
-	  },
+          sharedState : store.state
+	    },
 
       methods: {
 	  },
@@ -38,6 +48,64 @@ new Vue({
   el: '#vipsobsappmenu',
   router,
   i18n,
+  data: {
+    //jsonServerResponse,
+    sharedState: store.state,
+    username: "",
+    password:""
+  },
+  methods: {
+    handleLogin(){
+      let jsonBody = JSON.stringify({"username": this.username, "password":this.password});
+      /** Fetch to get UUID */
+      fetch(
+        "http://vipslogic-local.no/rest/auth/login",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body : jsonBody
+        } 
+      )
+        .then((response) => response.json())
+        .then((data) => {
+          
+          this.jsonServerResponse = data;
+          if(this.jsonServerResponse.success == true)
+          {
+            this.username='';
+            this.password='';
+
+            this.sharedState.uuid = this.jsonServerResponse.UUID;
+
+             /** Fetch to get details */
+
+             let jsonHeader = {Authorization:this.jsonServerResponse.UUID};
+             
+             fetch(
+              "http://vipslogic-local.no/rest/auth/uuid",
+              {
+                method:"GET",
+                headers: jsonHeader,
+              } 
+            )
+              .then((response) => response.json())
+              .then((data) => {
+                let loggedUser = data;
+                this.sharedState.user = {"firstName":loggedUser.firstName, "lastName":loggedUser.lastName};
+              });
+
+          }
+        });
+
+        
+    },
+    handleLogout()
+    {
+        this.sharedState.uuid='';
+    }
+  }
 });
 
 // Wait for the deviceready event to start the render

@@ -6,7 +6,7 @@
 	<meta name="msapplication-tap-highlight" content="no">
 	<meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width">
   
-  <meta http-equiv="Content-Security-Policy" content="default-src *; style-src 'self' 'unsafe-inline'; script-src 'self' https://code.jquery.com 'unsafe-inline' 'unsafe-eval'; media-src *; img-src 'self' data: content:; connect-src 'self' https://logic.vips.nibio.no ws:;">
+  <meta http-equiv="Content-Security-Policy" content="default-src *; style-src 'self' 'unsafe-inline'; script-src 'self' https://code.jquery.com 'unsafe-inline' 'unsafe-eval'; media-src *; img-src 'self' data: content:; connect-src 'self' https://logic.vips.nibio.no  http://vipslogic-local.no ws:;">
     <meta name="description" content="">
     <meta name="author" content="Tor-Einar Skog">
     <title>VIPS Feltobservasjoner</title>
@@ -29,17 +29,23 @@
   </button>
 
   <div class="navbar-collapse offcanvas-collapse" >
-	<form class="my-2 my-lg-0">
+	<form v-if="sharedState.uuid == '' " class="my-2 my-lg-0">
       <div class="form-group">
-      <input class="form-control mr-sm-2" type="text" placeholder="Brukernavn" aria-label="Brukernavn">
+      <input class="form-control mr-sm-2" type="text" placeholder="Brukernavn" aria-label="Brukernavn" v-model="username" >
       </div>
       <div class="form-group">
-      <input class="form-control mr-sm-2" type="password" placeholder="Passord" aria-label="Passord">
+      <input class="form-control mr-sm-2" type="password" placeholder="Passord" aria-label="Passord" v-model="password">
       </div>
-      <button class="btn btn-primary" type="submit">Logg inn</button>
+      <button class="btn btn-primary" type="button" v-on:click="handleLogin()">Logg inn</button>
     </form>
-	<hr/>
-    <ul class="navbar-nav mr-auto">
+  </v-if>
+  <div v-else>
+    <span>{{sharedState.user.firstName}} {{sharedState.user.lastName}}</span><br/>
+    <button class="btn btn-primary" type="button" v-on:click="handleLogout()">Logg out</button>
+  </div>
+
+  <hr/>
+    <ul v-if="sharedState.uuid != '' " class="navbar-nav mr-auto">
       <li class="nav-item">
         <router-link class="nav-link" to="/" onclick="$('.offcanvas-collapse').toggleClass('open')">Mine observasjoner (startsiden)</router-link>
       </li>
@@ -50,6 +56,7 @@
         <router-link class="nav-link" onclick="$('.offcanvas-collapse').toggleClass('open')" to="/settings">Innstillinger</router-link>
       </li>
     </ul>
+  </v-if>
     
   </div>
 </nav>
