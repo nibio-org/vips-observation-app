@@ -49,14 +49,59 @@ new Vue({
   router,
   i18n,
   data: {
+    //jsonServerResponse,
     sharedState: store.state,
     username: "",
     password:""
   },
   methods: {
     handleLogin(){
-      //this.sharedState.user=
-      console.log('username : '+username+' password : '+password)
+      let jsonBody = JSON.stringify({"username": this.username, "password":this.password});
+      console.log('this.username : '+this.username+' password : '+this.password)
+      /** Fetch to get UUID */
+      fetch(
+        "http://vipslogic-local.no/rest/auth/login",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body : jsonBody
+        } 
+      )
+        .then((response) => response.json())
+        .then((data) => {
+          
+          this.jsonServerResponse = data;
+          if(this.jsonServerResponse.success == true)
+          {
+            console.log ('uuid : '+this.jsonServerResponse.UUID);
+            this.sharedState.uuid = this.jsonServerResponse.UUID;
+
+             /** Fetch to get details */
+
+             let jsonHeader = JSON.stringify({"Content-Type": "application/json", "Authorization":this.jsonServerResponse.UUID});
+             
+             fetch(
+              "http://vipslogic-local.no/rest/auth/uuid",
+              {
+                method: "GET",
+                headers: jsonHeader,
+              } 
+            )
+              .then((response) => response.json())
+              .then((data) => {
+                console.log('user details : '+data);
+              });
+
+
+             //******************** */
+
+
+          }
+        });
+
+        
     },
     hankdleLogout()
     {
