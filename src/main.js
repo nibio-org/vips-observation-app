@@ -57,7 +57,6 @@ new Vue({
   methods: {
     handleLogin(){
       let jsonBody = JSON.stringify({"username": this.username, "password":this.password});
-      console.log('this.username : '+this.username+' password : '+this.password)
       /** Fetch to get UUID */
       fetch(
         "http://vipslogic-local.no/rest/auth/login",
@@ -102,9 +101,9 @@ new Vue({
 
         
     },
-    hankdleLogout()
+    handleLogout()
     {
-
+        this.sharedState.uuid='';
     }
   }
 });
