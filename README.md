@@ -101,4 +101,6 @@ export default new VueI18n({
 })
 ```
 
+## Misc
+* [First draft of application state management](./docs/Application_state.pdf)
 
