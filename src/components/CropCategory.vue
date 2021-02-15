@@ -2,7 +2,7 @@
 <template>
   <div id="divCropCategory">
     <h1>Crop Category List</h1>
-    <ul class="list-group">
+    <ul class="list-group" style="text-align: left">
       <li class="list-group-item" v-for="item in listCropCategoris">
         <input
           
@@ -76,4 +76,7 @@ export default {
 </script>
 
 <style  scoped>
+.custom-checkbox .custom-control-input:checked~.custom-control-label::before{
+  background-color:green;
+}
 </style>

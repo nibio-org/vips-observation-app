@@ -6,15 +6,16 @@ import Settings from '@/components/Settings'
 import Observation from '@/components/Observation'
 import CropCategory from '@/components/CropCategory'
 
+
 Vue.use(Router)
 
 export default new Router({
   routes: [
-    {
+     {
       path: '/',
       name: 'ObservationList',
       component: ObservationList
-    },
+    }, 
     {
       path: '/places',
       name: 'PlacesList',
@@ -35,5 +36,6 @@ export default new Router({
       name: 'CropCategory',
       component: CropCategory
     }
+
   ]
 })
