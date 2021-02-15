@@ -4,7 +4,8 @@ import Vue from 'vue'
 import App from './App'
 import router from './router'
 import i18n from './i18n'
-import Welcome from '@/components/Welcome'
+import LoginSystem from '@/components/LoginSystem'
+
 
 Vue.config.productionTip = false
 
@@ -54,6 +55,10 @@ new Vue({
     sharedState: store.state,
     username: "",
     password:""
+  },
+  components :
+  {
+    LoginSystem
   },
   methods: {
     handleLogin(){
