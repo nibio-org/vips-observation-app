@@ -1,5 +1,6 @@
 <!doctype html>
 <html lang="en">
+  
 <head>
     <meta charset="utf-8">
     <meta name="format-detection" content="telephone=no">
@@ -18,32 +19,21 @@
 	<link href="static/css/vipsobsapp.css" rel="stylesheet">
     <script src="cordova.js"></script>
 </head>
+
 <body class="bg-light">
     
 <nav class="navbar fixed-top navbar-dark bg-dark" id="vipsobsappmenu">
-
+  
   <router-link class="navbar-brand" to="/">
+    <!-- <login-system v-on:childevent="loginmethod"/> -->
+   
   <img src="static/css/images/logo_vips_hvit.png" style="height: 27px; position: relative; top: -3px; margin-right: 15px"/>Feltobservasjoner</router-link>
   <button class="navbar-toggler border-0" type="button" data-toggle="offcanvas">
     <span class="navbar-toggler-icon"></span>
   </button>
-
+  
   <div class="navbar-collapse offcanvas-collapse" >
-	<form v-if="sharedState.uuid == '' " class="my-2 my-lg-0">
-      <div class="form-group">
-      <input class="form-control mr-sm-2" type="text" placeholder="Brukernavn" aria-label="Brukernavn" v-model="username" >
-      </div>
-      <div class="form-group">
-      <input class="form-control mr-sm-2" type="password" placeholder="Passord" aria-label="Passord" v-model="password">
-      </div>
-      <button class="btn btn-primary" type="button" v-on:click="handleLogin()">Logg inn</button>
-    </form>
-  </v-if>
-  <div v-else>
-    <span>{{sharedState.user.firstName}} {{sharedState.user.lastName}}</span><br/>
-    <button class="btn btn-primary" type="button" v-on:click="handleLogout()">Logg out</button>
-  </div>
-
+    <login-system v-on:eventuserdetail="enableLogin"></login-system>
   <hr/>
     <ul v-if="sharedState.uuid != '' " class="navbar-nav mr-auto">
       <li class="nav-item">

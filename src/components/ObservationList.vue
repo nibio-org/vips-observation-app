@@ -41,7 +41,7 @@ export default {
     },
   },
   mounted() {
-    console.log('Mounted!');
+    console.log(' Observation list Mounted!');
     this.funCheckUUID();
   },
 };
