@@ -65,17 +65,16 @@ new Vue({
     Welcome
   },
   methods: {
-
-    enableLogin(uuid,fname,lname) {
+    /** This below method for child (LoginSystem) to Parent (Main.js) communication using events */
+   /*
+      enableLogin(uuid,fname,lname) {
       this.sharedState.uuid  = uuid;
       this.sharedState.user.firstName=fname;
       this.sharedState.user.lastName=lname;
     }
+    */
   },
-  mounted(){
-    //LoginSystem.checkValidUUID();
-    //this.$root.$refs.LoginSystem.checkValidUUID();
-  }
+
 });
 
 // Wait for the deviceready event to start the render

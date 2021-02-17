@@ -53,32 +53,23 @@ export default {
   //emits: {},
   methods: {
     /** Get  user details from local storage */
-    getUserFromStorage() {
+      getUserFromStorage() {
       
       let strUser = localStorage.getItem(CommonUtil.CONST_STORAGE_USER_DETAIL);
-      let user = JSON.parse(strUser);
-
+      let user    = JSON.parse(strUser);
 
       this.$root.sharedState.uuid = user.userUuid;
       this.$root.sharedState.user.firstName = user.firstName;
       this.$root.sharedState.user.lastName = user.lastName;
 
-      this.$root.sharedState.uuid = user.userUuid;
-
-       /** Firing event to main  */
+       /** Firing event to parent (main.js)  */
       //this.$emit(CommonUtil.CONST_EVENT_LOGIN_USER_DETAIL,user.userUuid, user.firstName,user.lastName);
     },
 
     /** Check uuid first */
     checkValidUUID() {
       let userUUID = localStorage.getItem(CommonUtil.CONST_STORAGE_UUID);
-
-      console.log("check uuid : " + CommonUtil.CONST_STORAGE_UUID);
-
-      console.log("loginForm : " + userUUID);
-
       /** Fetch to get details */
-
       let jsonHeader = { Authorization: userUUID };
 
       fetch(CommonUtil.CONST_URL_DOMAIN + CommonUtil.CONST_URL_AUTH_UUID, {
@@ -87,12 +78,10 @@ export default {
       }).then((response) => {
         if (response.status != 200) {
             this.$root.sharedState.uuid = '';
-          console.log("LoginSystem : response status :" + response.status);
         } else {
           this.getUserFromStorage();
         }
       });
-
 
     },
 
@@ -118,7 +107,7 @@ export default {
         {
           this.username='';
           this.password='';
-
+          
           localStorage.setItem(CommonUtil.CONST_STORAGE_UUID,this.jsonServerResponse.UUID);
 
            /** Fetch to get details */
@@ -135,31 +124,24 @@ export default {
             .then((response) => response.json())
             .then((data) => {
               let loggedUser = data;
-              //this.sharedState.user = {"firstName":loggedUser.firstName, "lastName":loggedUser.lastName};
               localStorage.setItem(CommonUtil.CONST_STORAGE_USER_DETAIL,JSON.stringify(loggedUser));
                this.getUserFromStorage();
+               
             });
 
         }
       });
-
-      
   },
     handleLogout()
     {
-        console.log('Login System - handleLogout - 1 ');
-        //this.sharedState.uuid='';                                   // remove local uuid  for login screen
         this.$root.sharedState.uuid = '';                           // remove global uuid for other (e.g. menu items etc)
         localStorage.removeItem(CommonUtil.CONST_STORAGE_UUID);     // remove uuid from storage
         this.$emit(CommonUtil.CONST_EVENT_LOGIN_USER_DETAIL,'');
-        console.log('Login System - handleLogout - 2 ');
     }
 
   },
   created() {
-    console.log("login system - created");
     this.checkValidUUID();
-    //this.$root.$refs.LoginSystem = this;
   },
 };
 </script>
