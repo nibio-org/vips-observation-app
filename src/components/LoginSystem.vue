@@ -1,6 +1,6 @@
 <template>
   <div>
-    <form v-if="sharedState.uuid == ''" class="my-2 my-lg-0">
+    <form v-if="$root.sharedState.uuid == ''" class="my-2 my-lg-0">
       <div class="form-group">
         <input
           class="form-control mr-sm-2"
@@ -26,7 +26,7 @@
 
     <div v-else>
       <span
-        >{{ sharedState.user.firstName }} {{ sharedState.user.lastName }}</span
+        >{{ this.$root.sharedState.user.firstName }} {{ this.$root.sharedState.user.lastName }}</span
       ><br />
       <button class="btn btn-primary" type="button" v-on:click="handleLogout()">
         Logg out
@@ -46,10 +46,6 @@ export default {
   data() {
     return {
       jsonServerResponse : '',
-      sharedState: {
-        user: {},
-        uuid: "",
-      },
       username: "",
       password: "",
     };
@@ -63,9 +59,9 @@ export default {
       let user = JSON.parse(strUser);
 
 
-      this.sharedState.uuid = user.userUuid;
-      this.sharedState.user.firstName = user.firstName;
-      this.sharedState.user.lastName = user.lastName;
+      this.$root.sharedState.uuid = user.userUuid;
+      this.$root.sharedState.user.firstName = user.firstName;
+      this.$root.sharedState.user.lastName = user.lastName;
 
       this.$root.sharedState.uuid = user.userUuid;
 
@@ -101,7 +97,7 @@ export default {
     },
 
   handleLogin(){
-      this.sharedState.uuid = '';
+      this.$root.sharedState.uuid = '';
     let jsonBody = JSON.stringify({"username": this.username, "password":this.password});
     /** Fetch to get UUID */
     fetch(
@@ -152,7 +148,7 @@ export default {
     handleLogout()
     {
         console.log('Login System - handleLogout - 1 ');
-        this.sharedState.uuid='';                                   // remove local uuid  for login screen
+        //this.sharedState.uuid='';                                   // remove local uuid  for login screen
         this.$root.sharedState.uuid = '';                           // remove global uuid for other (e.g. menu items etc)
         localStorage.removeItem(CommonUtil.CONST_STORAGE_UUID);     // remove uuid from storage
         this.$emit(CommonUtil.CONST_EVENT_LOGIN_USER_DETAIL,'');
