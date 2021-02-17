@@ -1,8 +1,6 @@
 <template>
-  <main id="app" role="main" class="container">
-    <!-- <login-system v-on:eventloginuserdetail="welcomevips" style='display:none'></login-system> -->
-   
-    <div v-if="sharedState.uuid != '' ">
+    <main id="app" role="main" class="container">
+    <div v-if="$root.sharedState.uuid == '' ">
       <Welcome></Welcome>
     </div>
     <div v-else>
@@ -13,28 +11,20 @@
 
 <script>
 import Welcome from '@/components/Welcome'
-import LoginSystem from '@/components/LoginSystem'
+import CommonUtil from "@/components/CommonUtil";
+
 export default {
   name: 'App',
   components : {
-    Welcome,
-    LoginSystem
+    Welcome
   },
-  data() {
-          //sharedState : store.state
-         return { sharedState : {uuid:''} }
-	},
-  methods : {
-    welcomevips(uuid)
-    {
-      console.log ('App - welcomevips')
-        this.sharedState.uuid = uuid;
-    }
-  },
-  created()
-  {
-    console.log('App - created');
+  mounted(){
+    
+    let userUUID = localStorage.getItem(CommonUtil.CONST_STORAGE_UUID);
+    this.$root.sharedState.uuid = userUUID;
+
   }
+
 }
 </script>
 
