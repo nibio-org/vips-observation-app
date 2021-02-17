@@ -4,7 +4,10 @@ import Vue from 'vue'
 import App from './App'
 import router from './router'
 import i18n from './i18n'
+import CmmonUtil from '@/components/CommonUtil'
+import LoginSystem from '@/components/LoginSystem'
 import Welcome from '@/components/Welcome'
+
 
 Vue.config.productionTip = false
 
@@ -55,58 +58,23 @@ new Vue({
     username: "",
     password:""
   },
+
+  components :
+  {
+    LoginSystem,
+    Welcome
+  },
   methods: {
-    handleLogin(){
-      let jsonBody = JSON.stringify({"username": this.username, "password":this.password});
-      /** Fetch to get UUID */
-      fetch(
-        "http://vipslogic-local.no/rest/auth/login",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body : jsonBody
-        } 
-      )
-        .then((response) => response.json())
-        .then((data) => {
-          
-          this.jsonServerResponse = data;
-          if(this.jsonServerResponse.success == true)
-          {
-            this.username='';
-            this.password='';
-
-            this.sharedState.uuid = this.jsonServerResponse.UUID;
-
-             /** Fetch to get details */
-
-             let jsonHeader = {Authorization:this.jsonServerResponse.UUID};
-             
-             fetch(
-              "http://vipslogic-local.no/rest/auth/uuid",
-              {
-                method:"GET",
-                headers: jsonHeader,
-              } 
-            )
-              .then((response) => response.json())
-              .then((data) => {
-                let loggedUser = data;
-                this.sharedState.user = {"firstName":loggedUser.firstName, "lastName":loggedUser.lastName};
-              });
-
-          }
-        });
-
-        
-    },
-    handleLogout()
-    {
-        this.sharedState.uuid='';
+    /** This below method for child (LoginSystem) to Parent (Main.js) communication using events */
+   /*
+      enableLogin(uuid,fname,lname) {
+      this.sharedState.uuid  = uuid;
+      this.sharedState.user.firstName=fname;
+      this.sharedState.user.lastName=lname;
     }
-  }
+    */
+  },
+
 });
 
 // Wait for the deviceready event to start the render
