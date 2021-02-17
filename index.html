@@ -33,7 +33,7 @@
   </button>
   
   <div class="navbar-collapse offcanvas-collapse" >
-    <login-system v-on:eventuserdetail="enableLogin"></login-system>
+    <login-system v-on:eventloginuserdetail="enableLogin"></login-system>
   <hr/>
     <ul v-if="sharedState.uuid != '' " class="navbar-nav mr-auto">
       <li class="nav-item">
@@ -50,8 +50,12 @@
     
   </div>
 </nav>
-
-<main id="app" role="main" class="container"></main>
+<div v-if="sharedState.uuid == '' ">
+  <Welcome></Welcome>
+</div>
+<div v-else>
+  <main  id="app" role="main" class="container"></main>
+</div>
 
 <script src="static/js/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
       <script>window.jQuery || document.write('<script src="static/js/vendor/jquery.slim.min.js"><\/script>')</script><script src="static/js/bootstrap.bundle.min.js"></script>     

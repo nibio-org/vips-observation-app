@@ -40,6 +40,9 @@ import CommonUtil from "@/components/CommonUtil";
 
 export default {
   name: "LoginSystem",
+  props:{
+      isWelcome : Boolean
+  },
   data() {
     return {
       jsonServerResponse : '',
@@ -67,7 +70,7 @@ export default {
       this.$root.sharedState.uuid = user.userUuid;
 
        /** Firing event to main  */
-      //this.$emit(CommonUtil.CONST_EVENT_USER_DETAIL,user.userUuid, user.firstName,user.lastName);
+      //this.$emit(CommonUtil.CONST_EVENT_LOGIN_USER_DETAIL,user.userUuid, user.firstName,user.lastName);
     },
 
     /** Check uuid first */
@@ -87,17 +90,9 @@ export default {
         headers: jsonHeader,
       }).then((response) => {
         if (response.status != 200) {
+            this.$root.sharedState.uuid = '';
           console.log("LoginSystem : response status :" + response.status);
         } else {
-          //this.$root.sharedState.uuid = userUUID;
-          /* 
-                        response.json()
-                        .then (function (data){
-                            let loggedUser = data;
-                            localStorage.setItem(CommonUtil.CONST_STORAGE_USER_DETAIL, JSON.stringify(loggedUser));
-                            console.log('loggedUser : '+JSON.stringify(loggedUser))
-                        })
-                       */
           this.getUserFromStorage();
         }
       });
@@ -105,56 +100,64 @@ export default {
 
     },
 
-    handleLogin(){
-        this.sharedState.uuid = '';
-      let jsonBody = JSON.stringify({"username": this.username, "password":this.password});
-      /** Fetch to get UUID */
-      fetch(
-        CommonUtil.CONST_URL_DOMAIN +"/rest/auth/login",
+  handleLogin(){
+      this.sharedState.uuid = '';
+    let jsonBody = JSON.stringify({"username": this.username, "password":this.password});
+    /** Fetch to get UUID */
+    fetch(
+      CommonUtil.CONST_URL_DOMAIN +"/rest/auth/login",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body : jsonBody
+      } 
+    )
+      .then((response) => response.json())
+      .then((data) => {
+        let jsonServerResponse = '';
+        this.jsonServerResponse = data;
+        if(this.jsonServerResponse.success == true)
         {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body : jsonBody
-        } 
-      )
-        .then((response) => response.json())
-        .then((data) => {
-          let jsonServerResponse = '';
-          this.jsonServerResponse = data;
-          if(this.jsonServerResponse.success == true)
-          {
-            this.username='';
-            this.password='';
+          this.username='';
+          this.password='';
 
-            this.sharedState.uuid = this.jsonServerResponse.UUID;
-            localStorage.setItem(CommonUtil.CONST_STORAGE_UUID,this.jsonServerResponse.UUID);
+          localStorage.setItem(CommonUtil.CONST_STORAGE_UUID,this.jsonServerResponse.UUID);
 
-             /** Fetch to get details */
+           /** Fetch to get details */
 
-             let jsonHeader = {Authorization:this.jsonServerResponse.UUID};
-             
-             fetch(
-              CommonUtil.CONST_URL_DOMAIN +"/rest/auth/uuid",
-              {
-                method:"GET",
-                headers: jsonHeader,
-              } 
-            )
-              .then((response) => response.json())
-              .then((data) => {
-                let loggedUser = data;
-                //this.sharedState.user = {"firstName":loggedUser.firstName, "lastName":loggedUser.lastName};
-                localStorage.setItem(CommonUtil.CONST_STORAGE_USER_DETAIL,JSON.stringify(loggedUser));
-                 getUserFromStorage();
-              });
+           let jsonHeader = {Authorization:this.jsonServerResponse.UUID};
+           
+           fetch(
+            CommonUtil.CONST_URL_DOMAIN +CommonUtil.CONST_URL_AUTH_UUID,
+            {
+              method:"GET",
+              headers: jsonHeader,
+            } 
+          )
+            .then((response) => response.json())
+            .then((data) => {
+              let loggedUser = data;
+              //this.sharedState.user = {"firstName":loggedUser.firstName, "lastName":loggedUser.lastName};
+              localStorage.setItem(CommonUtil.CONST_STORAGE_USER_DETAIL,JSON.stringify(loggedUser));
+               this.getUserFromStorage();
+            });
 
-          }
-        });
+        }
+      });
 
-        
-    },
+      
+  },
+    handleLogout()
+    {
+        console.log('Login System - handleLogout - 1 ');
+        this.sharedState.uuid='';                                   // remove local uuid  for login screen
+        this.$root.sharedState.uuid = '';                           // remove global uuid for other (e.g. menu items etc)
+        localStorage.removeItem(CommonUtil.CONST_STORAGE_UUID);     // remove uuid from storage
+        this.$emit(CommonUtil.CONST_EVENT_LOGIN_USER_DETAIL,'');
+        console.log('Login System - handleLogout - 2 ');
+    }
 
   },
   created() {
