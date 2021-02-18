@@ -104,3 +104,26 @@ export default new VueI18n({
 ## Misc
 * [First draft of application state management](./docs/Application_state.pdf)
 
+### Synchronization management
+The basic design of synchronization is illustrated below
+![Synchronization design](./docs/synchronization.png "Synchronization design")
+
+There are two modes of synchronization
+#### One-way synchronization
+This is information that flows only from VIPSLogic and to the app:
+* Crop categories
+* Pests
+* Crops
+* crop-pest combinations
+
+##### Triggers
+* LocalStorage does not have the requested resource (e.g. the CropCategory list). Typically when the app is launched for the very first time and the user logs in
+* A different user logs in. The user may come from another organization, where there are different lists
+* The timestamp on the server indicates that the information has changed. For crop categories, pests, crops and crop-pest combinations, the latest update of the info on the server happened at the time stamp served by the web service endpoint `[VIPSLOGIC]/rest/observation/organismsystemupdated`. This timestamp should be checked every time the app starts (and there is a valid login)
+
+
+#### Two-way synchronization
+These objects may change both in the app and through editing using the VIPSLogic admin system. Therefore, updates in the app must be propagated to the other place
+* Observations
+* Places
+
