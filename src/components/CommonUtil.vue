@@ -1,15 +1,22 @@
 <script>
 //const CONST_STR_TEST ="test 123"
 export default {
-    CONST_STR_TEST:'abcd',
-    CONST_STORAGE_UUID: 'user-uuid',
+    CONST_STR_TEST                  :   'abcd',
+    CONST_STORAGE_UUID              :   'user-uuid',
 
-    CONST_EVENT_LOGIN_USER_DETAIL: 'eventloginuserdetail',
-    CONST_STORAGE_USER_DETAIL: 'store-user-detail',
+    CONST_EVENT_LOGIN_USER_DETAIL   :   'eventloginuserdetail',
+    CONST_STORAGE_USER_DETAIL       :   'store-user-detail',
 
+    
+    CONST_URL_DOMAIN                :   'http://vipslogic-local.no',
 
-    CONST_URL_DOMAIN:'http://vipslogic-local.no',
-    CONST_URL_AUTH_UUID: '/rest/auth/uuid'
+    CONST_URL_AUTH_UUID             :   '/rest/auth/uuid',
+    CONST_URL_AUTH_LOGIN            :   '/rest/auth/login',
+    CONST_URL_LAST_TIMESTAMP        :   '/rest/observation/organismsystemupdated',
+
+    CONST_STORE_TIMESTAMP           :   'store-time-stamp',
+    CONST_STORAGE_CROP_CATEGORY     :   'store-crop-category',
+    
 
 
 }

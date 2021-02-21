@@ -19,12 +19,14 @@
           v-model="password"
         />
       </div>
+
       <button class="btn btn-primary" type="button" v-on:click="handleLogin()">
         Logg inn
       </button>
-    </form>
+     </form>
 
     <div v-else>
+
       <span
         >{{ this.$root.sharedState.user.firstName }} {{ this.$root.sharedState.user.lastName }}</span
       ><br />
@@ -32,22 +34,31 @@
         Logg out
       </button>
     </div>
+
+    <!-- <Sync :isSyncNeeded="isSyncNeeded"/>  -->
+    <Sync ref="Sync"/> 
   </div>
+  
 </template>
 
 <script>
 import CommonUtil from "@/components/CommonUtil";
+import Sync from '@/components/Sync';
 
 export default {
   name: "LoginSystem",
+  components : {Sync},
   props:{
-      isWelcome : Boolean
+      isWelcome : Boolean,
+      
   },
   data() {
     return {
       jsonServerResponse : '',
       username: "",
       password: "",
+      isSyncNeeded:false
+
     };
   },
   //emits: {},
@@ -79,7 +90,10 @@ export default {
         if (response.status != 200) {
             this.$root.sharedState.uuid = '';
         } else {
+          
           this.getUserFromStorage();
+          /** Sync Operation for valid timestamp */
+          //this.$refs.Sync.syncOneWayDifferentTimeStamp();
         }
       });
 
@@ -90,7 +104,7 @@ export default {
     let jsonBody = JSON.stringify({"username": this.username, "password":this.password});
     /** Fetch to get UUID */
     fetch(
-      CommonUtil.CONST_URL_DOMAIN +"/rest/auth/login",
+      CommonUtil.CONST_URL_DOMAIN + CommonUtil.CONST_URL_AUTH_LOGIN,
       {
         method: "POST",
         headers: {
@@ -110,7 +124,7 @@ export default {
           
           localStorage.setItem(CommonUtil.CONST_STORAGE_UUID,this.jsonServerResponse.UUID);
 
-           /** Fetch to get details */
+          /** Fetch to get details */
 
            let jsonHeader = {Authorization:this.jsonServerResponse.UUID};
            
@@ -118,14 +132,17 @@ export default {
             CommonUtil.CONST_URL_DOMAIN +CommonUtil.CONST_URL_AUTH_UUID,
             {
               method:"GET",
-              headers: jsonHeader,
+              headers : jsonHeader
             } 
           )
             .then((response) => response.json())
             .then((data) => {
               let loggedUser = data;
+              /** Calling of Sync */
+              //this.isSyncNeeded = true;
+              this.$refs.Sync.isSyncOnewayNeeded(loggedUser);
               localStorage.setItem(CommonUtil.CONST_STORAGE_USER_DETAIL,JSON.stringify(loggedUser));
-               this.getUserFromStorage();
+              this.getUserFromStorage();
                
             });
 
