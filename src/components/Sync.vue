@@ -27,8 +27,7 @@ export default {
       }
   },
 */ 
-/** TODO --  */
-/*
+
   watch : {
         booIsSyncOneWayReady : 
         {
@@ -53,7 +52,7 @@ export default {
             },
         }
      */ 
- // },
+  },
 
   methods: {
     testFunction(){
@@ -111,14 +110,37 @@ export default {
         .then((response) => response.json())
         .then((data) => 
         {
-            console.log('value : '+value);
-            localStorage.setItem(value,JSON.stringify(data));
+            localStorage.setItem(value.name,JSON.stringify(data));
+            value.complete=true;
+            this.setOneWaySyncStatus(value);
         });
         
        console.log('oneWaySyncStorageSet - strUrl : '+strUrl);
     },
 
+    /** Set status whether the sync of items completed or not */
+    setOneWaySyncStatus(itemValue)
+    {
+        let booFlag = true;
+        /* Set the status */
+        $.each(this.arrSyncOneWay, function(index,value){
+            if(value.name === itemValue.name)
+            {
+                value.complete = itemValue.complete;
+            }
+        });
 
+        /* Set the global flag  - to mark the end of sync*/
+        $.each(this.arrSyncOneWay, function(index,value){
+            if(value.complete===false)
+            {
+                booFlag = false;
+            }
+        });
+        this.booIsSyncOneWayReady = booFlag;
+    },
+
+    /** Deciding factor whether oneway should start or not */
     isSyncOnewayNeeded(loggedUser)
     {
         if(!this.booIsSyncOneWayReady)
