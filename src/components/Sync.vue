@@ -16,7 +16,7 @@ export default {
     return {
       strServerTimeStamp    : "",
       booIsSyncOneWayReady  : false,
-      arrSyncOneWay         : [CommonUtil.CONST_STORAGE_CROP_CATEGORY],
+      arrSyncOneWay         : [{"name":CommonUtil.CONST_STORAGE_CROP_CATEGORY,"complete":false}],
       appUser               : {}
     };
   },
@@ -27,6 +27,8 @@ export default {
       }
   },
 */ 
+/** TODO --  */
+/*
   watch : {
         booIsSyncOneWayReady : 
         {
@@ -39,7 +41,8 @@ export default {
                     this.syncOneWay();
                 }
             }
-        }
+        },
+        
       /*
       isSyncNeeded : 
         {
@@ -50,7 +53,7 @@ export default {
             },
         }
      */ 
-  },
+ // },
 
   methods: {
     testFunction(){
@@ -84,7 +87,7 @@ export default {
             else
              {       let strUrl = '';
                     $.each(this.arrSyncOneWay, function(index, value){
-                        switch(value) {
+                        switch(value.name) {
                             case CommonUtil.CONST_STORAGE_CROP_CATEGORY :
                                  strUrl = CommonUtil.CONST_URL_DOMAIN +CommonUtil.CONST_URL_CROP_CATEGORY+appUser.organization_id;
                                 break;
@@ -134,7 +137,7 @@ export default {
         let booLocalIsSyncOneWayReady = false;
            if(!this.booIsSyncOneWayReady) {
             $.each(this.arrSyncOneWay, function(index, value){
-                let strItem = localStorage.getItem(value);
+                let strItem = localStorage.getItem(value.name);
                 /** Check empty local storage  */
                 if(typeof(strItem)==undefined || strItem == null || strItem === '')
                 {
