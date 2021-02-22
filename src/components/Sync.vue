@@ -48,9 +48,10 @@ export default {
             {
                 console.log('watch 1 - prop changed : newval : '+val+' - oldval : '+oldVal);
             },
-        } 
+        }
+     */ 
   },
-*/
+
   methods: {
     testFunction(){
         console.log('test child testFuntion');
@@ -69,20 +70,67 @@ export default {
         });
     },
 
+    /** One way Sync. Fetching the data from server and stored in local storage */
+    syncOneWay(){
+        if (this.booIsSyncOneWayReady)
+        {
+            let appUser = this.appUser;
+            let funStorageSet = this.oneWaySyncStorageSet;
+            
+            if(typeof(appUser)==undefined || appUser == null || appUser === '')
+            {
+                // TODO if appUser is not available
+            }
+            else
+             {       let strUrl = '';
+                    $.each(this.arrSyncOneWay, function(index, value){
+                        switch(value) {
+                            case CommonUtil.CONST_STORAGE_CROP_CATEGORY :
+                                 strUrl = CommonUtil.CONST_URL_DOMAIN +CommonUtil.CONST_URL_CROP_CATEGORY+appUser.organization_id;
+                                break;
+                            default :
+                        }
+                        console.log(' start 1');
+                        //this.oneWaySyncStorageSet(strUrl);
+                        funStorageSet(value,strUrl);
+                        console.log(' start 2');
+
+                    });
+             }
+        }
+    },
+
+    /**  Writing to server data to localstorage using sync */
+    oneWaySyncStorageSet(value,strUrl)
+    {
+        
+        fetch(strUrl)
+        .then((response) => response.json())
+        .then((data) => 
+        {
+            console.log('value : '+value);
+            localStorage.setItem(value,JSON.stringify(data));
+        });
+        
+       console.log('oneWaySyncStorageSet - strUrl : '+strUrl);
+    },
+
+
     isSyncOnewayNeeded(loggedUser)
     {
         if(!this.booIsSyncOneWayReady)
         {
-            //this.syncOneWayEmptyProduct();
+            this.syncOneWayEmptyProduct(loggedUser);
             //this.syncOneWayDifferentUser(loggedUser);
-            //this.syncOneWayDifferentTimeStamp();
+            //this.syncOneWayDifferentTimeStamp(loggedUser);
         }
     
     },
 
     /** Oneway Sync on empty products in store -- (e.g. first time) */
-    syncOneWayEmptyProduct()
+    syncOneWayEmptyProduct(appUser)
     {
+        
         let booLocalIsSyncOneWayReady = false;
            if(!this.booIsSyncOneWayReady) {
             $.each(this.arrSyncOneWay, function(index, value){
