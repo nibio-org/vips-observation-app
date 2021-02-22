@@ -40,8 +40,14 @@ export default {
             {
                 if(val)
                 {
+                    /* Starting of Sync */
                     console.log('----- SYNC STARTED -----');
                     this.syncOneWay();
+                }
+                if(typeof(booIsSyncOneWayReady)==='undefined')
+                {
+                    /* refresh for next time */
+                    this.refreshOneWaySyncItems();
                 }
             }
         },
@@ -134,6 +140,15 @@ export default {
             }
         });
         this.booIsSyncOneWayReady = booFlag;
+
+    },
+
+    /** Reset One way sync items */
+    refreshOneWaySyncItems(){
+        $.each(this.arrSyncOneWay, function(index,value){
+            value.complete=false;
+        })
+        this.booIsSyncOneWayReady=false;
     },
 
     /** Deciding factor whether oneway should start or not */
