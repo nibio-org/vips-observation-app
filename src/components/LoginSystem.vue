@@ -20,16 +20,16 @@
         />
       </div>
 
-      <button class="btn btn-primary" type="button" v-on:click="handleLogin()">
+      <button class="btn btn-primary" type="button" v-on:click="handleLogin()"> 
         Logg inn
       </button>
      </form>
 
     <div v-else>
 
-      <span
-        >{{ this.$root.sharedState.user.firstName }} {{ this.$root.sharedState.user.lastName }}</span
-      ><br />
+      <span>
+        {{ this.$root.sharedState.user.firstName }} {{ this.$root.sharedState.user.lastName }}
+        </span><br />
       <button class="btn btn-primary" type="button" v-on:click="handleLogout()">
         Logg out
       </button>
@@ -57,6 +57,7 @@ export default {
       jsonServerResponse : '',
       username: "",
       password: "",
+      appUser:{},
       isSyncNeeded:false
 
     };
@@ -68,11 +69,11 @@ export default {
       
       let strUser = localStorage.getItem(CommonUtil.CONST_STORAGE_USER_DETAIL);
       let user    = JSON.parse(strUser);
+      this.appUser  = user; //This user will require in Sync process
 
       this.$root.sharedState.uuid = user.userUuid;
       this.$root.sharedState.user.firstName = user.firstName;
       this.$root.sharedState.user.lastName = user.lastName;
-
        /** Firing event to parent (main.js)  */
       //this.$emit(CommonUtil.CONST_EVENT_LOGIN_USER_DETAIL,user.userUuid, user.firstName,user.lastName);
     },
@@ -87,13 +88,14 @@ export default {
         method: "GET",
         headers: jsonHeader,
       }).then((response) => {
+        
         if (response.status != 200) {
             this.$root.sharedState.uuid = '';
         } else {
           
           this.getUserFromStorage();
           /** Sync Operation for valid timestamp */
-          //this.$refs.Sync.syncOneWayDifferentTimeStamp();
+          //this.$refs.Sync.syncOneWayDifferentTimeStamp(this.appUser);
         }
       });
 
@@ -157,7 +159,7 @@ export default {
     }
 
   },
-  created() {
+  mounted() {
     this.checkValidUUID();
   },
 };
