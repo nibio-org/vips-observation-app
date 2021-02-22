@@ -1,5 +1,8 @@
 <template>
-    <div>
+    <div v-if="loading">
+        <div class="spinner-border text-success" role="status">
+            
+        </div> <span class="text-danger"> Data Loading...</span>
          <!-- -- Sync :  <div v-html="isSyncNeeded"></div> -->
     </div>
 </template>
@@ -21,7 +24,8 @@ export default {
                                     {"name":CommonUtil.CONST_STORAGE_PEST_LIST,"complete":false}    ,
                                      {"name":CommonUtil.CONST_STORAGE_CROP_PEST_LIST,"complete":false}    ,
                                 ],
-      appUser               : {}
+      appUser               : {},
+      loading               : false,
     };
   },
 /*   computed: {
@@ -40,14 +44,20 @@ export default {
             {
                 if(val)
                 {
+                    this.loading = true;
                     /* Starting of Sync */
                     console.log('----- SYNC STARTED -----');
                     this.syncOneWay();
                 }
                 if(typeof(booIsSyncOneWayReady)==='undefined')
                 {
+                    this.loading = false;
                     /* refresh for next time */
                     this.refreshOneWaySyncItems();
+                }
+                if(typeof(booIsSyncOneWayReady)==false)
+                {
+                    this.loading = false;
                 }
             }
         },
@@ -253,3 +263,4 @@ export default {
  
 };
 </script>
+
