@@ -210,13 +210,18 @@ export default {
                                     this.appUser=appUser;
                             }
                             else{
-                                    let jsTimeStamp         = new Date (JSON.stringify(data));
-                                    let dtStoreTimeStamp    = new Date(strStoreTimeStamp);
+                                    let jsonServerTimeStamp = data;
+                                    let jsonStoredTimeStamp = JSON.parse(strStoreTimeStamp);
+                                    let jsTimeStamp         = new Date (jsonServerTimeStamp.lastUpdated);
+                                    let dtStoreTimeStamp    = new Date(jsonStoredTimeStamp.lastUpdated);
 
-                                    if(jsTimeStamp !== dtStoreTimeStamp)
+                                    if(jsTimeStamp.getTime() != dtStoreTimeStamp.getTime())
                                     {
                                         this.booIsSyncOneWayReady = true;
                                         this.appUser=appUser; 
+
+                                        localStorage.setItem(CommonUtil.CONST_STORE_TIMESTAMP,JSON.stringify(data));
+
                                         
                                     }
                                    
