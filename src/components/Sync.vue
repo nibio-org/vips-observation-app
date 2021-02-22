@@ -24,8 +24,22 @@ export default {
           console.log('computed : msg 1 from parent for sync : '+this.isSyncNeeded);
           return this.isSyncNeeded;
       }
-  }, 
+  },
+*/ 
   watch : {
+        booIsSyncOneWayReady : 
+        {
+            immediate : true,
+            handler (val, oldVal)
+            {
+                console.log ('booIsSyncOneWayReady : -- oldval : '+oldVal+' - newval : '+val);
+                if(val)
+                {
+                    this.syncOneWay();
+                }
+            }
+        }
+      /*
       isSyncNeeded : 
         {
             immediate : true,
