@@ -14,6 +14,8 @@ export default {
     CONST_URL_AUTH_LOGIN            :   '/rest/auth/login',
     CONST_URL_LAST_TIMESTAMP        :   '/rest/observation/organismsystemupdated',
 
+    CONST_URL_CROP_CATEGORY         :   '/rest/organism/cropcategory/',
+
     CONST_STORE_TIMESTAMP           :   'store-time-stamp',
     CONST_STORAGE_CROP_CATEGORY     :   'store-crop-category',
     
