@@ -15,9 +15,15 @@ export default {
     CONST_URL_LAST_TIMESTAMP        :   '/rest/observation/organismsystemupdated',
 
     CONST_URL_CROP_CATEGORY         :   '/rest/organism/cropcategory/',
+    CONST_URL_CROP_LIST             :   '/rest/organism/crop/list',
+    CONST_URL_PEST_LIST             :   '/rest/organism/pest/list',
+    CONST_URL_CROP_PEST_LIST        :   '/rest/organism/crop/pest/list',
 
     CONST_STORE_TIMESTAMP           :   'store-time-stamp',
     CONST_STORAGE_CROP_CATEGORY     :   'store-crop-category',
+    CONST_STORAGE_CROP_LIST         :   'store-crop-list',
+    CONST_STORAGE_PEST_LIST         :   'store-pest-list',
+    CONST_STORAGE_CROP_PEST_LIST    :   'store-crop-pest-list',
     
 
 

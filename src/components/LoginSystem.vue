@@ -95,7 +95,7 @@ export default {
           
           this.getUserFromStorage();
           /** Sync Operation for valid timestamp */
-          //this.$refs.Sync.syncOneWayDifferentTimeStamp(this.appUser);
+          this.$refs.Sync.syncOneWayDifferentTimeStamp(this.appUser);
         }
       });
 

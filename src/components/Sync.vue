@@ -14,9 +14,13 @@ export default {
   },
   data() {
     return {
-      strServerTimeStamp    : "",
       booIsSyncOneWayReady  : false,
-      arrSyncOneWay         : [{"name":CommonUtil.CONST_STORAGE_CROP_CATEGORY,"complete":false}],
+      arrSyncOneWay         :   [
+                                    {"name":CommonUtil.CONST_STORAGE_CROP_CATEGORY,"complete":false}    ,
+                                    {"name":CommonUtil.CONST_STORAGE_CROP_LIST,"complete":false}    ,
+                                    {"name":CommonUtil.CONST_STORAGE_PEST_LIST,"complete":false}    ,
+                                     {"name":CommonUtil.CONST_STORAGE_CROP_PEST_LIST,"complete":false}    ,
+                                ],
       appUser               : {}
     };
   },
@@ -34,9 +38,9 @@ export default {
             immediate : true,
             handler (val, oldVal)
             {
-                console.log ('booIsSyncOneWayReady : -- oldval : '+oldVal+' - newval : '+val);
                 if(val)
                 {
+                    console.log('----- SYNC STARTED -----');
                     this.syncOneWay();
                 }
             }
@@ -58,21 +62,8 @@ export default {
     testFunction(){
         console.log('test child testFuntion');
     },
-    fetchTimeStamp() {
-      /** Fetch time stamp  */
-      /** compare with time stamp */
-      /** If needed stored the time stamp */
-      /** Mark the flag for sync */
-
-      fetch("http://vipslogic-local.no/rest/observation/organismsystemupdated")
-        .then((response) => response.json())
-        .then((data) => {
-          this.strServerTimeStamp = data;
-          console.log("timestamp received : " + this.strServerTimeStamp);
-        });
-    },
-
-    /** One way Sync. Fetching the data from server and stored in local storage */
+   
+   /** One way Sync. Fetching the data from server and stored in local storage */
     syncOneWay(){
         if (this.booIsSyncOneWayReady)
         {
@@ -90,13 +81,19 @@ export default {
                             case CommonUtil.CONST_STORAGE_CROP_CATEGORY :
                                  strUrl = CommonUtil.CONST_URL_DOMAIN +CommonUtil.CONST_URL_CROP_CATEGORY+appUser.organization_id;
                                 break;
+                            case CommonUtil.CONST_STORAGE_CROP_LIST :
+                                 strUrl = CommonUtil.CONST_URL_DOMAIN +CommonUtil.CONST_URL_CROP_LIST;
+                                break;
+                             case CommonUtil.CONST_STORAGE_PEST_LIST :
+                                 strUrl = CommonUtil.CONST_URL_DOMAIN +CommonUtil.CONST_URL_PEST_LIST;
+                                break;                           
+                             case CommonUtil.CONST_STORAGE_CROP_PEST_LIST :
+                                 strUrl = CommonUtil.CONST_URL_DOMAIN +CommonUtil.CONST_URL_CROP_PEST_LIST;
+                                break;  
                             default :
                         }
-                        console.log(' start 1');
-                        //this.oneWaySyncStorageSet(strUrl);
-                        funStorageSet(value,strUrl);
-                        console.log(' start 2');
 
+                        funStorageSet(value,strUrl);
                     });
              }
         }
@@ -115,14 +112,13 @@ export default {
             this.setOneWaySyncStatus(value);
         });
         
-       console.log('oneWaySyncStorageSet - strUrl : '+strUrl);
     },
 
     /** Set status whether the sync of items completed or not */
     setOneWaySyncStatus(itemValue)
     {
-        let booFlag = true;
-        /* Set the status */
+        let booFlag;
+        /* Set the status - array value status set by reference */
         $.each(this.arrSyncOneWay, function(index,value){
             if(value.name === itemValue.name)
             {
@@ -146,8 +142,8 @@ export default {
         if(!this.booIsSyncOneWayReady)
         {
             this.syncOneWayEmptyProduct(loggedUser);
-            //this.syncOneWayDifferentUser(loggedUser);
-            //this.syncOneWayDifferentTimeStamp(loggedUser);
+            this.syncOneWayDifferentUser(loggedUser);
+            this.syncOneWayDifferentTimeStamp(loggedUser);
         }
     
     },
@@ -165,7 +161,7 @@ export default {
                 {
                     booLocalIsSyncOneWayReady = true;
                     
-                    return false; //break;
+                    return false; 
                 }
             });
             this.booIsSyncOneWayReady   =   booLocalIsSyncOneWayReady;
@@ -176,6 +172,7 @@ export default {
     /** Oneway Sync For Different user login */
     syncOneWayDifferentUser(loggedUser)
     {
+        
         if(!this.booIsSyncOneWayReady) {
             let userStored = JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_USER_DETAIL));
             if (userStored.userId != loggedUser.userId)
@@ -190,9 +187,7 @@ export default {
     /** Oneway sync for different timestamp (e.g. changes in server) */
     syncOneWayDifferentTimeStamp(appUser)
     {
-        console.log('3');
         if(!this.booIsSyncOneWayReady) {
-            console.log('33');
             let strStoreTimeStamp = localStorage.getItem(CommonUtil.CONST_STORE_TIMESTAMP);
 
                 let jsonHeader = {Authorization:appUser.userUuid};
@@ -230,14 +225,11 @@ export default {
                         });
 
         }
-        console.log('333');
     },
 
 
 
   },
-  mounted() {
-    //this.fetchTimeStamp();
-  },
+ 
 };
 </script>
