@@ -17,6 +17,7 @@ export default {
       strServerTimeStamp    : "",
       booIsSyncOneWayReady  : false,
       arrSyncOneWay         : [CommonUtil.CONST_STORAGE_CROP_CATEGORY],
+      appUser               : {}
     };
   },
 /*   computed: {
@@ -90,10 +91,12 @@ export default {
                 if(typeof(strItem)==undefined || strItem == null || strItem === '')
                 {
                     booLocalIsSyncOneWayReady = true;
+                    
                     return false; //break;
                 }
             });
-            this.booIsSyncOneWayReady = booLocalIsSyncOneWayReady;
+            this.booIsSyncOneWayReady   =   booLocalIsSyncOneWayReady;
+            this.appUser                =   appUser;
          }
     },
     
@@ -105,20 +108,21 @@ export default {
             if (userStored.userId != loggedUser.userId)
             {
                 this.booIsSyncOneWayReady = true;
+                this.appUser=loggedUser;
             }
        }
 
     },
 
     /** Oneway sync for different timestamp (e.g. changes in server) */
-    syncOneWayDifferentTimeStamp()
+    syncOneWayDifferentTimeStamp(appUser)
     {
         console.log('3');
         if(!this.booIsSyncOneWayReady) {
             console.log('33');
             let strStoreTimeStamp = localStorage.getItem(CommonUtil.CONST_STORE_TIMESTAMP);
 
-                
+                let jsonHeader = {Authorization:appUser.userUuid};
 
                         fetch(
                                 CommonUtil.CONST_URL_DOMAIN +CommonUtil.CONST_URL_LAST_TIMESTAMP,
@@ -135,14 +139,16 @@ export default {
                             {
                                     localStorage.setItem(CommonUtil.CONST_STORE_TIMESTAMP,JSON.stringify(data));
                                     this.booIsSyncOneWayReady = true;
+                                    this.appUser=appUser;
                             }
                             else{
                                     let jsTimeStamp         = new Date (JSON.stringify(data));
                                     let dtStoreTimeStamp    = new Date(strStoreTimeStamp);
-                                    
+
                                     if(jsTimeStamp !== dtStoreTimeStamp)
                                     {
-                                        this.booIsSyncOneWayReady = true; 
+                                        this.booIsSyncOneWayReady = true;
+                                        this.appUser=appUser; 
                                         
                                     }
                                    
