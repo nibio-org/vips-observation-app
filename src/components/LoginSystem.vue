@@ -27,9 +27,9 @@
 
     <div v-else>
 
-      <span>
-        {{ this.$root.sharedState.user.firstName }} {{ this.$root.sharedState.user.lastName }}
-        </span><br />
+      <span v-text="username"></span>
+        
+        <br />
       <button class="btn btn-primary" type="button" v-on:click="handleLogout()">
         Logg out
       </button>
@@ -55,10 +55,11 @@ export default {
   data() {
     return {
       jsonServerResponse : '',
-      username: "",
+      username: this.$root.sharedState.user.firstName + " " + this.$root.sharedState.user.lastName,
       password: "",
       appUser:{},
-      isSyncNeeded:false
+      isSyncNeeded:false,
+
 
     };
   },
@@ -69,11 +70,13 @@ export default {
       
       let strUser = localStorage.getItem(CommonUtil.CONST_STORAGE_USER_DETAIL);
       let user    = JSON.parse(strUser);
+      console.info(user);
       this.appUser  = user; //This user will require in Sync process
 
       this.$root.sharedState.uuid = user.userUuid;
       this.$root.sharedState.user.firstName = user.firstName;
       this.$root.sharedState.user.lastName = user.lastName;
+      this.username = this.$root.sharedState.user.firstName + " " + this.$root.sharedState.user.lastName;
        /** Firing event to parent (main.js)  */
       //this.$emit(CommonUtil.CONST_EVENT_LOGIN_USER_DETAIL,user.userUuid, user.firstName,user.lastName);
     },
