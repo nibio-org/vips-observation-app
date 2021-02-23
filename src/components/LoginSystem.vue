@@ -70,7 +70,6 @@ export default {
       
       let strUser = localStorage.getItem(CommonUtil.CONST_STORAGE_USER_DETAIL);
       let user    = JSON.parse(strUser);
-      console.info(user);
       this.appUser  = user; //This user will require in Sync process
 
       this.$root.sharedState.uuid = user.userUuid;
