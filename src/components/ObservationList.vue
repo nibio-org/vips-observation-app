@@ -4,20 +4,66 @@
     <h1>{{ $t("startpage") }}</h1>
     <router-link to="/observation" custom v-slot="{ navigate }">
       <button type="button" class="btn btn-primary" @click="navigate">+</button>
-    </router-link>  
+    </router-link> 
   </div>
+  
+  <div v-if="observations">
+  <ul class="list-group">
+    <a href="#" class="list-group-item list-group-item-action " v-for="obs in observations" >
+         {{obs.timeOfObservation}}  <b>{{obs.observationHeading}}</b> 
+    </a>
+  </ul>
+  </div>
+  <div v-else class="alert alert-warning" role="alert">
+      <p class="text-danger">You don't have any observations.</p>
+  </div>
+
 </div>
 </template>
 
 <script>
+import CommonUtil from '@/components/CommonUtil'
 export default {
   name: "ObservationList",
   data() {
     return {
       /*msg: 'Startsiden'*/
+      observations : undefined,
     };
   },
-};
+  methods : {
+        /** TODO
+         *  This function need to be shifted for two way sync process
+         */
+        fetchFromServer()
+        {
+            let strUUID     = localStorage.getItem(CommonUtil.CONST_STORAGE_UUID);
+            console.log(strUUID);
+            
+            let jsonHeader  = { Authorization: strUUID };
+
+            fetch(CommonUtil.CONST_URL_DOMAIN + CommonUtil.CONST_URL_USER_OBSERVATION_LIST, {
+                method: "GET",
+                headers: jsonHeader,
+              }).then((response) => response.json())
+                .then((data) => { 
+                  localStorage.setItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST,JSON.stringify(data));
+                })
+        },
+        getObservationsFromStore()
+        {
+          let strObservations = localStorage.getItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST);
+          let lstObservations = JSON.parse(strObservations);
+          this.observations = lstObservations;
+        },
+
+
+  },
+  mounted()  {
+                //this.fetchFromServer(); // TODO - Tobe shifted to two way Sync process
+                this.getObservationsFromStore();
+  }
+}
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
