@@ -18,12 +18,16 @@ export default {
     CONST_URL_CROP_LIST             :   '/rest/organism/crop/list',
     CONST_URL_PEST_LIST             :   '/rest/organism/pest/list',
     CONST_URL_CROP_PEST_LIST        :   '/rest/organism/crop/pest/list',
+    
+    CONST_URL_USER_OBSERVATION_LIST :   '/rest/observation/list/user',
+    
 
     CONST_STORE_TIMESTAMP           :   'store-time-stamp',
     CONST_STORAGE_CROP_CATEGORY     :   'store-crop-category',
     CONST_STORAGE_CROP_LIST         :   'store-crop-list',
     CONST_STORAGE_PEST_LIST         :   'store-pest-list',
     CONST_STORAGE_CROP_PEST_LIST    :   'store-crop-pest-list',
+    CONST_STORAGE_OBSERVATION_LIST  :   'store-observation-list',
     
 
 
