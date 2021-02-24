@@ -27,7 +27,7 @@
 
     <div v-else>
 
-      <span v-text="username"></span>
+      <span v-text="userLoggedInName"></span>
         
         <br />
       <button class="btn btn-primary" type="button" v-on:click="handleLogout()">
@@ -55,12 +55,11 @@ export default {
   data() {
     return {
       jsonServerResponse : '',
-      username: this.$root.sharedState.user.firstName + " " + this.$root.sharedState.user.lastName,
+      userLoggedInName: this.$root.sharedState.user.firstName + " " + this.$root.sharedState.user.lastName,
+      username: "",
       password: "",
       appUser:{},
       isSyncNeeded:false,
-
-
     };
   },
   //emits: {},
@@ -76,7 +75,7 @@ export default {
       this.$root.sharedState.uuid = user.userUuid;
       this.$root.sharedState.user.firstName = user.firstName;
       this.$root.sharedState.user.lastName = user.lastName;
-      this.username = this.$root.sharedState.user.firstName + " " + this.$root.sharedState.user.lastName;
+      this.userLoggedInName = this.$root.sharedState.user.firstName + " " + this.$root.sharedState.user.lastName;
        /** Firing event to parent (main.js)  */
       //this.$emit(CommonUtil.CONST_EVENT_LOGIN_USER_DETAIL,user.userUuid, user.firstName,user.lastName);
     },
