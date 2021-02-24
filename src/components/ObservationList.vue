@@ -65,7 +65,8 @@ export default {
   },
   filters: {
     dateFormat: function(timeStr) {
-      return DateTime.fromISO(timeStr).toISODate();
+      //return DateTime.fromISO(timeStr).toISODate();
+      return DateTime.fromISO(timeStr).toLocaleString(DateTime.DATETIME_MED);
     }
   },
   mounted()  {
