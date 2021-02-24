@@ -10,10 +10,11 @@ import { DateTime } from "luxon";
   
   <div v-if="observations">
   <ul class="list-group">
-    <a href="#" class="list-group-item list-group-item-action " v-for="obs in observations" >
+       <router-link :to="{name: 'Observation', params: {observationId:obs.observationId}}" class="list-group-item list-group-item-action " v-for="obs in observations" v-bind:key="obs.observationId">
 
-         {{ obs.timeOfObservation | dateFormat }}  <b>{{obs.observationHeading}}</b> 
-    </a>
+        {{ obs.timeOfObservation | dateFormat }}  <b>{{obs.observationHeading}}</b> 
+    </router-link >
+
   </ul>
   </div>
   <div v-else class="alert alert-warning" role="alert">
@@ -42,7 +43,6 @@ export default {
         fetchFromServer()
         {
             let strUUID     = localStorage.getItem(CommonUtil.CONST_STORAGE_UUID);
-            console.log(strUUID);
             
             let jsonHeader  = { Authorization: strUUID };
 

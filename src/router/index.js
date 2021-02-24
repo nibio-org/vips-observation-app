@@ -29,7 +29,8 @@ export default new Router({
     {
       path: '/observation',
       name: 'Observation',
-      component: Observation
+      component: Observation,
+      props:true
     },
     {
       path: '/cropCategory',
