@@ -1,3 +1,4 @@
+import { DateTime } from "luxon";
 <template>
 <div>
   <div class="hello" >
@@ -10,7 +11,8 @@
   <div v-if="observations">
   <ul class="list-group">
     <a href="#" class="list-group-item list-group-item-action " v-for="obs in observations" >
-         {{obs.timeOfObservation}}  <b>{{obs.observationHeading}}</b> 
+
+         {{ obs.timeOfObservation | dateFormat }}  <b>{{obs.observationHeading}}</b> 
     </a>
   </ul>
   </div>
@@ -23,6 +25,8 @@
 
 <script>
 import CommonUtil from '@/components/CommonUtil'
+import { DateTime } from 'luxon'
+
 export default {
   name: "ObservationList",
   data() {
@@ -59,8 +63,13 @@ export default {
 
 
   },
+  filters: {
+    dateFormat: function(timeStr) {
+      return DateTime.fromISO(timeStr).toISODate();
+    }
+  },
   mounted()  {
-                //this.fetchFromServer(); // TODO - Tobe shifted to two way Sync process
+                this.fetchFromServer(); // TODO - Tobe shifted to two way Sync process
                 this.getObservationsFromStore();
   }
 }

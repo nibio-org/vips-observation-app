@@ -9,6 +9,7 @@ import LoginSystem from '@/components/LoginSystem'
 import Welcome from '@/components/Welcome'
 
 
+
 Vue.config.productionTip = false
 
 var store = {
