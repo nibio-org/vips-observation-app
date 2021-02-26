@@ -11,7 +11,7 @@
        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
             <a  class="dropdown-item" v-on:click="selectCrop(crop.organismId, crop.latinName)" href="#" v-for="crop in crops" v-bind:class="{ active: isActive }" >{{crop.latinName}}</a> 
        </div>
-    
+   
 
 
   </div>
@@ -52,17 +52,28 @@ export default {
         // For existing observation
         if(id)
         {
-              let lstCrops        = [];
               
-              let lstCropIds      = [];
+              
+              
               let jsonObservation = {};
               
-              let lstCropList     = JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_CROP_LIST));
+              
               let lstObservations = JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST));              // Observation List
               jsonObservation     = lstObservations.find(({observationId})=> observationId === id);                           // Selection Observation
               this.observation    = jsonObservation;
+              this.getObservationCrops(jsonObservation);
 
-              
+          }
+          else {
+            //TODO for new Observation
+          }  
+      },
+
+      getObservationCrops(jsonObservation){
+              let lstCrops        = [];
+              let lstCropIds      = [];
+              let lstCropList     = JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_CROP_LIST));
+
               /** Try to get list of crops from crop category ids */
               let lstCropCategories = JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_CROP_CATEGORY));
               //let testCropIds = lstObservations.find(({cropOrganismIds})=> cropOrganismIds === this.observation.cropOrganismId);
@@ -99,10 +110,6 @@ export default {
               this.crops = lstCrops;
               this.crop = {"cropId":jsonSelectedCrop.organismId, "cropName":jsonSelectedCrop.latinName};
 
-          }
-          else {
-            //TODO for new Observation
-          }  
       },
 
       selectCrop(cropId, cropName)
