@@ -2,10 +2,17 @@
 //const CONST_STR_TEST ="test 123"
 export default {
     CONST_STR_TEST                  :   'abcd',
-    CONST_STORAGE_UUID              :   'user-uuid',
 
     CONST_EVENT_LOGIN_USER_DETAIL   :   'eventloginuserdetail',
+
+    CONST_STORAGE_UUID              :   'user-uuid',
     CONST_STORAGE_USER_DETAIL       :   'store-user-detail',
+    CONST_STORE_TIMESTAMP           :   'store-time-stamp',
+    CONST_STORAGE_CROP_CATEGORY     :   'store-crop-category',
+    CONST_STORAGE_CROP_LIST         :   'store-crop-list',
+    CONST_STORAGE_PEST_LIST         :   'store-pest-list',
+    CONST_STORAGE_CROP_PEST_LIST    :   'store-crop-pest-list',
+    CONST_STORAGE_OBSERVATION_LIST  :   'store-observation-list',
 
     
     CONST_URL_DOMAIN                :   'http://vipslogic-local.no',
@@ -22,12 +29,7 @@ export default {
     CONST_URL_USER_OBSERVATION_LIST :   '/rest/observation/list/user',
     
 
-    CONST_STORE_TIMESTAMP           :   'store-time-stamp',
-    CONST_STORAGE_CROP_CATEGORY     :   'store-crop-category',
-    CONST_STORAGE_CROP_LIST         :   'store-crop-list',
-    CONST_STORAGE_PEST_LIST         :   'store-pest-list',
-    CONST_STORAGE_CROP_PEST_LIST    :   'store-crop-pest-list',
-    CONST_STORAGE_OBSERVATION_LIST  :   'store-observation-list',
+
     
 
 

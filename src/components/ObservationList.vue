@@ -1,3 +1,4 @@
+import { DateTime } from "luxon";
 <template>
 <div>
   <div class="hello" >
@@ -9,9 +10,11 @@
   
   <div v-if="observations">
   <ul class="list-group">
-    <a href="#" class="list-group-item list-group-item-action " v-for="obs in observations" >
-         {{obs.timeOfObservation}}  <b>{{obs.observationHeading}}</b> 
-    </a>
+       <router-link :to="{name: 'Observation', params: {observationId:obs.observationId}}" class="list-group-item list-group-item-action " v-for="obs in observations" v-bind:key="obs.observationId">
+
+        {{ obs.timeOfObservation | dateFormat }}  <b>{{obs.observationHeading}}</b> 
+    </router-link >
+
   </ul>
   </div>
   <div v-else class="alert alert-warning" role="alert">
@@ -23,6 +26,8 @@
 
 <script>
 import CommonUtil from '@/components/CommonUtil'
+import { DateTime } from 'luxon'
+
 export default {
   name: "ObservationList",
   data() {
@@ -38,8 +43,6 @@ export default {
         fetchFromServer()
         {
             let strUUID     = localStorage.getItem(CommonUtil.CONST_STORAGE_UUID);
-            console.log(strUUID);
-            
             let jsonHeader  = { Authorization: strUUID };
 
             fetch(CommonUtil.CONST_URL_DOMAIN + CommonUtil.CONST_URL_USER_OBSERVATION_LIST, {
@@ -48,6 +51,7 @@ export default {
               }).then((response) => response.json())
                 .then((data) => { 
                   localStorage.setItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST,JSON.stringify(data));
+                  this.getObservationsFromStore();
                 })
         },
         getObservationsFromStore()
@@ -59,9 +63,19 @@ export default {
 
 
   },
+  filters: {
+    dateFormat: function(timeStr) {
+      //return DateTime.fromISO(timeStr).toISODate();
+      return DateTime.fromISO(timeStr).toLocaleString(DateTime.DATETIME_MED);
+    }
+  },
   mounted()  {
-                //this.fetchFromServer(); // TODO - Tobe shifted to two way Sync process
-                this.getObservationsFromStore();
+              let strUUID     = localStorage.getItem(CommonUtil.CONST_STORAGE_UUID);
+              if(strUUID)
+              {
+                this.fetchFromServer(); // TODO - Tobe shifted to two way Sync process
+                //this.getObservationsFromStore(); // TODO -- to be in effect after two sync in process
+              }
   }
 }
 </script>
