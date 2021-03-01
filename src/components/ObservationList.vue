@@ -43,7 +43,6 @@ export default {
         fetchFromServer()
         {
             let strUUID     = localStorage.getItem(CommonUtil.CONST_STORAGE_UUID);
-            
             let jsonHeader  = { Authorization: strUUID };
 
             fetch(CommonUtil.CONST_URL_DOMAIN + CommonUtil.CONST_URL_USER_OBSERVATION_LIST, {
@@ -52,6 +51,7 @@ export default {
               }).then((response) => response.json())
                 .then((data) => { 
                   localStorage.setItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST,JSON.stringify(data));
+                  this.getObservationsFromStore();
                 })
         },
         getObservationsFromStore()
@@ -70,8 +70,12 @@ export default {
     }
   },
   mounted()  {
+              let strUUID     = localStorage.getItem(CommonUtil.CONST_STORAGE_UUID);
+              if(strUUID)
+              {
                 this.fetchFromServer(); // TODO - Tobe shifted to two way Sync process
-                this.getObservationsFromStore();
+                //this.getObservationsFromStore(); // TODO -- to be in effect after two sync in process
+              }
   }
 }
 </script>
