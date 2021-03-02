@@ -19,6 +19,7 @@
 </template>
 
 <script>
+import CommonUtil from '@/components/CommonUtil'
 export default {
   name: "cropCategory",
   data() {
@@ -58,18 +59,18 @@ export default {
       //if (event.target.checked)
 
       //localStorage.cropIds=this.listSelectedIds;
-      localStorage.setItem("cropIds", this.listSelectedIds);
+      localStorage.setItem(CommonUtil.CONST_STORAGE_CROP_ID_LIST, this.listSelectedIds);
     },
   },
   created() {
     //localStorage.removeItem('cropIds');
     this.funFetchCropCategory(1);
     if (
-      null != localStorage.getItem("cropIds") &&
-      localStorage.getItem("cropIds") != "" &&
-      typeof localStorage.getItem("cropIds") != "undefined"
+      null != localStorage.getItem(CommonUtil.CONST_STORAGE_CROP_ID_LIST) &&
+      localStorage.getItem(CommonUtil.CONST_STORAGE_CROP_ID_LIST) != "" &&
+      typeof localStorage.getItem(CommonUtil.CONST_STORAGE_CROP_ID_LIST) != "undefined"
     ) {
-      this.listSelectedIds = localStorage.getItem("cropIds").split(",");
+      this.listSelectedIds = localStorage.getItem(CommonUtil.CONST_STORAGE_CROP_ID_LIST).split(",");
     }
   },
 };
