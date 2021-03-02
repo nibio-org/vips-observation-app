@@ -9,10 +9,15 @@ export default {
     CONST_STORAGE_USER_DETAIL       :   'store-user-detail',
     CONST_STORE_TIMESTAMP           :   'store-time-stamp',
     CONST_STORAGE_CROP_CATEGORY     :   'store-crop-category',
+    CONST_STORAGE_CROP_ID_LIST      :   'store-crop-id-list',
     CONST_STORAGE_CROP_LIST         :   'store-crop-list',
     CONST_STORAGE_PEST_LIST         :   'store-pest-list',
     CONST_STORAGE_CROP_PEST_LIST    :   'store-crop-pest-list',
     CONST_STORAGE_OBSERVATION_LIST  :   'store-observation-list',
+
+
+    CONST_CROP_CATEGORY_ID          :   'cropCategoryId',
+    CONST_ORGANISM_ID               :   'organismId',
 
     
     CONST_URL_DOMAIN                :   'http://vipslogic-local.no',
