@@ -136,15 +136,10 @@ export default {
               });
 
             /* Get list of related crops with their id and name */
-            $.each(lstCropIds, function(index, cropId){
-                let jsonDetailCrop  =   lstCropList.find(({organismId}) => organismId === cropId);
-                let jsonCrop        =   {'organismId':cropId, 'latinName':jsonDetailCrop.latinName};
-                lstCrops.push(jsonCrop);
-            });
+            this.getCrops(lstCropIds);
 
-
-              let jsonSelectedCrop= lstCrops.find(({organismId}) => organismId === jsonObservation.cropOrganismId);
-              this.crops = lstCrops;
+              let jsonSelectedCrop= this.crops.find(({organismId}) => organismId === jsonObservation.cropOrganismId);
+            //  this.crops = lstCrops;
               this.crop = {"cropId":jsonSelectedCrop.organismId, "cropName":jsonSelectedCrop.latinName};
       },
 
@@ -162,16 +157,9 @@ export default {
                 
             }); 
             
-            $.each(lstPestIds, function(index, pestId){
-                  let jsonDetailPest = lstPestList.find(({organismId}) => organismId === pestId);
-                  let jsonPest = {"pestId":jsonDetailPest.organismId, "pestName":jsonDetailPest.latinName};
-                  lstPests.push(jsonPest);
+            this.getPests(lstPestIds);
 
-            })
-
-            this.pests =  lstPests;
-
-            let jsonSelectedPest = lstPests.find(({pestId}) => pestId === jsonObservation.organismId);
+            let jsonSelectedPest = this.pests.find(({pestId}) => pestId === jsonObservation.organismId);
             this.pest = {"pestId":jsonSelectedPest.organismId, "pestName":jsonSelectedPest.pestName};
 
 
@@ -186,9 +174,75 @@ export default {
       {
           this.pest={"pestId":pestId,"pestName":pestName};
          
-      }
-
+      },
       
+      /** Get New Observation  */
+      getNewObservation()
+      {   let lstCropIds              = [];
+          let lstPestIds              = [];
+          let cropCategoryIdProp      = CommonUtil.CONST_CROP_CATEGORY_ID; 
+          let jsonCrops               = [];
+          let arrCropCatIds           = localStorage.getItem(CommonUtil.CONST_STORAGE_CROP_ID_LIST).split(",");
+          let jsonCropCategoryList    = JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_CROP_CATEGORY));
+          let lstCropPestList         = JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_CROP_PEST_LIST));
+
+          /* Iterate Selected Crop Ids */
+          $.each(arrCropCatIds, function(index, cropCatId){
+
+               let jsonCropCategory   = jsonCropCategoryList.find(({cropCategoryId}) => cropCategoryId === JSON.parse(cropCatId));
+               let jsonCropIds        = jsonCropCategory.cropOrganismIds;
+                lstCropIds            = lstCropIds.concat(jsonCropIds);
+          });
+
+          this.getCrops(lstCropIds);
+          this.crop                   = {"cropId":this.crops[0].organismId, "cropName":this.crops[0].latinName};
+
+          $.each(this.crops, function(index, crop){
+              let cropIdThis = crop.organismId;
+
+              $.each(lstCropPestList, function(cropId, cropPest){ 
+
+                  if(crop.organismId === cropPest.cropOrganismId) 
+                  {
+                    let jsonPestId = cropPest.pestOrganismIds;
+                    lstPestIds = lstPestIds.concat(jsonPestId);
+                  }
+              });
+          }); 
+
+          this.getPests(lstPestIds);      
+          this.pest = {"pestId":this.pests[0].organismId, "pestName":this.pests[0].pestName};
+
+
+      },
+
+      /** Get Crops */
+      getCrops(lstCropIds)
+      {
+          let lstCrops                = [];
+          let lstCropList             = JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_CROP_LIST));
+                $.each(lstCropIds, function(index, cropId){
+                  let jsonDetailCrop  =   lstCropList.find(({organismId}) => organismId === cropId);
+                  let jsonCrop        =   {'organismId':cropId, 'latinName':jsonDetailCrop.latinName};
+                  lstCrops.push(jsonCrop);
+            });
+
+            this.crops = lstCrops;
+      },
+
+      /** Get Pests */
+      getPests(lstPestIds)
+      {
+                  let lstPests        = [];
+                  let lstPestList     = JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_PEST_LIST));
+                  $.each(lstPestIds, function(index, pestId){
+                      let jsonDetailPest = lstPestList.find(({organismId}) => organismId === pestId);
+                      let jsonPest = {"pestId":jsonDetailPest.organismId, "pestName":jsonDetailPest.latinName};
+                      lstPests.push(jsonPest);
+                  });
+
+                  this.pests =  lstPests;
+      }
 
   },
   filters: {
@@ -201,6 +255,9 @@ export default {
     if(this.observationId)
     {
       this.getObservationFromStore(this.observationId);
+    }
+    else{
+      this.getNewObservation();
     }
   }
 }
