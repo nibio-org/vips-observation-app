@@ -32,9 +32,11 @@
         Observation Detail
       </div>
       <div class="card-body">
-        <h5 class="card-title text-success"><strong>{{observationHeader}}</strong></h5>
-        <p class="card-text">{{observationText}}</p>
-       
+        <input type="text" v-model="observationHeader"/>
+        <p><textarea v-model="observationText" /></p>
+       <div class="card-footer">
+        <button class="btn btn-secondary float-right" v-on:click="saveObservation">Save</button>
+      </div>      
       </div>
     </div>
 
@@ -60,7 +62,17 @@ export default {
       dateObservation : DateTime,
       strDateObservation:'',
       observationHeader : '',
-      observationText : ''
+      observationText : '',
+      observationForStore : 
+      {
+        observationId: '',
+        timeOfObservation: '',
+        statusChangedTime: '',
+        organismId: '',
+        cropOrganismId: '',
+        observationHeading: '',
+        observationText: ''        
+      }
     }
   },
   methods:{
@@ -186,6 +198,7 @@ export default {
           let jsonCropCategoryList    = JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_CROP_CATEGORY));
           let lstCropPestList         = JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_CROP_PEST_LIST));
 
+
           /* Iterate Selected Crop Ids */
           $.each(arrCropCatIds, function(index, cropCatId){
 
@@ -213,7 +226,7 @@ export default {
           this.getPests(lstPestIds);      
           this.pest = {"pestId":'', "pestName":'Select Pests'};
 
-
+          this.getNewObservationId();
       },
 
       /** Get Crops */
@@ -242,7 +255,66 @@ export default {
                   });
 
                   this.pests =  lstPests;
+      },
+
+      /** Get new observation Id */
+      getNewObservationId(lstObservations)
+      {
+        let newId = 0;
+        let observationIds=[];
+        
+        
+        if(lstObservations)
+        {
+            $.each(lstObservations, function(index, observation){
+                if(observation.observationId < 0)
+                {
+                  observationIds.push(Math.abs(observation.observationId));
+                }
+            });
+            if(observationIds.length === 0)
+            {
+              newId = CommonUtil.CONST_OBSERVATION_COUNT_START_ID;
+            }
+            else
+            {
+              let largestValue = Math.max.apply(null, observationIds);
+              newId = -Math.abs(largestValue + 1);
+            }
+        }
+        else
+        {
+            newId = CommonUtil.CONST_OBSERVATION_COUNT_START_ID;
+        }
+
+        return newId;
+      },
+
+      /** Save Observation */
+      saveObservation()
+      {
+        let lstObservations = JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST));
+
+          this.observationForStore.cropOrganismId=this.crop.cropId;
+          this.observationForStore.organismId=this.pest.pestId;
+          this.observationForStore.timeOfObservation='';
+          this.observationForStore.statusChangedTime='';
+          this.observationForStore.observationHeading=this.observationHeader;
+          this.observationForStore.observationText=this.observationText;
+
+         if(this.observationId)
+         {
+              this.observationForStore.observationId=this.observationId;
+         }
+         else
+         {
+              this.observationForStore.observationId=this.getNewObservationId(lstObservations);
+              lstObservations.push(this.observationForStore);
+              localStorage.setItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST, JSON.stringify(lstObservations) );
+         }
+
       }
+
 
   },
   filters: {

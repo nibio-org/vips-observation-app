@@ -73,8 +73,8 @@ export default {
               let strUUID     = localStorage.getItem(CommonUtil.CONST_STORAGE_UUID);
               if(strUUID)
               {
-                this.fetchFromServer(); // TODO - Tobe shifted to two way Sync process
-                //this.getObservationsFromStore(); // TODO -- to be in effect after two sync in process
+                //this.fetchFromServer(); // TODO - Tobe shifted to two way Sync process
+                this.getObservationsFromStore(); // TODO -- to be in effect after two sync in process
               }
   }
 }
