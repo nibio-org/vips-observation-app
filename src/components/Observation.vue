@@ -6,7 +6,7 @@
 
     <div class="btn-group">
         <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"  v-text="crop.cropName">
-        Crops
+        Select Crops
         </button>
        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
             <a  class="dropdown-item" v-on:click="selectCrop(crop.organismId, crop.latinName)" href="#" v-for="crop in crops" >{{crop.latinName}}</a> 
@@ -16,7 +16,7 @@
       <div class="clearfix"/>
     <div class="btn-group">
         <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"  v-text="pest.pestName">
-        Pests
+        Select Pests
         </button>
        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton2">
             <a  class="dropdown-item" v-on:click="selectPest(pest.pestId, pest.pestName)" href="#" v-for="pest in pests" >{{pest.pestName}}</a> 
@@ -195,7 +195,7 @@ export default {
           });
 
           this.getCrops(lstCropIds);
-          this.crop                   = {"cropId":this.crops[0].organismId, "cropName":this.crops[0].latinName};
+          this.crop                   = {"cropId":'', "cropName":'Select Crops'};
 
           $.each(this.crops, function(index, crop){
               let cropIdThis = crop.organismId;
@@ -211,7 +211,7 @@ export default {
           }); 
 
           this.getPests(lstPestIds);      
-          this.pest = {"pestId":this.pests[0].organismId, "pestName":this.pests[0].pestName};
+          this.pest = {"pestId":'', "pestName":'Select Pests'};
 
 
       },
