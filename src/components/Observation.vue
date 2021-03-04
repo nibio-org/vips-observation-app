@@ -244,8 +244,18 @@ export default {
           let lstPestList     = JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_PEST_LIST));
           $.each(lstPestIds, function(index, pestId){
               let jsonDetailPest = lstPestList.find(({organismId}) => organismId === pestId);
-              let jsonPest = {"pestId":jsonDetailPest.organismId, "pestName":jsonDetailPest.latinName};
-              lstPests.push(jsonPest);
+              let jsonPest = {};
+              if(jsonDetailPest)
+              {
+                jsonPest = {"pestId":jsonDetailPest.organismId, "pestName":jsonDetailPest.latinName};
+              }
+              else
+              {
+                jsonPest = {"pestId":pestId, "pestName":'Not Available -- '+pestId};
+              }
+
+                lstPests.push(jsonPest);
+              
           });
 
           this.pests =  lstPests;
