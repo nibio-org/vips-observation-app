@@ -4,24 +4,15 @@
     <button type="button" class="btn btn-primary" id="cameraLauncher" @click="launchCamera">{{ take_photo }}</button>
 <br>
 
-    <div class="btn-group">
-        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"  v-text="crop.cropName">
-        Select Crops
-        </button>
-       <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-            <a  class="dropdown-item" v-on:click="selectCrop(crop.organismId, crop.latinName)" href="#" v-for="crop in crops" >{{crop.latinName}}</a> 
-       </div>
-    </div>
+    <select v-model="crop.cropId" v-on:change="selectCrop($event)">
+        <option v-for="crop in crops" v-bind:value='crop.organismId' >{{crop.latinName}}</option>
+    </select>
     <br>
       <div class="clearfix"/>
-    <div class="btn-group">
-        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"  v-text="pest.pestName">
-        Select Pests
-        </button>
-       <div class="dropdown-menu" aria-labelledby="dropdownMenuButton2">
-            <a  class="dropdown-item" v-on:click="selectPest(pest.pestId, pest.pestName)" href="#" v-for="pest in pests" >{{pest.pestName}}</a> 
-       </div>
-    </div>
+    <select v-model="pest.pestId">
+        <option v-for="pest in pests" v-bind:value='pest.pestId'>{{pest.pestName}}</option>
+    </select>
+
     <div class="clearfix"/>
     <div>
         {{strDateObservation | dateFormat}}
@@ -56,8 +47,8 @@ export default {
       observation:{},
       crops:[],
       pests:[],
-      crop:{},
-      pest:{},
+      crop:{'cropId':'','cropName':'Select Crop'},
+      pest:{'pestId':'','pestName':'Select Pest'},
       isActive : false,
       dateObservation : DateTime,
       strDateObservation:'',
@@ -172,31 +163,39 @@ export default {
             this.getPests(lstPestIds);
 
             let jsonSelectedPest = this.pests.find(({pestId}) => pestId === jsonObservation.organismId);
-            this.pest = {"pestId":jsonSelectedPest.organismId, "pestName":jsonSelectedPest.pestName};
+            this.pest = {"pestId":jsonSelectedPest.pestId, "pestName":jsonSelectedPest.pestName};
 
 
       },
 
-      selectCrop(cropId, cropName)
+      selectCrop(event)
       {
-          this.crop={"cropId":cropId,"cropName":cropName};
+          let crop = this.crop;
+          let lstPestIds              = [];
+          let lstCropPestList         = JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_CROP_PEST_LIST));
+            $.each(lstCropPestList, function(cropId, cropPest){ 
+
+                  if(crop.cropId === cropPest.cropOrganismId) 
+                  {
+                    let jsonPestId = cropPest.pestOrganismIds;
+                    lstPestIds = lstPestIds.concat(jsonPestId);
+                  }
+            });
+            this.getPests(lstPestIds);   
+
          
       },
-      selectPest(pestId, pestName)
-      {
-          this.pest={"pestId":pestId,"pestName":pestName};
-         
-      },
+
       
       /** Get New Observation  */
       getNewObservation()
       {   let lstCropIds              = [];
-          let lstPestIds              = [];
+          //let lstPestIds              = [];
           let cropCategoryIdProp      = CommonUtil.CONST_CROP_CATEGORY_ID; 
           let jsonCrops               = [];
           let arrCropCatIds           = localStorage.getItem(CommonUtil.CONST_STORAGE_CROP_ID_LIST).split(",");
           let jsonCropCategoryList    = JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_CROP_CATEGORY));
-          let lstCropPestList         = JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_CROP_PEST_LIST));
+          //let lstCropPestList         = JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_CROP_PEST_LIST));
 
 
           /* Iterate Selected Crop Ids */
@@ -208,22 +207,7 @@ export default {
           });
 
           this.getCrops(lstCropIds);
-          this.crop                   = {"cropId":'', "cropName":'Select Crops'};
-
-          $.each(this.crops, function(index, crop){
-              let cropIdThis = crop.organismId;
-
-              $.each(lstCropPestList, function(cropId, cropPest){ 
-
-                  if(crop.organismId === cropPest.cropOrganismId) 
-                  {
-                    let jsonPestId = cropPest.pestOrganismIds;
-                    lstPestIds = lstPestIds.concat(jsonPestId);
-                  }
-              });
-          }); 
-
-          this.getPests(lstPestIds);      
+    
           this.pest = {"pestId":'', "pestName":'Select Pests'};
 
           this.getNewObservationId();
@@ -233,6 +217,10 @@ export default {
       getCrops(lstCropIds)
       {
           let lstCrops                = [];
+           if(! this.observationId)
+           {
+             lstCrops.push({"organismId":'', "latinName":'Select Crop'});
+           }
           let lstCropList             = JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_CROP_LIST));
                 $.each(lstCropIds, function(index, cropId){
                   let jsonDetailCrop  =   lstCropList.find(({organismId}) => organismId === cropId);
@@ -246,15 +234,21 @@ export default {
       /** Get Pests */
       getPests(lstPestIds)
       {
-                  let lstPests        = [];
-                  let lstPestList     = JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_PEST_LIST));
-                  $.each(lstPestIds, function(index, pestId){
-                      let jsonDetailPest = lstPestList.find(({organismId}) => organismId === pestId);
-                      let jsonPest = {"pestId":jsonDetailPest.organismId, "pestName":jsonDetailPest.latinName};
-                      lstPests.push(jsonPest);
-                  });
+            let lstPests        = [];
 
-                  this.pests =  lstPests;
+           if(! this.observationId)
+           {
+             lstPests.push({"pestId":'', "pestName":'Select Pest'});
+           }
+
+          let lstPestList     = JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_PEST_LIST));
+          $.each(lstPestIds, function(index, pestId){
+              let jsonDetailPest = lstPestList.find(({organismId}) => organismId === pestId);
+              let jsonPest = {"pestId":jsonDetailPest.organismId, "pestName":jsonDetailPest.latinName};
+              lstPests.push(jsonPest);
+          });
+
+          this.pests =  lstPests;
       },
 
       /** Get new observation Id */
