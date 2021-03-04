@@ -4,24 +4,15 @@
     <button type="button" class="btn btn-primary" id="cameraLauncher" @click="launchCamera">{{ take_photo }}</button>
 <br>
 
-    <div class="btn-group">
-        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"  v-text="crop.cropName">
-        Crops
-        </button>
-       <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-            <a  class="dropdown-item" v-on:click="selectCrop(crop.organismId, crop.latinName)" href="#" v-for="crop in crops" >{{crop.latinName}}</a> 
-       </div>
-    </div>
+    <select v-model="crop.cropId" v-on:change="selectCrop($event)">
+        <option v-for="crop in crops" v-bind:value='crop.organismId' >{{crop.latinName}}</option>
+    </select>
     <br>
       <div class="clearfix"/>
-    <div class="btn-group">
-        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"  v-text="pest.pestName">
-        Pests
-        </button>
-       <div class="dropdown-menu" aria-labelledby="dropdownMenuButton2">
-            <a  class="dropdown-item" v-on:click="selectPest(pest.pestId, pest.pestName)" href="#" v-for="pest in pests" >{{pest.pestName}}</a> 
-       </div>
-    </div>
+    <select v-model="pest.pestId">
+        <option v-for="pest in pests" v-bind:value='pest.pestId'>{{pest.pestName}}</option>
+    </select>
+
     <div class="clearfix"/>
     <div>
         {{strDateObservation | dateFormat}}
@@ -32,9 +23,11 @@
         Observation Detail
       </div>
       <div class="card-body">
-        <h5 class="card-title text-success"><strong>{{observationHeader}}</strong></h5>
-        <p class="card-text">{{observationText}}</p>
-       
+        <input type="text" v-model="observationHeader"/>
+        <p><textarea v-model="observationText" /></p>
+       <div class="card-footer">
+        <button class="btn btn-secondary float-right" v-on:click="saveObservation">Save</button>
+      </div>      
       </div>
     </div>
 
@@ -54,13 +47,23 @@ export default {
       observation:{},
       crops:[],
       pests:[],
-      crop:{},
-      pest:{},
+      crop:{'cropId':'','cropName':'Select Crop'},
+      pest:{'pestId':'','pestName':'Select Pest'},
       isActive : false,
       dateObservation : DateTime,
       strDateObservation:'',
       observationHeader : '',
-      observationText : ''
+      observationText : '',
+      observationForStore : 
+      {
+        observationId: '',
+        timeOfObservation: '',
+        statusChangedTime: '',
+        organismId: '',
+        cropOrganismId: '',
+        observationHeading: '',
+        observationText: ''        
+      }
     }
   },
   methods:{
@@ -160,31 +163,40 @@ export default {
             this.getPests(lstPestIds);
 
             let jsonSelectedPest = this.pests.find(({pestId}) => pestId === jsonObservation.organismId);
-            this.pest = {"pestId":jsonSelectedPest.organismId, "pestName":jsonSelectedPest.pestName};
+            this.pest = {"pestId":jsonSelectedPest.pestId, "pestName":jsonSelectedPest.pestName};
 
 
       },
 
-      selectCrop(cropId, cropName)
+      selectCrop(event)
       {
-          this.crop={"cropId":cropId,"cropName":cropName};
+          let crop = this.crop;
+          let lstPestIds              = [];
+          let lstCropPestList         = JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_CROP_PEST_LIST));
+            $.each(lstCropPestList, function(cropId, cropPest){ 
+
+                  if(crop.cropId === cropPest.cropOrganismId) 
+                  {
+                    let jsonPestId = cropPest.pestOrganismIds;
+                    lstPestIds = lstPestIds.concat(jsonPestId);
+                  }
+            });
+            this.getPests(lstPestIds);   
+
          
       },
-      selectPest(pestId, pestName)
-      {
-          this.pest={"pestId":pestId,"pestName":pestName};
-         
-      },
+
       
       /** Get New Observation  */
       getNewObservation()
       {   let lstCropIds              = [];
-          let lstPestIds              = [];
+          //let lstPestIds              = [];
           let cropCategoryIdProp      = CommonUtil.CONST_CROP_CATEGORY_ID; 
           let jsonCrops               = [];
           let arrCropCatIds           = localStorage.getItem(CommonUtil.CONST_STORAGE_CROP_ID_LIST).split(",");
           let jsonCropCategoryList    = JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_CROP_CATEGORY));
-          let lstCropPestList         = JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_CROP_PEST_LIST));
+          //let lstCropPestList         = JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_CROP_PEST_LIST));
+
 
           /* Iterate Selected Crop Ids */
           $.each(arrCropCatIds, function(index, cropCatId){
@@ -195,31 +207,20 @@ export default {
           });
 
           this.getCrops(lstCropIds);
-          this.crop                   = {"cropId":this.crops[0].organismId, "cropName":this.crops[0].latinName};
+    
+          this.pest = {"pestId":'', "pestName":'Select Pests'};
 
-          $.each(this.crops, function(index, crop){
-              let cropIdThis = crop.organismId;
-
-              $.each(lstCropPestList, function(cropId, cropPest){ 
-
-                  if(crop.organismId === cropPest.cropOrganismId) 
-                  {
-                    let jsonPestId = cropPest.pestOrganismIds;
-                    lstPestIds = lstPestIds.concat(jsonPestId);
-                  }
-              });
-          }); 
-
-          this.getPests(lstPestIds);      
-          this.pest = {"pestId":this.pests[0].organismId, "pestName":this.pests[0].pestName};
-
-
+          this.getNewObservationId();
       },
 
       /** Get Crops */
       getCrops(lstCropIds)
       {
           let lstCrops                = [];
+           if(! this.observationId)
+           {
+             lstCrops.push({"organismId":'', "latinName":'Select Crop'});
+           }
           let lstCropList             = JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_CROP_LIST));
                 $.each(lstCropIds, function(index, cropId){
                   let jsonDetailCrop  =   lstCropList.find(({organismId}) => organismId === cropId);
@@ -233,16 +234,91 @@ export default {
       /** Get Pests */
       getPests(lstPestIds)
       {
-                  let lstPests        = [];
-                  let lstPestList     = JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_PEST_LIST));
-                  $.each(lstPestIds, function(index, pestId){
-                      let jsonDetailPest = lstPestList.find(({organismId}) => organismId === pestId);
-                      let jsonPest = {"pestId":jsonDetailPest.organismId, "pestName":jsonDetailPest.latinName};
-                      lstPests.push(jsonPest);
-                  });
+            let lstPests        = [];
 
-                  this.pests =  lstPests;
+           if(! this.observationId)
+           {
+             lstPests.push({"pestId":'', "pestName":'Select Pest'});
+           }
+
+          let lstPestList     = JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_PEST_LIST));
+          $.each(lstPestIds, function(index, pestId){
+              let jsonDetailPest = lstPestList.find(({organismId}) => organismId === pestId);
+              let jsonPest = {};
+              if(jsonDetailPest)
+              {
+                jsonPest = {"pestId":jsonDetailPest.organismId, "pestName":jsonDetailPest.latinName};
+              }
+              else
+              {
+                jsonPest = {"pestId":pestId, "pestName":'Not Available -- '+pestId};
+              }
+
+                lstPests.push(jsonPest);
+              
+          });
+
+          this.pests =  lstPests;
+      },
+
+      /** Get new observation Id */
+      getNewObservationId(lstObservations)
+      {
+        let newId = 0;
+        let observationIds=[];
+        
+        
+        if(lstObservations)
+        {
+            $.each(lstObservations, function(index, observation){
+                if(observation.observationId < 0)
+                {
+                  observationIds.push(Math.abs(observation.observationId));
+                }
+            });
+            if(observationIds.length === 0)
+            {
+              newId = CommonUtil.CONST_OBSERVATION_COUNT_START_ID;
+            }
+            else
+            {
+              let largestValue = Math.max.apply(null, observationIds);
+              newId = -Math.abs(largestValue + 1);
+            }
+        }
+        else
+        {
+            newId = CommonUtil.CONST_OBSERVATION_COUNT_START_ID;
+        }
+
+        return newId;
+      },
+
+      /** Save Observation */
+      saveObservation()
+      {
+        let lstObservations = JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST));
+
+          this.observationForStore.cropOrganismId=this.crop.cropId;
+          this.observationForStore.organismId=this.pest.pestId;
+          this.observationForStore.timeOfObservation='';
+          this.observationForStore.statusChangedTime='';
+          this.observationForStore.observationHeading=this.observationHeader;
+          this.observationForStore.observationText=this.observationText;
+
+         if(this.observationId)
+         {
+              this.observationForStore.observationId=this.observationId;
+         }
+         else
+         {
+              this.observationForStore.observationId=this.getNewObservationId(lstObservations);
+              lstObservations.push(this.observationForStore);
+              localStorage.setItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST, JSON.stringify(lstObservations) );
+         }
+
       }
+
 
   },
   filters: {
