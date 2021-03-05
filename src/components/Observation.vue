@@ -15,7 +15,8 @@
 
     <div class="clearfix"/>
     <div>
-        {{strDateObservation | dateFormat}}
+      <!-- <input type="datetime-local" v-bind='strDateObservation | dateFormat' v-model="strDateObservation"/> -->
+        <input type="datetime-local" v-model="strDateObservation"/>
     </div>
 
     <div class="card">
@@ -63,7 +64,7 @@ export default {
         cropOrganismId: '',
         observationHeading: '',
         observationText: ''        
-      }
+      },
     }
   },
   methods:{
@@ -99,7 +100,8 @@ export default {
               /* For related Pest and Pest list */
               this.getObservationPests(jsonObservation);
 
-              this.strDateObservation = jsonObservation.timeOfObservation;
+              this.strDateObservation = DateTime.fromISO(jsonObservation.timeOfObservation).toFormat('yyyy-MM-dd\'T\'hh:mm:ss');
+
               this.observationHeader = jsonObservation.observationHeading;
               this.observationText  = jsonObservation.observationText;
 
@@ -311,8 +313,8 @@ export default {
 
           this.observationForStore.cropOrganismId     = this.crop.cropId;
           this.observationForStore.organismId         = this.pest.pestId;
-          this.observationForStore.timeOfObservation  = '';
-          this.observationForStore.statusChangedTime  = '';
+          this.observationForStore.timeOfObservation  = this.strDateObservation;
+          this.observationForStore.statusChangedTime  = this.strDateObservation;
           this.observationForStore.observationHeading = this.observationHeader;
           this.observationForStore.observationText    = this.observationText;
 
@@ -327,7 +329,7 @@ export default {
                     if(jobservation.observationId === selectedObservationId)
                     {
                       jobservation.cropOrganismId     = localObservationForStore.cropOrganismId;
-                      jobservation.cropOrganismId     = localObservationForStore.organismId;
+                      jobservation.organismId     = localObservationForStore.organismId;
                       jobservation.timeOfObservation  = localObservationForStore.timeOfObservation;
                       jobservation.statusChangedTime  = localObservationForStore.statusChangedTime;
                       jobservation.observationHeading = localObservationForStore.observationHeading;
@@ -346,15 +348,14 @@ export default {
               localStorage.setItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST, JSON.stringify(lstObservations) );
           this.$router.push({path:'/'});
           this.$router.go();
-
+           
       }
 
 
   },
   filters: {
     dateFormat: function(timeStr) {
-      //return DateTime.fromISO(timeStr).toISODate();
-      return DateTime.fromISO(timeStr).toLocaleString(DateTime.DATETIME_MED);
+      return DateTime.fromISO(timeStr).toFormat('yyyy-MM-dd\'T\'hh:mm:ss');
     }
   },  
   mounted(){
