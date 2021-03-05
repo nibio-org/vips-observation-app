@@ -81,6 +81,8 @@ export default {
 	            correctOrientation: true
 	        });
     },
+
+    /** Get observation from local storage system */
     getObservationFromStore(id)
     {
         // For existing observation
@@ -143,9 +145,13 @@ export default {
 
               let jsonSelectedCrop= this.crops.find(({organismId}) => organismId === jsonObservation.cropOrganismId);
             //  this.crops = lstCrops;
-              this.crop = {"cropId":jsonSelectedCrop.organismId, "cropName":jsonSelectedCrop.latinName};
+              if(jsonSelectedCrop)
+              {
+                this.crop = {"cropId":jsonSelectedCrop.organismId, "cropName":jsonSelectedCrop.latinName};
+              }
       },
 
+      /** Get related pests for a particular crop of a observation */
       getObservationPests(jsonObservation){
             let lstPests            = [];
             let lstPestIds          = [];
@@ -163,11 +169,15 @@ export default {
             this.getPests(lstPestIds);
 
             let jsonSelectedPest = this.pests.find(({pestId}) => pestId === jsonObservation.organismId);
-            this.pest = {"pestId":jsonSelectedPest.pestId, "pestName":jsonSelectedPest.pestName};
+            if(jsonSelectedPest)
+            {
+              this.pest = {"pestId":jsonSelectedPest.pestId, "pestName":jsonSelectedPest.pestName};
+            }
 
 
       },
 
+      /** On selecting a particular crop */
       selectCrop(event)
       {
           let crop = this.crop;
@@ -299,23 +309,43 @@ export default {
       {
         let lstObservations = JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST));
 
-          this.observationForStore.cropOrganismId=this.crop.cropId;
-          this.observationForStore.organismId=this.pest.pestId;
-          this.observationForStore.timeOfObservation='';
-          this.observationForStore.statusChangedTime='';
-          this.observationForStore.observationHeading=this.observationHeader;
-          this.observationForStore.observationText=this.observationText;
+          this.observationForStore.cropOrganismId     = this.crop.cropId;
+          this.observationForStore.organismId         = this.pest.pestId;
+          this.observationForStore.timeOfObservation  = '';
+          this.observationForStore.statusChangedTime  = '';
+          this.observationForStore.observationHeading = this.observationHeader;
+          this.observationForStore.observationText    = this.observationText;
 
          if(this.observationId)
          {
-              this.observationForStore.observationId=this.observationId;
+              this.observationForStore.observationId  = this.observationId;
+              let localObservationForStore            = this.observationForStore;
+              let selectedObservationId               = this.observationId;
+
+              $.each(lstObservations, function(index, jobservation)
+              {
+                    if(jobservation.observationId === selectedObservationId)
+                    {
+                      jobservation.cropOrganismId     = localObservationForStore.cropOrganismId;
+                      jobservation.cropOrganismId     = localObservationForStore.organismId;
+                      jobservation.timeOfObservation  = localObservationForStore.timeOfObservation;
+                      jobservation.statusChangedTime  = localObservationForStore.statusChangedTime;
+                      jobservation.observationHeading = localObservationForStore.observationHeading;
+                      jobservation.observationText    = localObservationForStore.observationText;
+
+                      return false;
+                    }
+              });
+
          }
          else
          {
-              this.observationForStore.observationId=this.getNewObservationId(lstObservations);
+              this.observationForStore.observationId  = this.getNewObservationId(lstObservations);
               lstObservations.push(this.observationForStore);
-              localStorage.setItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST, JSON.stringify(lstObservations) );
          }
+              localStorage.setItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST, JSON.stringify(lstObservations) );
+          this.$router.push({path:'/'});
+          this.$router.go();
 
       }
 
