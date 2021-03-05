@@ -147,8 +147,8 @@ export default {
               localStorage.setItem(CommonUtil.CONST_STORAGE_USER_DETAIL,JSON.stringify(loggedUser));
               this.getUserFromStorage();
               
-              this.$router.push({path:'/'});
-              this.$router.go();
+              //this.$router.push({path:'/'});
+              //this.$router.go();
                
             });
 
