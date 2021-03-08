@@ -8,6 +8,7 @@
           placeholder="Brukernavn"
           aria-label="Brukernavn"
           v-model="username"
+          v-on:keyup.enter="handleLogin()"
         />
       </div>
       <div class="form-group">
@@ -17,10 +18,11 @@
           placeholder="Passord"
           aria-label="Passord"
           v-model="password"
+          v-on:keyup.enter="handleLogin()"
         />
       </div>
 
-      <button class="btn btn-primary" type="button" v-on:click="handleLogin()"> 
+      <button class="btn btn-primary" type="button" v-on:click="handleLogin()" v-on:keyup.enter="handleLogin()"> 
         Logg inn
       </button>
      </form>
