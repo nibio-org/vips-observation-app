@@ -343,6 +343,11 @@ export default {
          else
          {
               this.observationForStore.observationId  = this.getNewObservationId(lstObservations);
+              if(! lstObservations)
+              {
+                lstObservations = [];
+                
+              }
               lstObservations.push(this.observationForStore);
          }
               localStorage.setItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST, JSON.stringify(lstObservations) );
