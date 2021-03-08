@@ -100,7 +100,7 @@ export default {
               /* For related Pest and Pest list */
               this.getObservationPests(jsonObservation);
 
-              this.strDateObservation = DateTime.fromISO(jsonObservation.timeOfObservation).toFormat('yyyy-MM-dd\'T\'hh:mm:ss');
+              this.strDateObservation = DateTime.fromISO(jsonObservation.timeOfObservation).toFormat('yyyy-MM-dd\'T\'HH:mm:ss');
 
               this.observationHeader = jsonObservation.observationHeading;
               this.observationText  = jsonObservation.observationText;
