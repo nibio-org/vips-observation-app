@@ -146,10 +146,7 @@ export default {
               this.$refs.Sync.isSyncOnewayNeeded(loggedUser);
               localStorage.setItem(CommonUtil.CONST_STORAGE_USER_DETAIL,JSON.stringify(loggedUser));
               this.getUserFromStorage();
-              
-              //this.$router.push({path:'/'});
-              //this.$router.go();
-               
+              $('.offcanvas-collapse').removeClass('open');
             });
 
         }
@@ -160,8 +157,7 @@ export default {
         this.$root.sharedState.uuid = '';                           // remove global uuid for other (e.g. menu items etc)
         localStorage.removeItem(CommonUtil.CONST_STORAGE_UUID);     // remove uuid from storage
         this.$emit(CommonUtil.CONST_EVENT_LOGIN_USER_DETAIL,'');
-              this.$router.push({path:'/'});
-              this.$router.go();
+		$('.offcanvas-collapse').removeClass('open');
     }
 
   },
