@@ -13,7 +13,7 @@
         {{ item.defaultName }}
       </li>
     </ul>
-    <span>Checked names: {{ listSelectedIds }}</span>
+    <!-- <span>Checked names: {{ listSelectedIds }}</span> -->
   </div>
 </template>
 
