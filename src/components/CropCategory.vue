@@ -5,8 +5,7 @@
     <ul class="list-group" style="text-align: left">
       <li class="list-group-item" v-for="item in listCropCategoris">
         <input
-          
-          type="checkbox"
+           type="checkbox"
           v-bind:value="item.cropCategoryId"
           v-model="listSelectedIds"
           v-on:click="funSaveCategoryId()"
@@ -30,42 +29,22 @@ export default {
   },
   watch: {
     listSelectedIds: function (val) {
-      localStorage.setItem("cropIds", this.listSelectedIds);
-    },
-  },
-  methods: {
-    funFetchCropCategory(organizationId) {
-      //        this.$nextTick(function () {
-      fetch(
-        "https://logic.vips.nibio.no/rest/organism/cropcategory/" +
-          organizationId
-
-        /*           ,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            
-          },
-        } */
-      )
-        .then((response) => response.json())
-        .then((data) => {
-          this.listCropCategoris = data;
-        });
-      //   })
-    },
-    funSaveCategoryId: function () {
-      //if (event.target.checked)
-
-      //localStorage.cropIds=this.listSelectedIds;
       localStorage.setItem(CommonUtil.CONST_STORAGE_CROP_ID_LIST, this.listSelectedIds);
     },
   },
-  created() {
-    //localStorage.removeItem('cropIds');
-    this.funFetchCropCategory(1);
-    if (
+  methods: {
+    funSaveCategoryId: function () {
+      localStorage.setItem(CommonUtil.CONST_STORAGE_CROP_ID_LIST, this.listSelectedIds);
+    },
+  },
+  mounted() {
+
+    if(localStorage.getItem(CommonUtil.CONST_STORAGE_CROP_CATEGORY) )
+    {
+      this.listCropCategoris = JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_CROP_CATEGORY));
+    }
+
+  if (
       null != localStorage.getItem(CommonUtil.CONST_STORAGE_CROP_ID_LIST) &&
       localStorage.getItem(CommonUtil.CONST_STORAGE_CROP_ID_LIST) != "" &&
       typeof localStorage.getItem(CommonUtil.CONST_STORAGE_CROP_ID_LIST) != "undefined"
