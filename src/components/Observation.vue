@@ -19,18 +19,20 @@
         <input type="datetime-local" v-model="strDateObservation"/>
     </div>
 
-    <div class="card">
-      <div class="card-header">
-        Observation Detail
-      </div>
-      <div class="card-body">
+    <map-observation></map-observation>
+
+  
+
+        <div>Observation Detail</div>
+      
+      
         <input type="text" v-model="observationHeader"/>
         <p><textarea v-model="observationText" /></p>
-       <div class="card-footer">
+       
         <button class="btn btn-secondary float-right" v-on:click="saveObservation">Save</button>
-      </div>      
-      </div>
-    </div>
+           
+     
+
 
   </div>  
 </template>
@@ -38,9 +40,12 @@
 <script>
 import CommonUtil from '@/components/CommonUtil'
 import { DateTime } from 'luxon'
+import MapObservation from '@/components/MapObservation'
+
 export default {
   name: 'Observation',
   props: ['observationId'],
+  components: {MapObservation},
   data () {
     return {
       msg: 'Observasjon',
