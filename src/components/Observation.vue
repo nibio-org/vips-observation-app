@@ -19,8 +19,8 @@
         <input type="datetime-local" v-model="strDateObservation"/>
     </div>
 
-    <map-observation></map-observation>
-
+    
+    <router-link :to="{name:'MapObservation'}">Observation Map </router-link>
   
 
         <div>Observation Detail</div>

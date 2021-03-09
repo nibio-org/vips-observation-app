@@ -1,5 +1,5 @@
 <template>
-    <div>Observation Map 
+    <div>
         <div id='map-observation' >
             
         </div>
@@ -48,8 +48,9 @@ export default {
 </script>
 
 <style>
-    #map-observation {
+   html, body, #map-observation {
+        margin: 0;
     width: 100%;
-    height: 500px;
+    height: 600px;
     }
 </style>
