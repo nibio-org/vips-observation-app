@@ -1,8 +1,5 @@
 <template>
-    <div>
-        <div id='map-observation' >
-            
-        </div>
+    <div id='map-observation'>
     </div>
 </template>
 
@@ -40,10 +37,27 @@ export default {
 
      },
      mounted() {
+		// This ensures that the map fills the entire viewport
+		var mapDiv = document.getElementById("map-observation");
+		var navDiv = document.getElementById("vipsobsappmenu");
+		var appDiv = document.getElementById("app");
+		appDiv.style.marginTop="0";
+		appDiv.style.paddingRight="0";
+		appDiv.style.paddingLeft="0";
+		mapDiv.style.height = (screen.height - navDiv.offsetHeight) + "px";
+		 
         this.$nextTick(function () {
             this.initMap();
          });
-     }
+     },
+	 beforeDestroy() {
+		// This resets the container layout when leaving the router page
+		var appDiv = document.getElementById("app");
+		appDiv.style.marginTop="60px";
+		appDiv.style.paddingRight="15px";
+		appDiv.style.paddingLeft="15px";
+		console.info("beforeDestroy");
+	}
 }
 </script>
 
@@ -51,6 +65,6 @@ export default {
    html, body, #map-observation {
         margin: 0;
     width: 100%;
-    height: 600px;
+    /*height: 600px;*/
     }
 </style>
