@@ -5,6 +5,7 @@ import PlacesList from '@/components/PlacesList'
 import Settings from '@/components/Settings'
 import Observation from '@/components/Observation'
 import CropCategory from '@/components/CropCategory'
+import MapObservation from '@/components/MapObservation'
 
 
 Vue.use(Router)
@@ -36,7 +37,12 @@ export default new Router({
       path: '/cropCategory',
       name: 'CropCategory',
       component: CropCategory
-    }
+    },
+    {
+      path: '/MapObservation',
+      name: 'MapObservation',
+      component: MapObservation
+    }    
 
   ]
 })
