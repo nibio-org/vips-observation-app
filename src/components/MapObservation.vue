@@ -55,6 +55,7 @@ export default {
 
 
                         ],
+                        controls: [],
                         target: 'map-observation',
                         view : new View ({
                             center:fromLonLat([16, 65]),
