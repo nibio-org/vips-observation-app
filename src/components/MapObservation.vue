@@ -4,36 +4,84 @@
 </template>
 
 <script>
-import Map from 'ol/Map'
-import View from 'ol/View'
-import TileLayer from 'ol/layer/Tile'
-//import {Tile as TileLayer, Vector as VectorLayer } 
+import 'ol/ol.css';
+import Map from 'ol/Map';
+import OSM from 'ol/source/OSM';
+import TileLayer from 'ol/layer/Tile';
+import View from 'ol/View';
+import WMTS, {optionsFromCapabilities} from 'ol/source/WMTS';
+import WMTSCapabilities from 'ol/format/WMTSCapabilities';
 
-import OSM from 'ol/source/OSM'
-//import XYZ from 'ol/source/XYZ';
-import 'ol/ol.css'
+import {Vector as VectorSource} from 'ol/source';
+import {Vector as VectorLayer} from 'ol/layer';
+import Collection from 'ol/Collection'
+import {fromLonLat} from 'ol/proj'
+
+
+let parser = new WMTSCapabilities();
+
 
 export default {
      name : 'MapObservation',
      methods : {
             initMap(){
-                new Map ({
-                    target : 'map-observation',
-                    layers : [
-                        new TileLayer({
-                            source : new OSM()
-                            //url: 'https://{a-c}.tile.openstreetmap.org/{z}/{x}/{y}.png'
-                        }),
-                    ],
 
-                    view: new View({
-                        zoom : 4,
-                        center:[0,0],
-                        //constrainResolution : true
-                    })
-
+                let featureOverlay = this.featureOverlay();
+                let newFeatureOverlay = this.newFeatureOverlay();
+                
+                fetch('https://opencache.statkart.no/gatekeeper/gk/gk.open_wmts?Version=1.0.0&service=wmts&request=getcapabilities')
+                .then(function (response){
+                        return response.text();
                 })
-            }
+                .then(function(text){
+                    let parser = new WMTSCapabilities();
+                    let result = parser.read(text);
+                    
+                    let options = optionsFromCapabilities(result, {
+                                    layer : 'topo4',
+                                    matrixSet: 'EPSG:3857',
+                                });
+
+
+                    new Map({
+                        layers: [
+
+                                new TileLayer({
+                                    opacity : 1,
+                                    source : new WMTS(options),
+                                }),
+                                //featureOverlay,
+                                //newFeatureOverlay,
+
+
+                        ],
+                        target: 'map-observation',
+                        view : new View ({
+                            center:fromLonLat([16, 65]),
+                            zoom : 4.2
+                        })
+                    })
+                })
+            },
+
+        featureOverlay(){
+                let features = new Collection();
+                return new VectorLayer({
+                        source : new VectorSource ({
+                            features : features
+                        })
+                })
+        },
+
+        newFeatureOverlay(){
+            return new VectorLayer({
+                source : new VectorSource({
+                    features : new Collection()
+                })
+            })
+        },
+
+        
 
      },
      mounted() {
@@ -56,7 +104,6 @@ export default {
 		appDiv.style.marginTop="60px";
 		appDiv.style.paddingRight="15px";
 		appDiv.style.paddingLeft="15px";
-		console.info("beforeDestroy");
 	}
 }
 </script>
