@@ -18,10 +18,9 @@
       <!-- <input type="datetime-local" v-bind='strDateObservation | dateFormat' v-model="strDateObservation"/> -->
         <input type="datetime-local" v-model="strDateObservation"/>
     </div>
+    <router-link :to="{name:'MapObservation', params: {geoinfo:mapGeoinfo,isMapPanelVisible:newMapPanel}}">Observation Map </router-link>
+      <div v-if="mapGeoinfo"><map-observation :geoinfo="mapGeoinfo" :isMapPanelVisible="isMapPanelVisible"></map-observation></div> 
 
-    
-    <router-link :to="{name:'MapObservation'}">Observation Map </router-link>
-  
 
         <div>Observation Detail</div>
       
@@ -60,6 +59,9 @@ export default {
       strDateObservation:'',
       observationHeader : '',
       observationText : '',
+      mapGeoinfo:'',
+      isMapPanelVisible:false,
+      newMapPanel:true,
       observationForStore : 
       {
         observationId: '',
@@ -97,9 +99,9 @@ export default {
               
               let jsonObservation = {};
               
-              let lstObservations = JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST));              // Observation List
-              jsonObservation     = lstObservations.find(({observationId})=> observationId === id);                           // Selection Observation
-              this.observation    = jsonObservation;
+              let lstObservations     = JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST));              // Observation List
+              jsonObservation         = lstObservations.find(({observationId})=> observationId === id);                           // Selection Observation
+              this.observation        = jsonObservation;
               /* For related Crop and Crop list */
               this.getObservationCrops(jsonObservation);
               /* For related Pest and Pest list */
@@ -107,9 +109,10 @@ export default {
 
               this.strDateObservation = DateTime.fromISO(jsonObservation.timeOfObservation).toFormat('yyyy-MM-dd\'T\'HH:mm:ss');
 
-              this.observationHeader = jsonObservation.observationHeading;
-              this.observationText  = jsonObservation.observationText;
+              this.observationHeader  =  jsonObservation.observationHeading;
+              this.observationText    =   jsonObservation.observationText;
 
+              this.mapGeoinfo            =   jsonObservation.geoinfo;
           }
           else {
             //TODO for new Observation
@@ -376,7 +379,8 @@ export default {
     else{
       this.getNewObservation();
     }
-  }
+  },
+
 }
 </script>
 

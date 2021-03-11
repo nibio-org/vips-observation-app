@@ -1,17 +1,16 @@
 <template>
     <div>
     <div id='map-observation'>
-        <router-link :to="{name: 'Observation'}" class="btn btn-success ">Back</router-link>
+        <div v-if="isMyMapPanelVisible"><router-link :to="{name: 'Observation'}" class="btn btn-success ">Back</router-link></div>
     </div>
 
-    <div id="ObservationMapPanel" > 
+    <div id="ObservationMapPanel" v-if="isMyMapPanelVisible"> 
         <div>
             <input value="" placeholder="name" style="position:absolute">
         </div>
 
-       
-
         <div >
+              
             <select>
                 <option>Select</option>
             </select>
@@ -108,28 +107,66 @@ export default {
 
      },
      mounted() {
-		// This ensures that the map fills the entire viewport
+        let routeParam=this.$route.params;
+       
+        // This ensures that the map fills the entire viewport
 		var mapDiv = document.getElementById("map-observation");
 		var navDiv = document.getElementById("vipsobsappmenu");
         var appDiv = document.getElementById("app");
-        var panelObDiv = document.getElementById("ObservationMapPanel");
+        if(this.isMapPanelVisible)
+        {
+            var panelObDiv = document.getElementById("ObservationMapPanel");
+        }
 
 		appDiv.style.marginTop="0";
 		appDiv.style.paddingRight="0";
 		appDiv.style.paddingLeft="0";
-		mapDiv.style.height = (screen.height - navDiv.offsetHeight - panelObDiv.offsetHeight) + "px";
-		 
+        if(this.isMyMapPanelVisible)
+            {
+                mapDiv.style.height = (screen.height - navDiv.offsetHeight - panelObDiv.offsetHeight) + "px";
+            }
+        else
+        {
+                mapDiv.style.height = (screen.height - navDiv.offsetHeight ) + "px";
+        }
+        
+        if(routeParam.geoinfo)
+        {
+         if(this.geoinfo)
+         {
+            this.myGeoInfo = this.geoinfo;
+         }
+         else{
+             this.myGeoInfo = routeParam.geoinfo;
+         }
+        }
+
+        if(routeParam.isMapPanelVisible)
+        {
+            if(this.isMapPanelVisible)
+            {
+                this.isMyMapPanelVisible = this.isMapPanelVisible;
+            }
+            else{
+                this.isMyMapPanelVisible = routeParam.isMapPanelVisible;
+            }
+        }
+
+
+
+
         this.$nextTick(function () {
             this.initMap();
          });
      },
 	 beforeDestroy() {
-		// This resets the container layout when leaving the router page
-		var appDiv = document.getElementById("app");
+        // This resets the container layout when leaving the router page
+ 		var appDiv = document.getElementById("app");
 		appDiv.style.marginTop="60px";
 		appDiv.style.paddingRight="15px";
-		appDiv.style.paddingLeft="15px";
-	}
+		appDiv.style.paddingLeft="15px"; 
+    },
+
 }
 </script>
 
