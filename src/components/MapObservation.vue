@@ -1,5 +1,27 @@
 <template>
+    <div>
     <div id='map-observation'>
+        <router-link :to="{name: 'Observation'}" class="btn btn-success ">Back</router-link>
+    </div>
+
+    <div id="ObservationMapPanel" > 
+        <div>
+            <input value="" placeholder="name" style="position:absolute">
+        </div>
+
+       
+
+        <div >
+            <select>
+                <option>Select</option>
+            </select>
+            <br>
+            <select>
+                <option>Select</option>
+            </select>
+        </div>
+    </div>
+
     </div>
 </template>
 
@@ -58,7 +80,7 @@ export default {
                         controls: [],
                         target: 'map-observation',
                         view : new View ({
-                            center:fromLonLat([16, 65]),
+                            center:fromLonLat([16, 63]),
                             zoom : 4.2
                         })
                     })
@@ -89,11 +111,13 @@ export default {
 		// This ensures that the map fills the entire viewport
 		var mapDiv = document.getElementById("map-observation");
 		var navDiv = document.getElementById("vipsobsappmenu");
-		var appDiv = document.getElementById("app");
+        var appDiv = document.getElementById("app");
+        var panelObDiv = document.getElementById("ObservationMapPanel");
+
 		appDiv.style.marginTop="0";
 		appDiv.style.paddingRight="0";
 		appDiv.style.paddingLeft="0";
-		mapDiv.style.height = (screen.height - navDiv.offsetHeight) + "px";
+		mapDiv.style.height = (screen.height - navDiv.offsetHeight - panelObDiv.offsetHeight) + "px";
 		 
         this.$nextTick(function () {
             this.initMap();
@@ -113,6 +137,11 @@ export default {
    html, body, #map-observation {
         margin: 0;
     width: 100%;
-    /*height: 600px;*/
+    }
+
+    #ObservationMapPanel {
+        position: absolute;
+        bottom: 0;
+        left: 0;
     }
 </style>
