@@ -1,5 +1,26 @@
 <template>
+    <div>
     <div id='map-observation'>
+        <div v-if="isMyMapPanelVisible"><router-link :to="{name: 'Observation'}" class="btn btn-success ">Back</router-link></div>
+    </div>
+
+    <div id="ObservationMapPanel" v-if="isMyMapPanelVisible"> 
+        <div>
+            <input value="" placeholder="name" style="position:absolute">
+        </div>
+
+        <div >
+              
+            <select>
+                <option>Select</option>
+            </select>
+            <br>
+            <select>
+                <option>Select</option>
+            </select>
+        </div>
+    </div>
+
     </div>
 </template>
 
@@ -14,8 +35,13 @@ import WMTSCapabilities from 'ol/format/WMTSCapabilities';
 
 import {Vector as VectorSource} from 'ol/source';
 import {Vector as VectorLayer} from 'ol/layer';
-import Collection from 'ol/Collection'
-import {fromLonLat} from 'ol/proj'
+import Collection from 'ol/Collection';
+import {fromLonLat} from 'ol/proj';
+
+import Circle from 'ol/geom/Circle';
+import {Circle as CircleStyle, Fill, Stroke, Style} from 'ol/style';
+import Feature from 'ol/Feature';
+import GeoJSON from 'ol/format/GeoJSON';
 
 
 let parser = new WMTSCapabilities();
@@ -23,11 +49,27 @@ let parser = new WMTSCapabilities();
 
 export default {
      name : 'MapObservation',
+     props : ['geoinfo','isMapPanelVisible'],
+     data(){
+         return {
+                    isMyMapPanelVisible : '',
+                    myGeoInfo:''
+             }
+     },
      methods : {
             initMap(){
 
-                let featureOverlay = this.featureOverlay();
-                let newFeatureOverlay = this.newFeatureOverlay();
+                let featureOverlay      =   this.featureOverlay();
+                let newFeatureOverlay   =   this.newFeatureOverlay();
+
+                let image               =   this.myImage();
+                let styles              =   this.mygeoStyle(image);
+                //let styleFunction       =   this.myStyleFunction(styles,feature);
+                //let styleFunction       =   this.myStyleFunction(styles);
+                
+                let vectorSource     =   this.myVectorGeoSource();
+                //vectorSource.addFeature(new Feature(new Circle([5e6, 7e6], 1e6)));
+                let vectorGeoLayer      =   this.myVectorGeoLayer(vectorSource);
                 
                 fetch('https://opencache.statkart.no/gatekeeper/gk/gk.open_wmts?Version=1.0.0&service=wmts&request=getcapabilities')
                 .then(function (response){
@@ -52,13 +94,13 @@ export default {
                                 }),
                                 //featureOverlay,
                                 //newFeatureOverlay,
-
+                                vectorGeoLayer
 
                         ],
                         controls: [],
                         target: 'map-observation',
                         view : new View ({
-                            center:fromLonLat([16, 65]),
+                            center:fromLonLat([16, 63]),
                             zoom : 4.2
                         })
                     })
@@ -82,30 +124,162 @@ export default {
             })
         },
 
+        myVectorGeoSource(){
+            if(this.myGeoInfo)
+            {
+                return new VectorSource({
+                    features : new GeoJSON().readFeatures(this.myGeoInfo),
+                })
+            }
+        },
+
+        myVectorGeoLayer(vectorSource){
+                return new VectorLayer({
+                    source : vectorSource,
+                    //style: styleFunction,
+                })
+        },
+
+        mygeoStyle(image)
+        {
+            return  {
+                        'Point': new Style({
+                            image: image,
+                        }),
+                        'LineString': new Style({
+                            stroke: new Stroke({
+                            color: 'green',
+                            width: 1,
+                            }),
+                        }),
+                        'MultiLineString': new Style({
+                            stroke: new Stroke({
+                            color: 'green',
+                            width: 1,
+                            }),
+                        }),
+                        'MultiPoint': new Style({
+                            image: image,
+                        }),
+                        'MultiPolygon': new Style({
+                            stroke: new Stroke({
+                            color: 'yellow',
+                            width: 1,
+                            }),
+                            fill: new Fill({
+                            color: 'rgba(255, 255, 0, 0.1)',
+                            }),
+                        }),
+                        'Polygon': new Style({
+                            stroke: new Stroke({
+                            color: 'blue',
+                            lineDash: [4],
+                            width: 3,
+                            }),
+                            fill: new Fill({
+                            color: 'rgba(0, 0, 255, 0.1)',
+                            }),
+                        }),
+                        'GeometryCollection': new Style({
+                            stroke: new Stroke({
+                            color: 'magenta',
+                            width: 2,
+                            }),
+                            fill: new Fill({
+                            color: 'magenta',
+                            }),
+                            image: new CircleStyle({
+                            radius: 10,
+                            fill: null,
+                            stroke: new Stroke({
+                                color: 'magenta',
+                            }),
+                            }),
+                        }),
+                        'Circle': new Style({
+                            stroke: new Stroke({
+                            color: 'red',
+                            width: 2,
+                            }),
+                            fill: new Fill({
+                            color: 'rgba(255,0,0,0.2)',
+                            }),
+                        }),
+            };
+        },
+
+        myImage()
+        {
+            return new CircleStyle({
+                    radius: 5,
+                    fill: null,
+                    stroke: new Stroke({color: 'red', width: 1}),
+                    });
+        },
+
+        myStyleFunction(styles,feature)
+        {
+            return styles[feature.getGeometry().getType()]; 
+        },
         
 
      },
      mounted() {
-		// This ensures that the map fills the entire viewport
+        let routeParam=this.$route.params;
+      
+        // This ensures that the map fills the entire viewport
 		var mapDiv = document.getElementById("map-observation");
 		var navDiv = document.getElementById("vipsobsappmenu");
-		var appDiv = document.getElementById("app");
+        var appDiv = document.getElementById("app");
+        if(this.isMapPanelVisible)
+        {
+            var panelObDiv = document.getElementById("ObservationMapPanel");
+        }
+
 		appDiv.style.marginTop="0";
 		appDiv.style.paddingRight="0";
 		appDiv.style.paddingLeft="0";
-		mapDiv.style.height = (screen.height - navDiv.offsetHeight) + "px";
-		 
+        if(this.isMyMapPanelVisible)
+            {
+                mapDiv.style.height = (screen.height - navDiv.offsetHeight - panelObDiv.offsetHeight) + "px";
+            }
+        else
+        {
+                mapDiv.style.height = (screen.height - navDiv.offsetHeight ) + "px";
+        }
+        
+        if(routeParam.geoinfo)
+        {
+             this.myGeoInfo = routeParam.geoinfo;
+        }
+        if(this.geoinfo)
+        {
+            this.myGeoInfo = this.geoinfo;
+        }
+
+        if(routeParam.isMapPanelVisible)
+        {
+            this.isMyMapPanelVisible = routeParam.isMapPanelVisible;
+        }
+        if(this.isMapPanelVisible)
+        {
+            this.isMyMapPanelVisible = this.isMapPanelVisible;
+        }
+
+
+
         this.$nextTick(function () {
             this.initMap();
          });
      },
 	 beforeDestroy() {
-		// This resets the container layout when leaving the router page
-		var appDiv = document.getElementById("app");
+        // This resets the container layout when leaving the router page
+ 		var appDiv = document.getElementById("app");
 		appDiv.style.marginTop="60px";
 		appDiv.style.paddingRight="15px";
-		appDiv.style.paddingLeft="15px";
-	}
+		appDiv.style.paddingLeft="15px"; 
+    },
+
 }
 </script>
 
@@ -113,6 +287,11 @@ export default {
    html, body, #map-observation {
         margin: 0;
     width: 100%;
-    /*height: 600px;*/
+    }
+
+    #ObservationMapPanel {
+        position: absolute;
+        bottom: 0;
+        left: 0;
     }
 </style>
