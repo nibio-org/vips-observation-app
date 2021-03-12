@@ -35,8 +35,13 @@ import WMTSCapabilities from 'ol/format/WMTSCapabilities';
 
 import {Vector as VectorSource} from 'ol/source';
 import {Vector as VectorLayer} from 'ol/layer';
-import Collection from 'ol/Collection'
-import {fromLonLat} from 'ol/proj'
+import Collection from 'ol/Collection';
+import {fromLonLat} from 'ol/proj';
+
+import Circle from 'ol/geom/Circle';
+import {Circle as CircleStyle, Fill, Stroke, Style} from 'ol/style';
+import Feature from 'ol/Feature';
+import GeoJSON from 'ol/format/GeoJSON';
 
 
 let parser = new WMTSCapabilities();
@@ -44,11 +49,27 @@ let parser = new WMTSCapabilities();
 
 export default {
      name : 'MapObservation',
+     props : ['geoinfo','isMapPanelVisible'],
+     data(){
+         return {
+                    isMyMapPanelVisible : '',
+                    myGeoInfo:''
+             }
+     },
      methods : {
             initMap(){
 
-                let featureOverlay = this.featureOverlay();
-                let newFeatureOverlay = this.newFeatureOverlay();
+                let featureOverlay      =   this.featureOverlay();
+                let newFeatureOverlay   =   this.newFeatureOverlay();
+
+                let image               =   this.myImage();
+                let styles              =   this.mygeoStyle(image);
+                //let styleFunction       =   this.myStyleFunction(styles,feature);
+                //let styleFunction       =   this.myStyleFunction(styles);
+                
+                let vectorSource     =   this.myVectorGeoSource();
+                //vectorSource.addFeature(new Feature(new Circle([5e6, 7e6], 1e6)));
+                let vectorGeoLayer      =   this.myVectorGeoLayer(vectorSource);
                 
                 fetch('https://opencache.statkart.no/gatekeeper/gk/gk.open_wmts?Version=1.0.0&service=wmts&request=getcapabilities')
                 .then(function (response){
@@ -73,7 +94,7 @@ export default {
                                 }),
                                 //featureOverlay,
                                 //newFeatureOverlay,
-
+                                vectorGeoLayer
 
                         ],
                         controls: [],
@@ -103,12 +124,109 @@ export default {
             })
         },
 
+        myVectorGeoSource(){
+            if(this.myGeoInfo)
+            {
+                return new VectorSource({
+                    features : new GeoJSON().readFeatures(this.myGeoInfo),
+                })
+            }
+        },
+
+        myVectorGeoLayer(vectorSource){
+                return new VectorLayer({
+                    source : vectorSource,
+                    //style: styleFunction,
+                })
+        },
+
+        mygeoStyle(image)
+        {
+            return  {
+                        'Point': new Style({
+                            image: image,
+                        }),
+                        'LineString': new Style({
+                            stroke: new Stroke({
+                            color: 'green',
+                            width: 1,
+                            }),
+                        }),
+                        'MultiLineString': new Style({
+                            stroke: new Stroke({
+                            color: 'green',
+                            width: 1,
+                            }),
+                        }),
+                        'MultiPoint': new Style({
+                            image: image,
+                        }),
+                        'MultiPolygon': new Style({
+                            stroke: new Stroke({
+                            color: 'yellow',
+                            width: 1,
+                            }),
+                            fill: new Fill({
+                            color: 'rgba(255, 255, 0, 0.1)',
+                            }),
+                        }),
+                        'Polygon': new Style({
+                            stroke: new Stroke({
+                            color: 'blue',
+                            lineDash: [4],
+                            width: 3,
+                            }),
+                            fill: new Fill({
+                            color: 'rgba(0, 0, 255, 0.1)',
+                            }),
+                        }),
+                        'GeometryCollection': new Style({
+                            stroke: new Stroke({
+                            color: 'magenta',
+                            width: 2,
+                            }),
+                            fill: new Fill({
+                            color: 'magenta',
+                            }),
+                            image: new CircleStyle({
+                            radius: 10,
+                            fill: null,
+                            stroke: new Stroke({
+                                color: 'magenta',
+                            }),
+                            }),
+                        }),
+                        'Circle': new Style({
+                            stroke: new Stroke({
+                            color: 'red',
+                            width: 2,
+                            }),
+                            fill: new Fill({
+                            color: 'rgba(255,0,0,0.2)',
+                            }),
+                        }),
+            };
+        },
+
+        myImage()
+        {
+            return new CircleStyle({
+                    radius: 5,
+                    fill: null,
+                    stroke: new Stroke({color: 'red', width: 1}),
+                    });
+        },
+
+        myStyleFunction(styles,feature)
+        {
+            return styles[feature.getGeometry().getType()]; 
+        },
         
 
      },
      mounted() {
         let routeParam=this.$route.params;
-       
+      
         // This ensures that the map fills the entire viewport
 		var mapDiv = document.getElementById("map-observation");
 		var navDiv = document.getElementById("vipsobsappmenu");
@@ -132,26 +250,21 @@ export default {
         
         if(routeParam.geoinfo)
         {
-         if(this.geoinfo)
-         {
-            this.myGeoInfo = this.geoinfo;
-         }
-         else{
              this.myGeoInfo = routeParam.geoinfo;
-         }
+        }
+        if(this.geoinfo)
+        {
+            this.myGeoInfo = this.geoinfo;
         }
 
         if(routeParam.isMapPanelVisible)
         {
-            if(this.isMapPanelVisible)
-            {
-                this.isMyMapPanelVisible = this.isMapPanelVisible;
-            }
-            else{
-                this.isMyMapPanelVisible = routeParam.isMapPanelVisible;
-            }
+            this.isMyMapPanelVisible = routeParam.isMapPanelVisible;
         }
-
+        if(this.isMapPanelVisible)
+        {
+            this.isMyMapPanelVisible = this.isMapPanelVisible;
+        }
 
 
 
