@@ -128,7 +128,8 @@ export default {
             if(this.myGeoInfo)
             {
                 return new VectorSource({
-                    features : new GeoJSON().readFeatures(this.myGeoInfo),
+                    features : new GeoJSON({dataProjection:"EPSG:4326", 
+                    featureProjection:"EPSG:3857"}).readFeatures(this.myGeoInfo),
                 })
             }
         },
