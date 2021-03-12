@@ -63,6 +63,8 @@ export default {
      methods : {
             initMap(){
                 
+                let urlMap              =   CommonUtil.CONST_GPS_URL_NORWAY_MAP;
+
                 let latitude            =   this.latitude;
                 let longitude           =   this.longitude;
                 let mapZoom             =   this.mapZoom;
@@ -79,7 +81,7 @@ export default {
                 //vectorSource.addFeature(new Feature(new Circle([5e6, 7e6], 1e6)));
                 let vectorGeoLayer      =   this.myVectorGeoLayer(vectorSource);
                 
-                fetch('https://opencache.statkart.no/gatekeeper/gk/gk.open_wmts?Version=1.0.0&service=wmts&request=getcapabilities')
+                fetch(urlMap)
                 .then(function (response){
                         return response.text();
                 })
