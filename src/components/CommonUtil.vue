@@ -34,7 +34,11 @@ export default {
     
     CONST_URL_USER_OBSERVATION_LIST     :   '/rest/observation/list/user',
     
+    CONST_GPS_DEFAULT_LATITUDE_NORWAY   :   16,
+    CONST_GPS_DEFAULT_LONGITUDE_NORWAY  :   63,
 
+    CONST_GPS_DEFAULT_ZOOM              :   4.2,
+    CONST_GPS_OBSERVATION_ZOOM          :   10,
 
     
 

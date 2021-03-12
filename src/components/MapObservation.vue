@@ -25,6 +25,7 @@
 </template>
 
 <script>
+import CommonUtil from '@/components/CommonUtil'
 import 'ol/ol.css';
 import Map from 'ol/Map';
 import OSM from 'ol/source/OSM';
@@ -53,11 +54,18 @@ export default {
      data(){
          return {
                     isMyMapPanelVisible : '',
-                    myGeoInfo:''
+                    myGeoInfo:'',
+                    latitude:0,
+                    longitude:0,
+                    mapZoom:0
              }
      },
      methods : {
             initMap(){
+                
+                let latitude            =   this.latitude;
+                let longitude           =   this.longitude;
+                let mapZoom             =   this.mapZoom;
 
                 let featureOverlay      =   this.featureOverlay();
                 let newFeatureOverlay   =   this.newFeatureOverlay();
@@ -100,8 +108,9 @@ export default {
                         controls: [],
                         target: 'map-observation',
                         view : new View ({
-                            center:fromLonLat([16, 63]),
-                            zoom : 4.2
+                            center:fromLonLat([latitude, longitude]),
+                            //center:fromLonLat([16,63]),
+                            zoom : mapZoom
                         })
                     })
                 })
@@ -128,7 +137,8 @@ export default {
             if(this.myGeoInfo)
             {
                 return new VectorSource({
-                    features : new GeoJSON().readFeatures(this.myGeoInfo),
+                    features : new GeoJSON({dataProjection:"EPSG:4326", 
+                    featureProjection:"EPSG:3857"}).readFeatures(this.myGeoInfo),
                 })
             }
         },
@@ -225,6 +235,9 @@ export default {
 
      },
      mounted() {
+        this.latitude = CommonUtil.CONST_GPS_DEFAULT_LATITUDE_NORWAY;
+        this.longitude = CommonUtil.CONST_GPS_DEFAULT_LONGITUDE_NORWAY;
+
         let routeParam=this.$route.params;
       
         // This ensures that the map fills the entire viewport
@@ -238,7 +251,8 @@ export default {
 
 		appDiv.style.marginTop="0";
 		appDiv.style.paddingRight="0";
-		appDiv.style.paddingLeft="0";
+        appDiv.style.paddingLeft="0";
+        
         if(this.isMyMapPanelVisible)
             {
                 mapDiv.style.height = (screen.height - navDiv.offsetHeight - panelObDiv.offsetHeight) + "px";
@@ -257,14 +271,33 @@ export default {
             this.myGeoInfo = this.geoinfo;
         }
 
+        if(this.myGeoInfo)
+        {
+            this.latitude   =   this.myGeoInfo.features[0].geometry.coordinates[0];
+            this.longitude  =   this.myGeoInfo.features[0].geometry.coordinates[1];
+            
+            //console.log ('geometry : '+JSON.stringify(this.myGeoInfo.features[0].geometry.coordinates[0]));
+
+            this.mapZoom             = CommonUtil.CONST_GPS_OBSERVATION_ZOOM;
+        }
+        else
+        {
+            this.mapZoom = CommonUtil.CONST_GPS_DEFAULT_ZOOM;
+        }
+
+
         if(routeParam.isMapPanelVisible)
         {
             this.isMyMapPanelVisible = routeParam.isMapPanelVisible;
+            
         }
         if(this.isMapPanelVisible)
         {
             this.isMyMapPanelVisible = this.isMapPanelVisible;
+            
+            
         }
+
 
 
 
