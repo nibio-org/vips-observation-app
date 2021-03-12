@@ -112,7 +112,7 @@ export default {
               this.observationHeader  =  jsonObservation.observationHeading;
               this.observationText    =   jsonObservation.observationText;
 
-              this.mapGeoinfo            =   jsonObservation.geoinfo;
+              this.mapGeoinfo            =   JSON.parse(jsonObservation.geoinfo);
           }
           else {
             //TODO for new Observation
