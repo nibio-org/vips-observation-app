@@ -1,22 +1,28 @@
 <template>
     <div>
     <div id='map-observation'>
-        <div v-if="isMyMapPanelVisible"><router-link :to="{name: 'Observation'}" class="btn btn-success ">Back</router-link></div>
+        <div v-if="isMyMapPanelVisible"><router-link id='btnBack' :to="{name: 'Observation'}" class="btn btn-success ">Back</router-link></div>
     </div>
 
-    <div id="ObservationMapPanel" v-if="isMyMapPanelVisible"> 
+    <div id="ObservationMapPanel" v-if="isMyMapPanelVisible" ref='ObservationMapPanel'> 
         <div>
-            <input value="" placeholder="name" style="position:absolute">
-        </div>
+            <input value="" placeholder="name">
 
-        <div >
-              
+            <br>
             <select>
-                <option>Select</option>
+                <option>Select test 1</option>
             </select>
             <br>
             <select>
-                <option>Select</option>
+                <option>Select test 2</option>
+            </select>
+        </div>
+    </div>
+    <div v-else >
+        <div id='divPrivacy' ref='divPrivacy'>
+            <select >
+                    <option>Select</option>
+                    <option>some text</option>
             </select>
         </div>
     </div>
@@ -57,12 +63,15 @@ export default {
                     myGeoInfo:'',
                     latitude:0,
                     longitude:0,
-                    mapZoom:0
+                    mapZoom:0,
+                    mapInteractions:'',
              }
      },
      methods : {
             initMap(){
                 
+                let urlMap              =   CommonUtil.CONST_GPS_URL_NORWAY_MAP;
+
                 let latitude            =   this.latitude;
                 let longitude           =   this.longitude;
                 let mapZoom             =   this.mapZoom;
@@ -78,8 +87,10 @@ export default {
                 let vectorSource     =   this.myVectorGeoSource();
                 //vectorSource.addFeature(new Feature(new Circle([5e6, 7e6], 1e6)));
                 let vectorGeoLayer      =   this.myVectorGeoLayer(vectorSource);
-                
-                fetch('https://opencache.statkart.no/gatekeeper/gk/gk.open_wmts?Version=1.0.0&service=wmts&request=getcapabilities')
+
+                let mapInteractions     =   this.myInteractions(this.mapInteractions);
+
+                fetch(urlMap)
                 .then(function (response){
                         return response.text();
                 })
@@ -106,6 +117,9 @@ export default {
 
                         ],
                         controls: [],
+                        interactions : mapInteractions,
+                        
+                        //interactions:'',
                         target: 'map-observation',
                         view : new View ({
                             center:fromLonLat([latitude, longitude]),
@@ -231,6 +245,11 @@ export default {
         {
             return styles[feature.getGeometry().getType()]; 
         },
+
+        myInteractions(mapInteractions)
+        {
+            return (mapInteractions) ? [] : '';
+        }
         
 
      },
@@ -241,25 +260,38 @@ export default {
         let routeParam=this.$route.params;
       
         // This ensures that the map fills the entire viewport
-		var mapDiv = document.getElementById("map-observation");
-		var navDiv = document.getElementById("vipsobsappmenu");
-        var appDiv = document.getElementById("app");
-        if(this.isMapPanelVisible)
-        {
-            var panelObDiv = document.getElementById("ObservationMapPanel");
-        }
+		var mapDiv      =   document.getElementById("map-observation");
+		var navDiv      =   document.getElementById("vipsobsappmenu");
+        var appDiv      =   document.getElementById("app");
+        var panelObDiv = document.getElementById("ObservationMapPanel");
+        var divPrivacy  =   document.getElementById("divPrivacy");
+
+
 
 		appDiv.style.marginTop="0";
 		appDiv.style.paddingRight="0";
         appDiv.style.paddingLeft="0";
-        
+
+        if(routeParam.isMapPanelVisible)
+        {
+            this.isMyMapPanelVisible = routeParam.isMapPanelVisible;
+            
+        }
+        if(this.isMapPanelVisible)
+        {
+            this.isMyMapPanelVisible = this.isMapPanelVisible;
+        }
+
+
         if(this.isMyMapPanelVisible)
             {
-                mapDiv.style.height = (screen.height - navDiv.offsetHeight - panelObDiv.offsetHeight) + "px";
+                mapDiv.style.height = (screen.height - navDiv.offsetHeight) + "px";
+                this.mapInteractions='';
             }
         else
         {
-                mapDiv.style.height = (screen.height - navDiv.offsetHeight ) + "px";
+                mapDiv.style.height = 300 +"px";
+                this.mapInteractions='interactions:[]';
         }
         
         if(routeParam.geoinfo)
@@ -275,30 +307,12 @@ export default {
         {
             this.latitude   =   this.myGeoInfo.features[0].geometry.coordinates[0];
             this.longitude  =   this.myGeoInfo.features[0].geometry.coordinates[1];
-            
-            //console.log ('geometry : '+JSON.stringify(this.myGeoInfo.features[0].geometry.coordinates[0]));
-
             this.mapZoom             = CommonUtil.CONST_GPS_OBSERVATION_ZOOM;
         }
         else
         {
             this.mapZoom = CommonUtil.CONST_GPS_DEFAULT_ZOOM;
         }
-
-
-        if(routeParam.isMapPanelVisible)
-        {
-            this.isMyMapPanelVisible = routeParam.isMapPanelVisible;
-            
-        }
-        if(this.isMapPanelVisible)
-        {
-            this.isMyMapPanelVisible = this.isMapPanelVisible;
-            
-            
-        }
-
-
 
 
         this.$nextTick(function () {
@@ -327,4 +341,10 @@ export default {
         bottom: 0;
         left: 0;
     }
+    
+    #btnBack{
+        position: fixed;
+        z-index: 2000;
+    }
+    
 </style>

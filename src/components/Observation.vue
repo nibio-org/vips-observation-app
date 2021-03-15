@@ -1,33 +1,32 @@
 <template>
   <div class="hello">
-    <h1>{{ msg }}</h1>
-    <button type="button" class="btn btn-primary" id="cameraLauncher" @click="launchCamera">{{ take_photo }}</button>
+    <h1 ref='titleObservation'>{{ msg }}</h1>
+    <button type="button" class="btn btn-primary" id="cameraLauncher" ref='cameraLauncher' @click="launchCamera">{{ take_photo }}</button>
 <br>
 
-    <select v-model="crop.cropId" v-on:change="selectCrop($event)">
+    <select id="divCropId" ref='divCropId' v-model="crop.cropId" v-on:change="selectCrop($event)">
         <option v-for="crop in crops" v-bind:value='crop.organismId' >{{crop.latinName}}</option>
     </select>
     <br>
       <div class="clearfix"/>
-    <select v-model="pest.pestId">
+    <select  v-model="pest.pestId" id='divPestId' ref='divPestId'>
         <option v-for="pest in pests" v-bind:value='pest.pestId'>{{pest.pestName}}</option>
     </select>
 
     <div class="clearfix"/>
-    <div>
+    <div ref='divDateTime'>
       <!-- <input type="datetime-local" v-bind='strDateObservation | dateFormat' v-model="strDateObservation"/> -->
-        <input type="datetime-local" v-model="strDateObservation"/>
+        <input type="datetime-local" v-model="strDateObservation" />
     </div>
-    <router-link :to="{name:'MapObservation', params: {geoinfo:mapGeoinfo,isMapPanelVisible:newMapPanel}}">Observation Map </router-link>
-      <div v-if="mapGeoinfo"><map-observation :geoinfo="mapGeoinfo" :isMapPanelVisible="isMapPanelVisible"></map-observation></div> 
+    <router-link id="linkMap" ref='linkMap' :to="{name:'MapObservation', params: {geoinfo:mapGeoinfo,isMapPanelVisible:newMapPanel}}">Observation Map </router-link>
+      <div v-if="mapGeoinfo" id="divMapGeoInfo"><map-observation :geoinfo="mapGeoinfo" :isMapPanelVisible="isMapPanelVisible"></map-observation></div> 
 
-
+      
+      <div ref='divObservationText'>
         <div>Observation Detail</div>
-      
-      
         <input type="text" v-model="observationHeader"/>
         <p><textarea v-model="observationText" /></p>
-       
+      </div>
         <button class="btn btn-secondary float-right" v-on:click="saveObservation">Save</button>
            
      
@@ -40,6 +39,8 @@
 import CommonUtil from '@/components/CommonUtil'
 import { DateTime } from 'luxon'
 import MapObservation from '@/components/MapObservation'
+
+
 
 export default {
   name: 'Observation',
