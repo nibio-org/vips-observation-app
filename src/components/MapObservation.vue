@@ -3,7 +3,6 @@
     <div id='map-observation'>
         <div v-if="isMyMapPanelVisible"><router-link :to="{name: 'Observation'}" class="btn btn-success ">Back</router-link></div>
     </div>
-
     <div id="ObservationMapPanel" v-if="isMyMapPanelVisible"> 
         <div>
             <input value="" placeholder="name" style="position:absolute">
@@ -17,6 +16,14 @@
             <br>
             <select>
                 <option>Select</option>
+            </select>
+        </div>
+    </div>
+    <div v-else >
+        <div id='divPrivacy' ref='divPrivacy'>
+            <select >
+                    <option>Select</option>
+                    <option>some text</option>
             </select>
         </div>
     </div>
@@ -243,9 +250,12 @@ export default {
         let routeParam=this.$route.params;
       
         // This ensures that the map fills the entire viewport
-		var mapDiv = document.getElementById("map-observation");
-		var navDiv = document.getElementById("vipsobsappmenu");
-        var appDiv = document.getElementById("app");
+		var mapDiv      =   document.getElementById("map-observation");
+		var navDiv      =   document.getElementById("vipsobsappmenu");
+        var appDiv      =   document.getElementById("app");
+
+        var divPrivacy  =   document.getElementById("divPrivacy");
+
         if(this.isMapPanelVisible)
         {
             var panelObDiv = document.getElementById("ObservationMapPanel");
@@ -261,7 +271,40 @@ export default {
             }
         else
         {
-                mapDiv.style.height = (screen.height - navDiv.offsetHeight ) + "px";
+            console.log('divPrivacy.offsetHeight : '+divPrivacy.offsetHeight);
+            let linkMap = document.getElementById("linkMap");
+            //console.log(this.$refs);
+            //console.log(this.$parent.$refs);
+            let heightTitleObservation      =   (this.$parent.$refs.titleObservation) ? this.$parent.$refs.titleObservation.clientHeight : 0;
+            let heightCameraLauncher        =   (this.$parent.$refs.cameraLauncher) ? this.$parent.$refs.cameraLauncher.clientHeight : 0;
+            let heightDivCropId             =   (this.$parent.$refs.divCropId) ? this.$parent.$refs.divCropId.clientHeight : 0; 
+            let heightDivPestId             =   (this.$parent.$refs.divPestId) ? this.$parent.$refs.divPestId.clientHeight : 0; 
+            let heightDivDateTime           =   (this.$parent.$refs.divDateTime) ? this.$parent.$refs.divDateTime.clientHeight : 0; 
+            
+            let heightLinkMap               =   (linkMap)?linkMap.offsetHeight:0;
+            
+            let heightDivObservationText    =   (this.$parent.$refs.divObservationText) ? this.$parent.$refs.divObservationText.clientHeight : 0;
+
+            let heightDivPrivacy            =   this.$refs.divPrivacy.clientHeight;
+            console.log(this.$parent.$refs.linkMap);
+             
+                mapDiv.style.height = (
+                                            screen.height - (
+                                                                        navDiv.offsetHeight 
+                                                                //+   divPrivacy.offsetHeight
+                                                                    +   heightTitleObservation
+                                                                    +   heightCameraLauncher
+                                                                    +   heightDivCropId
+                                                                    +   heightDivPestId
+                                                                    +   heightDivDateTime
+                                                                    +   heightLinkMap
+                                                                    +   heightDivPrivacy
+                                                                    +   heightDivObservationText
+
+                                                            )
+                                      ) + "px";
+
+              
         }
         
         if(routeParam.geoinfo)
