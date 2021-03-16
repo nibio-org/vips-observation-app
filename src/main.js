@@ -34,6 +34,7 @@ const init = () => {
 	    },
 
       methods: {
+			
 	  },
 
       i18n,
@@ -90,4 +91,14 @@ const isCordovaApp = (typeof window.cordova !== "undefined");
 if (!isCordovaApp){
   document.dispatchEvent(new CustomEvent("deviceready", {}));
 }
+
+// Close the menu when clicking
+document.addEventListener(`click`, e => {
+	const origin1 = e.target.closest("#menuContainer");
+	const origin2 = e.target.closest("#navbarTogglerIcon");
+	// If you didn't click in the menu or on the toggle icon, close it
+	if (origin1 == null && origin2 == null) {
+		$('.offcanvas-collapse').removeClass('open');
+	}
+});
 
