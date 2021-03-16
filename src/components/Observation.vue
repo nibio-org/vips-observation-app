@@ -18,7 +18,7 @@
       <!-- <input type="datetime-local" v-bind='strDateObservation | dateFormat' v-model="strDateObservation"/> -->
         <input type="datetime-local" v-model="strDateObservation" />
     </div>
-    <router-link id="linkMap" ref='linkMap' :to="{name:'MapObservation', params: {geoinfo:mapGeoinfo,isMapPanelVisible:newMapPanel}}">Observation Map </router-link>
+    <router-link id="linkMap" ref='linkMap' :to="{name:'MapObservation', params: {geoinfo:mapGeoinfo,isMapPanelVisible:newMapPanel,locationPointOfInterestId:mapLocationPointOfInterestId}}">Observation Map </router-link>
       <div v-if="mapGeoinfo" id="divMapGeoInfo"><map-observation :geoinfo="mapGeoinfo" :isMapPanelVisible="isMapPanelVisible"></map-observation></div> 
 
       
@@ -61,6 +61,7 @@ export default {
       observationHeader : '',
       observationText : '',
       mapGeoinfo:'',
+      mapLocationPointOfInterestId:'',
       isMapPanelVisible:false,
       newMapPanel:true,
       observationForStore : 
@@ -116,6 +117,14 @@ export default {
               if(jsonObservation.geoinfo)
               {
                 this.mapGeoinfo            =   JSON.parse(jsonObservation.geoinfo);
+              }
+              else
+              {
+                if(jsonObservation.location.geoJSON)
+                {
+                   this.mapGeoinfo                      =   JSON.parse(jsonObservation.location.geoJSON);
+                   this.mapLocationPointOfInterestId    =   jsonObservation.locationPointOfInterestId;
+                }
               }
           }
           else {
