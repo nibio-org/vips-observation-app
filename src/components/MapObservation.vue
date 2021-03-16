@@ -257,7 +257,7 @@ export default {
             let userUUID = localStorage.getItem(CommonUtil.CONST_STORAGE_UUID);
             let jsonHeader = { Authorization: userUUID };
 
-            lstPOI.push({pointOfInterestId:'',name:'Select POI'});
+            lstPOI.push({pointOfInterestId:'',name:'No POI Selected'});
 
             fetch(CommonUtil.CONST_URL_DOMAIN +CommonUtil.CONST_URL_USER_POI, 
             {
