@@ -33,6 +33,7 @@ export default {
     CONST_URL_CROP_PEST_LIST            :   '/rest/organism/crop/pest/list',
     
     CONST_URL_USER_OBSERVATION_LIST     :   '/rest/observation/list/user',
+    CONST_URL_USER_POI                  :   '/rest/poi/user',
     
 
     CONST_GPS_URL_NORWAY_MAP            :   'https://opencache.statkart.no/gatekeeper/gk/gk.open_wmts?Version=1.0.0&service=wmts&request=getcapabilities',
