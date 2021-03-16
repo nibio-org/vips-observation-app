@@ -18,6 +18,8 @@ export default {
   components : {
     Welcome
   },
+  methods: {
+	},
   mounted(){
     
     let userUUID = localStorage.getItem(CommonUtil.CONST_STORAGE_UUID);
