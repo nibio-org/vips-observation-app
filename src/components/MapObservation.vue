@@ -6,16 +6,16 @@
 
     <div id="ObservationMapPanel" v-if="isMyMapPanelVisible" ref='ObservationMapPanel'> 
         <div>
-            <input value="" placeholder="name">
+<!--             <input value="" placeholder="name">
 
-            <br>
-            <select>
-                <option>Select test 1</option>
+            <br> -->
+            <select v-model="poi.pointOfInterestId" v-on:change="selectPOI($event)">
+                <option v-for="poi in lstPOI" v-bind:value="poi.pointOfInterestId" >{{poi.name}}</option>
             </select>
-            <br>
+<!--             <br>
             <select>
                 <option>Select test 2</option>
-            </select>
+            </select> -->
         </div>
     </div>
     <div v-else >
@@ -59,12 +59,14 @@ export default {
      props : ['geoinfo','isMapPanelVisible'],
      data(){
          return {
-                    isMyMapPanelVisible : '',
-                    myGeoInfo:'',
-                    latitude:0,
-                    longitude:0,
-                    mapZoom:0,
-                    mapInteractions:'',
+                    isMyMapPanelVisible :   '',
+                    myGeoInfo           :   '',
+                    latitude            :   0,
+                    longitude           :   0,
+                    mapZoom             :   0,
+                    mapInteractions     :   '',
+                    lstPOI              :   [],
+                    poi                 :   {pointOfInterestId:'',name:'Select POI'}
              }
      },
      methods : {
@@ -84,7 +86,7 @@ export default {
                 //let styleFunction       =   this.myStyleFunction(styles,feature);
                 //let styleFunction       =   this.myStyleFunction(styles);
                 
-                let vectorSource     =   this.myVectorGeoSource();
+                let vectorSource        =   this.myVectorGeoSource();
                 //vectorSource.addFeature(new Feature(new Circle([5e6, 7e6], 1e6)));
                 let vectorGeoLayer      =   this.myVectorGeoLayer(vectorSource);
 
@@ -249,7 +251,39 @@ export default {
         myInteractions(mapInteractions)
         {
             return (mapInteractions) ? [] : '';
-        }
+        },
+        getMyPointOfInterst(lstPOI)
+        {
+            let userUUID = localStorage.getItem(CommonUtil.CONST_STORAGE_UUID);
+            let jsonHeader = { Authorization: userUUID };
+
+            lstPOI.push({pointOfInterestId:'',name:'Select POI'});
+
+            fetch(CommonUtil.CONST_URL_DOMAIN +CommonUtil.CONST_URL_USER_POI, 
+            {
+                method: "GET",
+                headers: jsonHeader,
+            }).then((response) => {
+                    if(response.status == 200)
+                    {
+                       return response.json()
+                    }
+            })
+            .then((jsonLstPOI) => {
+                $.each(jsonLstPOI, function(index, poi){
+                        let myPOI = poi;//{'pointOfInterestId':poi.pointOfInterestId,'name':poi.name,'longitude':poi.longitude, 'latitude':poi.latitude};
+                        lstPOI.push(myPOI);
+                })
+                
+            })
+        },
+        selectPOI(event)
+        {
+            //let jsonSelectedPest = this.pests.find(({pestId}) => pestId === jsonObservation.organismId);
+
+            this.poi = this.lstPOI.find(({pointOfInterestId})=> pointOfInterestId === JSON.parse(event.target.value));
+
+        },
         
 
      },
@@ -286,7 +320,9 @@ export default {
 
                 appDiv.style.marginTop="0";
                 appDiv.style.paddingRight="0";
-                appDiv.style.paddingLeft="0";                
+                appDiv.style.paddingLeft="0";      
+                
+                 this.getMyPointOfInterst(this.lstPOI);
             }
         else
         {
@@ -314,6 +350,7 @@ export default {
             this.mapZoom = CommonUtil.CONST_GPS_DEFAULT_ZOOM;
         }
 
+       
 
         this.$nextTick(function () {
             this.initMap();
