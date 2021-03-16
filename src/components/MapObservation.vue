@@ -268,10 +268,6 @@ export default {
 
 
 
-		appDiv.style.marginTop="0";
-		appDiv.style.paddingRight="0";
-        appDiv.style.paddingLeft="0";
-
         if(routeParam.isMapPanelVisible)
         {
             this.isMyMapPanelVisible = routeParam.isMapPanelVisible;
@@ -287,6 +283,10 @@ export default {
             {
                 mapDiv.style.height = (screen.height - navDiv.offsetHeight) + "px";
                 this.mapInteractions='';
+
+                appDiv.style.marginTop="0";
+                appDiv.style.paddingRight="0";
+                appDiv.style.paddingLeft="0";                
             }
         else
         {
@@ -331,6 +331,7 @@ export default {
 </script>
 
 <style>
+   
    html, body, #map-observation {
         margin: 0;
     width: 100%;
