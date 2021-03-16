@@ -56,7 +56,7 @@ let parser = new WMTSCapabilities();
 
 export default {
      name : 'MapObservation',
-     props : ['geoinfo','isMapPanelVisible'],
+     props : ['geoinfo','isMapPanelVisible','locationPointOfInterestId'],
      data(){
          return {
                     isMyMapPanelVisible :   '',
@@ -339,18 +339,22 @@ export default {
             this.myGeoInfo = this.geoinfo;
         }
 
+
         if(this.myGeoInfo)
         {
             this.latitude   =   this.myGeoInfo.features[0].geometry.coordinates[0];
             this.longitude  =   this.myGeoInfo.features[0].geometry.coordinates[1];
-            this.mapZoom             = CommonUtil.CONST_GPS_OBSERVATION_ZOOM;
+            this.mapZoom    = CommonUtil.CONST_GPS_OBSERVATION_ZOOM;
         }
         else
         {
             this.mapZoom = CommonUtil.CONST_GPS_DEFAULT_ZOOM;
         }
 
-       
+       if(routeParam.locationPointOfInterestId)
+       {
+           this.poi.pointOfInterestId = routeParam.locationPointOfInterestId;
+       }
 
         this.$nextTick(function () {
             this.initMap();
