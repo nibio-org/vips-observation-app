@@ -66,16 +66,18 @@ export default {
                     mapZoom             :   0,
                     mapInteractions     :   '',
                     lstPOI              :   [],
-                    poi                 :   {pointOfInterestId:'',name:'Select POI'}
+                    poi                 :   {pointOfInterestId:'',name:'Select POI'},
+                    myMap               :   '',
              }
      },
      methods : {
-            initMap(){
-                
+            initMap(myLatitude,myLongitude){
+
+                let thisMap             =   this.myMap;
                 let urlMap              =   CommonUtil.CONST_GPS_URL_NORWAY_MAP;
 
-                let latitude            =   this.latitude;
-                let longitude           =   this.longitude;
+                let latitude            =   myLatitude;//this.latitude;
+                let longitude           =   myLongitude;//this.longitude;
                 let mapZoom             =   this.mapZoom;
 
                 let featureOverlay      =   this.featureOverlay();
@@ -92,6 +94,8 @@ export default {
 
                 let mapInteractions     =   this.myInteractions(this.mapInteractions);
 
+                let mapView             =   this.myView(latitude,longitude,mapZoom);
+
                 fetch(urlMap)
                 .then(function (response){
                         return response.text();
@@ -104,32 +108,30 @@ export default {
                                     layer : 'topo4',
                                     matrixSet: 'EPSG:3857',
                                 });
-
-
-                    new Map({
-                        layers: [
-
-                                new TileLayer({
-                                    opacity : 1,
-                                    source : new WMTS(options),
-                                }),
-                                //featureOverlay,
-                                //newFeatureOverlay,
-                                vectorGeoLayer
-
-                        ],
-                        controls: [],
-                        interactions : mapInteractions,
                         
-                        //interactions:'',
-                        target: 'map-observation',
-                        view : new View ({
-                            center:fromLonLat([latitude, longitude]),
-                            //center:fromLonLat([16,63]),
-                            zoom : mapZoom
-                        })
-                    })
+
+                    thisMap =   new Map({
+                                            layers: [
+
+                                                    new TileLayer({
+                                                        opacity : 1,
+                                                        source : new WMTS(options),
+                                                    }),
+                                                    //featureOverlay,
+                                                    //newFeatureOverlay,
+                                                    vectorGeoLayer
+
+                                            ],
+                                            controls: [],
+                                            interactions : mapInteractions,
+                                            
+                                            //interactions:'',
+                                            target: 'map-observation',
+                                            view : mapView
+                                        })
                 })
+
+                return thisMap;
             },
 
         featureOverlay(){
@@ -164,6 +166,13 @@ export default {
                     source : vectorSource,
                     //style: styleFunction,
                 })
+        },
+        myView(latitude,longitude,mapZoom){
+                    return new View ({
+                                        center:fromLonLat([latitude, longitude]),
+                                        //center:fromLonLat([16,63]),
+                                        zoom : mapZoom
+                                    })
         },
 
         mygeoStyle(image)
@@ -279,10 +288,33 @@ export default {
         },
         selectPOI(event)
         {
-            //let jsonSelectedPest = this.pests.find(({pestId}) => pestId === jsonObservation.organismId);
+            let myPOI =  this.poi;
 
-            this.poi = this.lstPOI.find(({pointOfInterestId})=> pointOfInterestId === JSON.parse(event.target.value));
+            if(event.target.value != 0)
+            {
 
+            $.each(this.lstPOI, function(index, poi){
+                    if ( poi.pointOfInterestId === JSON.parse(event.target.value))
+                    {
+                        myPOI=poi;
+                        return false;
+                    }
+            })
+
+            this.myGeoInfo = JSON.parse(myPOI.geoJSON);
+            let coordinate = this.myGeoInfo.features[0].geometry.coordinates;
+            console.log(coordinate);
+            this.latitude   =   coordinate[0];
+            this.longitude  =   coordinate[1];
+            
+           
+            //this.$nextTick(function () {
+                    var myMap2 = this.initMap(this.latitude, this.longitude);
+
+             //}); 
+
+            }
+             
         },
         
 
@@ -357,7 +389,7 @@ export default {
        }
 
         this.$nextTick(function () {
-            this.initMap();
+            this.initMap(this.latitude, this.longitude);
          });
      },
 	 beforeDestroy() {
