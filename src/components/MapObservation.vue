@@ -82,8 +82,8 @@ export default {
      },
      methods : {
             initMap(myLatitude,myLongitude){
-                //let thisMap             =   this.myMap;
-				let This = this;
+                //let thisMap           =   this.myMap;
+				let This                = this;
                 let urlMap              =   CommonUtil.CONST_GPS_URL_NORWAY_MAP;
 
                 let myGeoInfo           =   this.myGeoInfo;
@@ -110,6 +110,7 @@ export default {
                 let styleFunction     = function (feature) {
                                             return styles[feature.getGeometry().getType()];
                                             };
+                let localIsMyMapPanelVisible = this.isMyMapPanelVisible;                                            
 
                 fetch(urlMap)
                 .then(function (response){
@@ -151,6 +152,9 @@ export default {
                    
 
                     This.myMap.on(['singleclick'],function(event){
+                            if(localIsMyMapPanelVisible)
+                            {
+
                             //thisMap.getView().setCenter([latitude,longitude]);
                             //thisMap.getView().setCenter([latitude,longitude],'EPSG:4326','EPSG:3857');
 
@@ -205,6 +209,9 @@ export default {
 
                             thisMap.addOverlay(stationMarker);
                             */
+
+                        }
+
                     });
 
                     //var precisionInput = document.getElementById('precision');
@@ -380,6 +387,8 @@ export default {
         },
         selectPOI(event)
         {
+           
+
             let myPOI =  this.poi;
 
             if(event.target.value != 0)
@@ -408,6 +417,8 @@ export default {
              //}); 
 
             }
+
+            
              
         }
 
