@@ -26,7 +26,7 @@
             </select>
         </div>
     </div>
-
+<div id="poiMarker" style="display:none"></div>
     </div>
 </template>
 
@@ -49,6 +49,16 @@ import Circle from 'ol/geom/Circle';
 import {Circle as CircleStyle, Fill, Stroke, Style} from 'ol/style';
 import Feature from 'ol/Feature';
 import GeoJSON from 'ol/format/GeoJSON';
+
+import {toStringXY} from 'ol/coordinate';
+import {transform} from 'ol/proj';
+import Point from 'ol/geom/Point';
+import {Modify} from 'ol/interaction';
+import Draw from 'ol/interaction/Draw';
+import Overlay from 'ol/Overlay';
+
+//import Fill from 'ol/style/Fill';
+//import Stroke from 'ol/style/Stroke';
 
 
 let parser = new WMTSCapabilities();
@@ -76,6 +86,7 @@ export default {
                 let thisMap             =   this.myMap;
                 let urlMap              =   CommonUtil.CONST_GPS_URL_NORWAY_MAP;
 
+                let myGeoInfo           =   this.myGeoInfo;
                 let latitude            =   myLatitude;//this.latitude;
                 let longitude           =   myLongitude;//this.longitude;
                 let mapZoom             =   this.mapZoom;
@@ -84,17 +95,21 @@ export default {
                 let newFeatureOverlay   =   this.newFeatureOverlay();
 
                 let image               =   this.myImage();
-                let styles              =   this.mygeoStyle(image);
+                //let styles              =   this.mygeoStyle(image);
                 //let styleFunction       =   this.myStyleFunction(styles,feature);
                 //let styleFunction       =   this.myStyleFunction(styles);
                 
                 let vectorSource        =   this.myVectorGeoSource();
                 //vectorSource.addFeature(new Feature(new Circle([5e6, 7e6], 1e6)));
-                let vectorGeoLayer      =   this.myVectorGeoLayer(vectorSource);
+                let vectorGeoLayer      =   this.myVectorGeoLayer(vectorSource,image);
 
                 let mapInteractions     =   this.myInteractions(this.mapInteractions);
 
                 let mapView             =   this.myView(latitude,longitude,mapZoom);
+
+                let styleFunction     = function (feature) {
+                                            return styles[feature.getGeometry().getType()];
+                                            };
 
                 fetch(urlMap)
                 .then(function (response){
@@ -128,7 +143,65 @@ export default {
                                             //interactions:'',
                                             target: 'map-observation',
                                             view : mapView
+                                        });
+                    //mapView.centerOn(myGeoInfo.features[0].geometry.coordinates, thisMap.getSize() , [411, 675]);   
+                    //console.log(thisMap.getSize());
+
+                    thisMap.on(['singleclick'],function(event){
+
+                            let mapNewCord = toStringXY(transform(event.coordinate,'EPSG:3857','EPSG:4326'),4);
+                                    console.log (mapNewCord);
+                            let point = new Point([mapNewCord]);
+                                    console.log(point);
+                            let locationFeatures = vectorGeoLayer.getSource().getFeatures()[0];
+                            locationFeatures.setGeometry(point);
+                                    console.log(locationFeatures);
+
+                            let geoGSON = new GeoJSON();
+                                    console.log(geoGSON);
+                            let result = geoGSON.writeFeatures(locationFeatures, {
+                                            dataProjection: 'EPSG:4326',
+                                            featureProjection: 'EPSG:3857' //thisMap.getView().getProjection().getCode()
                                         })
+
+                                    console.log (geoGSON);
+                                    //console.result(result);
+                            //mapView.centerOn(myGeoInfo.features[0].geometry.coordinates, thisMap.getSize() , [411, 675]); 
+                           /*
+                           var target = document.getElementById('map-observation');
+                                    var modify = new Modify({
+                                    hitDetection: vectorGeoLayer,
+                                    source: vectorSource,
+                                    });
+                                    modify.on(['modifystart', 'modifyend'], function (evt) {
+                                        target.style.cursor = evt.type === 'modifystart' ? 'grabbing' : 'pointer';
+                                    });
+                                    thisMap.addInteraction(modify);
+                            */
+
+                           
+                            var draw = new Draw({
+                                        source: vectorSource,
+                                        type: 'Point',
+                                        });
+                            thisMap.addInteraction(draw);
+                            
+
+                            //thisMap.removeInteraction(draw);
+                            //draw.removeLastPoint();
+
+                            /*
+                            var stationMarker = new Overlay({
+                                position: (mapNewCord) ? mapNewCord : undefined ,
+                                positioning: 'bottom-center',
+                                element: document.getElementById('poiMarker'),
+                                stopEvent: false
+                            });
+
+                            thisMap.addOverlay(stationMarker);
+                            */
+                    });
+
                 })
 
                 return thisMap;
@@ -161,9 +234,12 @@ export default {
             }
         },
 
-        myVectorGeoLayer(vectorSource){
+        myVectorGeoLayer(vectorSource,image){
                 return new VectorLayer({
-                    source : vectorSource,
+                    source  :   vectorSource,
+                    style   :   new Style({
+                                        image: image,
+                                    }),
                     //style: styleFunction,
                 })
         },
@@ -175,6 +251,7 @@ export default {
                                     })
         },
 
+/*
         mygeoStyle(image)
         {
             return  {
@@ -241,14 +318,20 @@ export default {
                             }),
                         }),
             };
-        },
+        }, 
+*/
+
 
         myImage()
         {
+            var fill = new Fill({
+                color: '#FF0000'    //[180, 0, 0, 0.3]
+            });
+
             return new CircleStyle({
                     radius: 5,
-                    fill: null,
-                    stroke: new Stroke({color: 'red', width: 1}),
+                    fill: fill,
+                    stroke: new Stroke({color: 'red', width: 4}),
                     });
         },
 
@@ -303,7 +386,6 @@ export default {
 
             this.myGeoInfo = JSON.parse(myPOI.geoJSON);
             let coordinate = this.myGeoInfo.features[0].geometry.coordinates;
-            console.log(coordinate);
             this.latitude   =   coordinate[0];
             this.longitude  =   coordinate[1];
             
@@ -316,6 +398,11 @@ export default {
             }
              
         },
+        mapClick(event)
+        {
+            console.log('mouse clicked');
+            console.log(event);
+        }
         
 
      },
