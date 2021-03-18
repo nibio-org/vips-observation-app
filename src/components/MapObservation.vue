@@ -146,8 +146,13 @@ export default {
                                         });
                     //mapView.centerOn(myGeoInfo.features[0].geometry.coordinates, thisMap.getSize() , [411, 675]);   
                     //console.log(thisMap.getSize());
+                    //thisMap.getView().setCenter([latitude,longitude],'EPSG:4326','EPSG:3857');
+                   
+                   
 
                     This.myMap.on(['singleclick'],function(event){
+                            //thisMap.getView().setCenter([latitude,longitude]);
+                            //thisMap.getView().setCenter([latitude,longitude],'EPSG:4326','EPSG:3857');
 
                             let mapNewCord = toStringXY(transform(event.coordinate,'EPSG:3857','EPSG:4326'),4);
                                     console.log (mapNewCord);
@@ -201,6 +206,10 @@ export default {
                             thisMap.addOverlay(stationMarker);
                             */
                     });
+
+                    //var precisionInput = document.getElementById('precision');
+                    
+
 
                 })
 
@@ -386,20 +395,21 @@ export default {
 
             this.myGeoInfo = JSON.parse(myPOI.geoJSON);
             let coordinate = this.myGeoInfo.features[0].geometry.coordinates;
-            this.latitude   =   coordinate[1];
-            this.longitude  =   coordinate[0];
-        
-		    this.myMap.getView().setCenter(fromLonLat(coordinate));
-		
+            this.latitude   =   coordinate[0];
+            this.longitude  =   coordinate[1];
+            
+           this.myMap.getView().setCenter(fromLonLat(coordinate));
+            //this.$nextTick(function () {
+                    //var myMap2 = this.initMap(this.latitude, this.longitude);
+                    //myMap2.getView().setCenter([this.latitude,this.longitude],'EPSG:4326','EPSG:3857');
+                    console.log('----');
+                    //console.log(myMap2);
+
+             //}); 
+
             }
              
-        },
-        mapClick(event)
-        {
-            console.log('mouse clicked');
-            console.log(event);
         }
-        
 
      },
      mounted() {
