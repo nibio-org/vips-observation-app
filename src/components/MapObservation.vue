@@ -77,13 +77,13 @@ export default {
                     mapInteractions     :   '',
                     lstPOI              :   [],
                     poi                 :   {pointOfInterestId:'',name:'Select POI'},
-                    myMap               :   '',
+                    myMap               :   'TEST',
              }
      },
      methods : {
             initMap(myLatitude,myLongitude){
-
-                let thisMap             =   this.myMap;
+                //let thisMap             =   this.myMap;
+				let This = this;
                 let urlMap              =   CommonUtil.CONST_GPS_URL_NORWAY_MAP;
 
                 let myGeoInfo           =   this.myGeoInfo;
@@ -124,8 +124,8 @@ export default {
                                     matrixSet: 'EPSG:3857',
                                 });
                         
-
-                    thisMap =   new Map({
+					console.info(This.myMap);
+                    This.myMap =   new Map({
                                             layers: [
 
                                                     new TileLayer({
@@ -147,7 +147,7 @@ export default {
                     //mapView.centerOn(myGeoInfo.features[0].geometry.coordinates, thisMap.getSize() , [411, 675]);   
                     //console.log(thisMap.getSize());
 
-                    thisMap.on(['singleclick'],function(event){
+                    This.myMap.on(['singleclick'],function(event){
 
                             let mapNewCord = toStringXY(transform(event.coordinate,'EPSG:3857','EPSG:4326'),4);
                                     console.log (mapNewCord);
@@ -180,11 +180,11 @@ export default {
                             */
 
                            
-                            var draw = new Draw({
+                            /*var draw = new Draw({
                                         source: vectorSource,
                                         type: 'Point',
                                         });
-                            thisMap.addInteraction(draw);
+                            this.myMap.addInteraction(draw);*/
                             
 
                             //thisMap.removeInteraction(draw);
@@ -204,7 +204,7 @@ export default {
 
                 })
 
-                return thisMap;
+                
             },
 
         featureOverlay(){
@@ -386,15 +386,11 @@ export default {
 
             this.myGeoInfo = JSON.parse(myPOI.geoJSON);
             let coordinate = this.myGeoInfo.features[0].geometry.coordinates;
-            this.latitude   =   coordinate[0];
-            this.longitude  =   coordinate[1];
-            
-           
-            //this.$nextTick(function () {
-                    var myMap2 = this.initMap(this.latitude, this.longitude);
-
-             //}); 
-
+            this.latitude   =   coordinate[1];
+            this.longitude  =   coordinate[0];
+        
+		    this.myMap.getView().setCenter(fromLonLat(coordinate));
+		
             }
              
         },
