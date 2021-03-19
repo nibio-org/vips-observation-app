@@ -111,6 +111,7 @@ export default {
                 
                 let pointMarker         =   this.myOverLay (coordinate);
                 let pointMarkerCoord    =   this.myOverLayCoord(latitude,longitude);
+
             
 
                 fetch(urlMap)
@@ -152,63 +153,65 @@ export default {
                     This.myMap.on(['singleclick'],function(event){
                             if(localIsMyMapPanelVisible)
                             {
-                                console.log('pointOfInterestId : '+pointOfInterestId);
-                            pointOfInterestId = 'undefined';
+                                    
+                                This.poi.pointOfInterestId='undefined';
 
-                            let transFormCord = transform(event.coordinate,'EPSG:3857','EPSG:4326');
-                                    //console.log(transFormCord);
-                            let mapNewCord = toStringXY(transform(event.coordinate,'EPSG:3857','EPSG:4326'),4);
-                                    //console.log (mapNewCord);
-                            /*
-                            let point = new Point([mapNewCord]);
-                                    console.log(point);
-                            let locationFeatures = vectorGeoLayer.getSource().getFeatures()[0];
-                            locationFeatures.setGeometry(point);
-                                    console.log(locationFeatures);
+                                let transFormCord = transform(event.coordinate,'EPSG:3857','EPSG:4326');
+                                        This.latitude=transFormCord[0];
+                                        This.longitude=transFormCord[1];
+                                let mapNewCord = toStringXY(transform(event.coordinate,'EPSG:3857','EPSG:4326'),4);
+                                        //console.log (mapNewCord);
+                                /*
+                                let point = new Point([mapNewCord]);
+                                        console.log(point);
+                                let locationFeatures = vectorGeoLayer.getSource().getFeatures()[0];
+                                locationFeatures.setGeometry(point);
+                                        console.log(locationFeatures);
 
-                            let geoGSON = new GeoJSON();
-                                    console.log(geoGSON);
-                            let result = geoGSON.writeFeatures(locationFeatures, {
-                                            dataProjection: 'EPSG:4326',
-                                            featureProjection: 'EPSG:3857' //thisMap.getView().getProjection().getCode()
-                                        })
+                                let geoGSON = new GeoJSON();
+                                        console.log(geoGSON);
+                                let result = geoGSON.writeFeatures(locationFeatures, {
+                                                dataProjection: 'EPSG:4326',
+                                                featureProjection: 'EPSG:3857' //thisMap.getView().getProjection().getCode()
+                                            })
 
-                                    console.log (geoGSON);
-                            */
-                                    //console.result(result);
+                                        console.log (geoGSON);
+                                */
+                                        //console.result(result);
 
 
-                            /** Below code for image marker */
-/* 
-                            This.myMap.addOverlay(pointMarker);
-                            pointMarker.setPosition(fromLonLat(transFormCord));
- 
-                             let view =  new View ({
-                                        center:fromLonLat(transFormCord),
-                                        zoom : mapZoom
-                                    }) 
+                                /** Below code for image marker */
+    /* 
+                                This.myMap.addOverlay(pointMarker);
+                                pointMarker.setPosition(fromLonLat(transFormCord));
+    
+                                let view =  new View ({
+                                            center:fromLonLat(transFormCord),
+                                            zoom : mapZoom
+                                        }) 
 
-                            This.myMap.setView(view);
-                            vectorSource.clear();
-*/
-                            This.myMap.getView().setCenter(fromLonLat(transFormCord));
-
-                                /******* Below code for vector marker positioning */
-
-                               var iconFeature = new Feature({
-                                    geometry: new Point(fromLonLat(transFormCord)) 
-                                });
+                                This.myMap.setView(view);
                                 vectorSource.clear();
-                                vectorSource.addFeature(iconFeature);
+    */
+                                This.myMap.getView().setCenter(fromLonLat(transFormCord));
 
-                                var vectorLayer = new VectorLayer({
-                                                    source: vectorSource,
-                                                    style: new Style({
-                                                            image: image,
-                                                        }),
-                                                });
+                                    /******* Below code for vector marker positioning */
 
-                                This.myMap.addLayer(vectorLayer);
+                                 var iconFeature = new Feature({
+                                        geometry: new Point(fromLonLat(transFormCord)) 
+                                    });
+                                    vectorSource.clear();
+                                    vectorSource.addFeature(iconFeature);
+
+                                    var vectorLayer = new VectorLayer({
+                                                        source: vectorSource,
+                                                        style: new Style({
+                                                                image: image,
+                                                            }),
+                                                    });
+
+                                    This.myMap.addLayer(vectorLayer); 
+
                                 
 
                         }
@@ -286,6 +289,7 @@ export default {
         {
             return (mapInteractions) ? [] : '';
         },
+
         getMyPointOfInterst(lstPOI)
         {
             let userUUID = localStorage.getItem(CommonUtil.CONST_STORAGE_UUID);
@@ -331,6 +335,27 @@ export default {
             this.longitude  =   coordinate[1];
             
            this.myMap.getView().setCenter(fromLonLat(coordinate));
+
+            let myImage             = this.myImage();
+            let transFormCord       = [this.latitude,this.longitude];
+            let vectorSource        =   this.myVectorGeoSource();
+
+            var iconFeature = new Feature({
+                geometry: new Point(fromLonLat(transFormCord)) 
+            });
+            vectorSource.clear();
+            vectorSource.addFeature(iconFeature);
+
+            var vectorLayer = new VectorLayer({
+                                source: vectorSource,
+                                style: new Style({
+                                        image: myImage,
+                                    }),
+                            });
+
+            this.myMap.addLayer(vectorLayer); 
+
+
 
             }
 
