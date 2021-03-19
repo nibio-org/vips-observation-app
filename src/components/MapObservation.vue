@@ -111,6 +111,7 @@ export default {
                 
                 let pointMarker         =   this.myOverLay (coordinate);
                 let pointMarkerCoord    =   this.myOverLayCoord(latitude,longitude);
+
             
 
                 fetch(urlMap)
@@ -196,7 +197,7 @@ export default {
 
                                     /******* Below code for vector marker positioning */
 
-                                var iconFeature = new Feature({
+                                 var iconFeature = new Feature({
                                         geometry: new Point(fromLonLat(transFormCord)) 
                                     });
                                     vectorSource.clear();
@@ -209,7 +210,8 @@ export default {
                                                             }),
                                                     });
 
-                                    This.myMap.addLayer(vectorLayer);
+                                    This.myMap.addLayer(vectorLayer); 
+
                                 
 
                         }
@@ -287,6 +289,7 @@ export default {
         {
             return (mapInteractions) ? [] : '';
         },
+
         getMyPointOfInterst(lstPOI)
         {
             let userUUID = localStorage.getItem(CommonUtil.CONST_STORAGE_UUID);
@@ -332,6 +335,27 @@ export default {
             this.longitude  =   coordinate[1];
             
            this.myMap.getView().setCenter(fromLonLat(coordinate));
+
+            let myImage             = this.myImage();
+            let transFormCord       = [this.latitude,this.longitude];
+            let vectorSource        =   this.myVectorGeoSource();
+
+            var iconFeature = new Feature({
+                geometry: new Point(fromLonLat(transFormCord)) 
+            });
+            vectorSource.clear();
+            vectorSource.addFeature(iconFeature);
+
+            var vectorLayer = new VectorLayer({
+                                source: vectorSource,
+                                style: new Style({
+                                        image: myImage,
+                                    }),
+                            });
+
+            this.myMap.addLayer(vectorLayer); 
+
+
 
             }
 
