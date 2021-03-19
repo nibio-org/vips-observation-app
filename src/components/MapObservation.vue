@@ -214,8 +214,13 @@ export default {
                                      
                                     This.myMap.addLayer(vectorLayer); 
                                    
+                                    let geoGSON = new GeoJSON();
+                                    let resultGeoGSON = geoGSON.writeFeatures(vectorLayer.getSource().getFeatures(), {
+                                        dataProjection: 'EPSG:4326',
+                                        featureProjection: 'EPSG:3857' 
+                                    });
 
-                                
+                                    This.myGeoInfo = JSON.parse(resultGeoGSON);
 
                         }
 
@@ -357,7 +362,7 @@ export default {
             var iconFeature = new Feature({
                 geometry: new Point(fromLonLat(transFormCord)) 
             });
-            //vectorSource.clear();
+
             vectorSource.addFeature(iconFeature);
 
             var vectorLayer = new VectorLayer({
