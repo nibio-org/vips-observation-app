@@ -9,9 +9,12 @@
 <!--             <input value="" placeholder="name">
 
             <br> -->
-            <select v-model="poi.pointOfInterestId" v-on:change="selectPOI($event)">
+            <select v-model="poi.pointOfInterestId" v-on:change="selectPOI($event)" ref="dropDownPOI">
                 <option v-for="poi in lstPOI" v-bind:value="poi.pointOfInterestId" >{{poi.name}}</option>
             </select>
+            <div id="poiMarker">
+                <img src="@/assets/map_icon.png"> 
+            </div>
 <!--             <br>
             <select>
                 <option>Select test 2</option>
@@ -50,6 +53,15 @@ import {Circle as CircleStyle, Fill, Stroke, Style} from 'ol/style';
 import Feature from 'ol/Feature';
 import GeoJSON from 'ol/format/GeoJSON';
 
+import {toStringXY} from 'ol/coordinate';
+import {transform} from 'ol/proj';
+import Point from 'ol/geom/Point';
+import {Modify} from 'ol/interaction';
+import Draw from 'ol/interaction/Draw';
+import Overlay from 'ol/Overlay';
+import Geolocation from 'ol/Geolocation';
+
+
 
 let parser = new WMTSCapabilities();
 
@@ -66,31 +78,40 @@ export default {
                     mapZoom             :   0,
                     mapInteractions     :   '',
                     lstPOI              :   [],
-                    poi                 :   {pointOfInterestId:'',name:'Select POI'}
+                    poi                 :   {pointOfInterestId:'undefined',name:'Select POI'},
+                    myMap               :   '',
              }
      },
      methods : {
-            initMap(){
-                
+            initMap(myLatitude,myLongitude){
+                //let thisMap           =   this.myMap;
+                let pointOfInterestId   =   this.poi.pointOfInterestId;
+				let This                = this;
                 let urlMap              =   CommonUtil.CONST_GPS_URL_NORWAY_MAP;
 
-                let latitude            =   this.latitude;
-                let longitude           =   this.longitude;
+                let myGeoInfo           =   this.myGeoInfo;
+                let latitude            =   myLatitude;//this.latitude;
+                let longitude           =   myLongitude;//this.longitude;
                 let mapZoom             =   this.mapZoom;
 
-                let featureOverlay      =   this.featureOverlay();
-                let newFeatureOverlay   =   this.newFeatureOverlay();
-
                 let image               =   this.myImage();
-                let styles              =   this.mygeoStyle(image);
-                //let styleFunction       =   this.myStyleFunction(styles,feature);
-                //let styleFunction       =   this.myStyleFunction(styles);
+
                 
                 let vectorSource        =   this.myVectorGeoSource();
-                //vectorSource.addFeature(new Feature(new Circle([5e6, 7e6], 1e6)));
-                let vectorGeoLayer      =   this.myVectorGeoLayer(vectorSource);
+
+                let vectorGeoLayer      =   this.myVectorGeoLayer(vectorSource,image);
 
                 let mapInteractions     =   this.myInteractions(this.mapInteractions);
+
+                let mapView             =   this.myView(latitude,longitude,mapZoom);
+
+
+                let localIsMyMapPanelVisible = this.isMyMapPanelVisible; 
+                let coordinate          =   [latitude,longitude];
+                
+                let pointMarker         =   this.myOverLay (coordinate);
+                let pointMarkerCoord    =   this.myOverLayCoord(latitude,longitude);
+            
 
                 fetch(urlMap)
                 .then(function (response){
@@ -104,50 +125,101 @@ export default {
                                     layer : 'topo4',
                                     matrixSet: 'EPSG:3857',
                                 });
-
-
-                    new Map({
-                        layers: [
-
-                                new TileLayer({
-                                    opacity : 1,
-                                    source : new WMTS(options),
-                                }),
-                                //featureOverlay,
-                                //newFeatureOverlay,
-                                vectorGeoLayer
-
-                        ],
-                        controls: [],
-                        interactions : mapInteractions,
                         
-                        //interactions:'',
-                        target: 'map-observation',
-                        view : new View ({
-                            center:fromLonLat([latitude, longitude]),
-                            //center:fromLonLat([16,63]),
-                            zoom : mapZoom
-                        })
-                    })
+					console.info(This.myMap);
+                    This.myMap =   new Map({
+                                            layers: [
+
+                                                    new TileLayer({
+                                                        opacity : 1,
+                                                        source : new WMTS(options),
+                                                    }),
+                                                    vectorGeoLayer
+
+                                            ],
+                                            controls: [],
+                                            interactions : mapInteractions,
+                                            
+                                            target: 'map-observation',
+                                            view : mapView,
+                                            overlays: [pointMarkerCoord],
+                                            renderer: 'canvas',
+                                        });
+
+                   
+                   
+
+                    This.myMap.on(['singleclick'],function(event){
+                            if(localIsMyMapPanelVisible)
+                            {
+                                console.log('pointOfInterestId : '+pointOfInterestId);
+                            pointOfInterestId = 'undefined';
+
+                            let transFormCord = transform(event.coordinate,'EPSG:3857','EPSG:4326');
+                                    //console.log(transFormCord);
+                            let mapNewCord = toStringXY(transform(event.coordinate,'EPSG:3857','EPSG:4326'),4);
+                                    //console.log (mapNewCord);
+                            /*
+                            let point = new Point([mapNewCord]);
+                                    console.log(point);
+                            let locationFeatures = vectorGeoLayer.getSource().getFeatures()[0];
+                            locationFeatures.setGeometry(point);
+                                    console.log(locationFeatures);
+
+                            let geoGSON = new GeoJSON();
+                                    console.log(geoGSON);
+                            let result = geoGSON.writeFeatures(locationFeatures, {
+                                            dataProjection: 'EPSG:4326',
+                                            featureProjection: 'EPSG:3857' //thisMap.getView().getProjection().getCode()
+                                        })
+
+                                    console.log (geoGSON);
+                            */
+                                    //console.result(result);
+
+
+                            /** Below code for image marker */
+/* 
+                            This.myMap.addOverlay(pointMarker);
+                            pointMarker.setPosition(fromLonLat(transFormCord));
+ 
+                             let view =  new View ({
+                                        center:fromLonLat(transFormCord),
+                                        zoom : mapZoom
+                                    }) 
+
+                            This.myMap.setView(view);
+                            vectorSource.clear();
+*/
+                            This.myMap.getView().setCenter(fromLonLat(transFormCord));
+
+                                /******* Below code for vector marker positioning */
+
+                               var iconFeature = new Feature({
+                                    geometry: new Point(fromLonLat(transFormCord)) 
+                                });
+                                vectorSource.clear();
+                                vectorSource.addFeature(iconFeature);
+
+                                var vectorLayer = new VectorLayer({
+                                                    source: vectorSource,
+                                                    style: new Style({
+                                                            image: image,
+                                                        }),
+                                                });
+
+                                This.myMap.addLayer(vectorLayer);
+                                
+
+                        }
+
+                    });
+
                 })
+
+                
             },
 
-        featureOverlay(){
-                let features = new Collection();
-                return new VectorLayer({
-                        source : new VectorSource ({
-                            features : features
-                        })
-                })
-        },
-
-        newFeatureOverlay(){
-            return new VectorLayer({
-                source : new VectorSource({
-                    features : new Collection()
-                })
-            })
-        },
 
         myVectorGeoSource(){
             if(this.myGeoInfo)
@@ -159,89 +231,51 @@ export default {
             }
         },
 
-        myVectorGeoLayer(vectorSource){
+        myVectorGeoLayer(vectorSource,image){
                 return new VectorLayer({
-                    source : vectorSource,
-                    //style: styleFunction,
+                    source  :   vectorSource,
+                    style   :   new Style({
+                                        image: image,
+                                    }),
                 })
         },
-
-        mygeoStyle(image)
-        {
-            return  {
-                        'Point': new Style({
-                            image: image,
-                        }),
-                        'LineString': new Style({
-                            stroke: new Stroke({
-                            color: 'green',
-                            width: 1,
-                            }),
-                        }),
-                        'MultiLineString': new Style({
-                            stroke: new Stroke({
-                            color: 'green',
-                            width: 1,
-                            }),
-                        }),
-                        'MultiPoint': new Style({
-                            image: image,
-                        }),
-                        'MultiPolygon': new Style({
-                            stroke: new Stroke({
-                            color: 'yellow',
-                            width: 1,
-                            }),
-                            fill: new Fill({
-                            color: 'rgba(255, 255, 0, 0.1)',
-                            }),
-                        }),
-                        'Polygon': new Style({
-                            stroke: new Stroke({
-                            color: 'blue',
-                            lineDash: [4],
-                            width: 3,
-                            }),
-                            fill: new Fill({
-                            color: 'rgba(0, 0, 255, 0.1)',
-                            }),
-                        }),
-                        'GeometryCollection': new Style({
-                            stroke: new Stroke({
-                            color: 'magenta',
-                            width: 2,
-                            }),
-                            fill: new Fill({
-                            color: 'magenta',
-                            }),
-                            image: new CircleStyle({
-                            radius: 10,
-                            fill: null,
-                            stroke: new Stroke({
-                                color: 'magenta',
-                            }),
-                            }),
-                        }),
-                        'Circle': new Style({
-                            stroke: new Stroke({
-                            color: 'red',
-                            width: 2,
-                            }),
-                            fill: new Fill({
-                            color: 'rgba(255,0,0,0.2)',
-                            }),
-                        }),
-            };
+        myView(latitude,longitude,mapZoom){
+                    return new View ({
+                                        center:fromLonLat([latitude, longitude]),
+                                        zoom : mapZoom
+                                    })
         },
 
         myImage()
         {
+            var fill = new Fill({
+                color: '#FF0000'    //[180, 0, 0, 0.3]
+            });
+
             return new CircleStyle({
                     radius: 5,
-                    fill: null,
-                    stroke: new Stroke({color: 'red', width: 1}),
+                    fill: fill,
+                    stroke: new Stroke({color: 'red', width: 4}),
                     });
         },
+
+
+        myOverLay(coordinates){
+            return new Overlay({
+                            position :  fromLonLat(coordinates) ,
+                            positioning: 'bottom-center',
+                            element: document.getElementById('poiMarker'),
+                            stopEvent: false                                
+                        });
+        },
+
+
+        myOverLayCoord(latitude,longitude)
+        {
+            let coordinate = [latitude,longitude];
+            return this.myOverLay(coordinate);
+        },
+
 
         myStyleFunction(styles,feature)
         {
@@ -257,7 +291,7 @@ export default {
             let userUUID = localStorage.getItem(CommonUtil.CONST_STORAGE_UUID);
             let jsonHeader = { Authorization: userUUID };
 
-            lstPOI.push({pointOfInterestId:'',name:'No POI Selected'});
+            lstPOI.push({pointOfInterestId:'undefined',name:'No POI Selected'});
 
             fetch(CommonUtil.CONST_URL_DOMAIN +CommonUtil.CONST_URL_USER_POI, 
             {
@@ -277,14 +311,32 @@ export default {
                 
             })
         },
+ 
         selectPOI(event)
         {
-            //let jsonSelectedPest = this.pests.find(({pestId}) => pestId === jsonObservation.organismId);
+            let myPOI =  this.poi;
+            if(event.target.value != 0)
+            {
+            $.each(this.lstPOI, function(index, poi){
+                    if ( poi.pointOfInterestId === JSON.parse(event.target.value))
+                    {
+                        myPOI=poi;
+                        return false;
+                    }
+            })
 
-            this.poi = this.lstPOI.find(({pointOfInterestId})=> pointOfInterestId === JSON.parse(event.target.value));
+            this.myGeoInfo = JSON.parse(myPOI.geoJSON);
+            let coordinate = this.myGeoInfo.features[0].geometry.coordinates;
+            this.latitude   =   coordinate[0];
+            this.longitude  =   coordinate[1];
+            
+           this.myMap.getView().setCenter(fromLonLat(coordinate));
 
-        },
-        
+            }
+
+            
+             
+        }
 
      },
      mounted() {
@@ -357,7 +409,7 @@ export default {
        }
 
         this.$nextTick(function () {
-            this.initMap();
+            this.initMap(this.latitude, this.longitude);
          });
      },
 	 beforeDestroy() {
