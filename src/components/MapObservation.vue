@@ -127,7 +127,7 @@ export default {
                                     matrixSet: 'EPSG:3857',
                                 });
                         
-					console.info(This.myMap);
+
                     This.myMap =   new Map({
                                             layers: [
 
@@ -200,7 +200,8 @@ export default {
                                  var iconFeature = new Feature({
                                         geometry: new Point(fromLonLat(transFormCord)) 
                                     });
-                                    vectorSource.clear();
+                                    This.clearMapLayers();
+                                    
                                     vectorSource.addFeature(iconFeature);
 
                                     var vectorLayer = new VectorLayer({
@@ -210,7 +211,9 @@ export default {
                                                             }),
                                                     });
 
+                                     
                                     This.myMap.addLayer(vectorLayer); 
+                                   
 
                                 
 
@@ -315,6 +318,16 @@ export default {
                 
             })
         },
+
+        clearMapLayers()
+        {
+            let myLayers = this.myMap.getLayers();
+            this.myMap.getLayers().forEach(function (layer){
+                let source = layer.get('source');
+                source.clear();
+
+            })
+        },
  
         selectPOI(event)
         {
@@ -334,16 +347,17 @@ export default {
             this.latitude   =   coordinate[0];
             this.longitude  =   coordinate[1];
             
-           this.myMap.getView().setCenter(fromLonLat(coordinate));
+          
 
             let myImage             = this.myImage();
             let transFormCord       = [this.latitude,this.longitude];
-            let vectorSource        =   this.myVectorGeoSource();
+            //let vectorSource        =   this.myVectorGeoSource();
+            let   vectorSource      =   new VectorSource({});
 
             var iconFeature = new Feature({
                 geometry: new Point(fromLonLat(transFormCord)) 
             });
-            vectorSource.clear();
+            //vectorSource.clear();
             vectorSource.addFeature(iconFeature);
 
             var vectorLayer = new VectorLayer({
@@ -353,9 +367,10 @@ export default {
                                     }),
                             });
 
+            this.clearMapLayers();
             this.myMap.addLayer(vectorLayer); 
 
-
+            this.myMap.getView().setCenter(fromLonLat(coordinate));
 
             }
 
