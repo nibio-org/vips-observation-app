@@ -1,7 +1,7 @@
 <template>
     <div>
     <div id='map-observation'>
-        <div v-if="isMyMapPanelVisible"><router-link id='btnBack' :to="{name: 'Observation'}" class="btn btn-success ">Back</router-link></div>
+        <div v-if="isMyMapPanelVisible"><router-link id='btnBack' :to="{name: 'Observation', params:{observationId:myObservationId}}" class="btn btn-success ">Back</router-link></div>
     </div>
 
     <div id="ObservationMapPanel" v-if="isMyMapPanelVisible" ref='ObservationMapPanel'> 
@@ -68,7 +68,7 @@ let parser = new WMTSCapabilities();
 
 export default {
      name : 'MapObservation',
-     props : ['geoinfo','isMapPanelVisible','locationPointOfInterestId'],
+     props : ['observationId','geoinfo','isMapPanelVisible','locationPointOfInterestId'],
      data(){
          return {
                     isMyMapPanelVisible :   '',
@@ -80,6 +80,7 @@ export default {
                     lstPOI              :   [],
                     poi                 :   {pointOfInterestId:'undefined',name:'Select POI'},
                     myMap               :   '',
+                    myObservationId     :   '',
              }
      },
      methods : {
@@ -160,24 +161,6 @@ export default {
                                         This.latitude=transFormCord[0];
                                         This.longitude=transFormCord[1];
                                 let mapNewCord = toStringXY(transform(event.coordinate,'EPSG:3857','EPSG:4326'),4);
-                                        //console.log (mapNewCord);
-                                /*
-                                let point = new Point([mapNewCord]);
-                                        console.log(point);
-                                let locationFeatures = vectorGeoLayer.getSource().getFeatures()[0];
-                                locationFeatures.setGeometry(point);
-                                        console.log(locationFeatures);
-
-                                let geoGSON = new GeoJSON();
-                                        console.log(geoGSON);
-                                let result = geoGSON.writeFeatures(locationFeatures, {
-                                                dataProjection: 'EPSG:4326',
-                                                featureProjection: 'EPSG:3857' //thisMap.getView().getProjection().getCode()
-                                            })
-
-                                        console.log (geoGSON);
-                                */
-                                        //console.result(result);
 
 
                                 /** Below code for image marker */
@@ -397,7 +380,14 @@ export default {
         var panelObDiv = document.getElementById("ObservationMapPanel");
         var divPrivacy  =   document.getElementById("divPrivacy");
 
-
+        if(routeParam.observationId)
+        {
+            this.myObservationId = routeParam.observationId;
+        }
+        if(this.observationId)
+        {
+            this.myObservationId = this.observationId;
+        }
 
         if(routeParam.isMapPanelVisible)
         {
