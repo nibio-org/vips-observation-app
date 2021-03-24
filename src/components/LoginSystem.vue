@@ -39,6 +39,7 @@
 
     <!-- <Sync :isSyncNeeded="isSyncNeeded"/>  -->
     <Sync ref="Sync"/> 
+    <common-util ref="CommonUtil"/>
   </div>
   
 </template>
@@ -47,15 +48,17 @@
 import CommonUtil from "@/components/CommonUtil";
 import Sync from '@/components/Sync';
 
+
 export default {
   name: "LoginSystem",
-  components : {Sync},
+  components : {Sync,CommonUtil},
   props:{
       isWelcome : Boolean,
       
   },
   data() {
     return {
+      CONST_URL_DOMAIN   : '',
       jsonServerResponse : '',
       userLoggedInName: this.$root.sharedState.user.firstName + " " + this.$root.sharedState.user.lastName,
       username: "",
@@ -87,7 +90,7 @@ export default {
       /** Fetch to get details */
       let jsonHeader = { Authorization: userUUID };
 
-      fetch(CommonUtil.CONST_URL_DOMAIN + CommonUtil.CONST_URL_AUTH_UUID, {
+      fetch(this.CONST_URL_DOMAIN + CommonUtil.CONST_URL_AUTH_UUID, {
         method: "GET",
         headers: jsonHeader,
       }).then((response) => {
@@ -109,7 +112,7 @@ export default {
     let jsonBody = JSON.stringify({"username": this.username, "password":this.password});
     /** Fetch to get UUID */
     fetch(
-      CommonUtil.CONST_URL_DOMAIN + CommonUtil.CONST_URL_AUTH_LOGIN,
+      this.CONST_URL_DOMAIN + CommonUtil.CONST_URL_AUTH_LOGIN,
       {
         method: "POST",
         headers: {
@@ -134,7 +137,7 @@ export default {
            let jsonHeader = {Authorization:this.jsonServerResponse.UUID};
            
            fetch(
-            CommonUtil.CONST_URL_DOMAIN +CommonUtil.CONST_URL_AUTH_UUID,
+            this.CONST_URL_DOMAIN + CommonUtil.CONST_URL_AUTH_UUID,
             {
               method:"GET",
               headers : jsonHeader
@@ -164,6 +167,7 @@ export default {
 
   },
   mounted() {
+    this.CONST_URL_DOMAIN = this.$refs.CommonUtil.getDomain();
     this.checkValidUUID();
   },
 };

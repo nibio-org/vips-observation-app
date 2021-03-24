@@ -1,3 +1,4 @@
+<template></template>
 <script>
 //const CONST_STR_TEST ="test 123"
 export default {
@@ -21,8 +22,6 @@ export default {
 
     CONST_OBSERVATION_COUNT_START_ID    :    -1,
     
-    CONST_URL_DOMAIN                    :   'http://vipslogic-local.no',
-
     CONST_URL_AUTH_UUID                 :   '/rest/auth/uuid',
     CONST_URL_AUTH_LOGIN                :   '/rest/auth/login',
     CONST_URL_LAST_TIMESTAMP            :   '/rest/observation/organismsystemupdated',
@@ -42,8 +41,43 @@ export default {
 
     CONST_GPS_DEFAULT_ZOOM              :   4.2,
     CONST_GPS_OBSERVATION_ZOOM          :   10,
+    data(){
+        return {
+            isEmulator                          :   false,
+            CONST_URL_DOMAIN                    :   'http://vipslogic-local.no',
+            CONST_URL_DOMAIN_EMULATOR_ANDROID   :   'http://10.0.2.2:8080/VIPSLogic', /** Android emulator host loop back */
 
+            domain                              :   'test',
+            domains                             : [
+                                                        'http://vipslogic-local.no',
+                                                        'http://10.0.2.2:8080/VIPSLogic'
+                                                    ],
+        }
+    },
+    methods :
+    {
+            getDomain()
+            {
+                return (this.isEmulator) ? this.CONST_URL_DOMAIN_EMULATOR_ANDROID : this.CONST_URL_DOMAIN;
+            },
+            //TODO - Below code need to be developed basis of HOST domain search for platform independency
+             domainCheck()
+            {
+                let domain = this.domain;
+                let domains = this.domains;
+                let site = 'http://vipslogic-local.no';
+                    const requestAnimeAwait = async (site) => {
+                    const response = await fetch('http://vipslogic-local.no', {mode:'no-cors'});
+                    const json = await response.text();
+                    console.log("async/await based");
+                    console.log(response);
+                        }
+
+                requestAnimeAwait();
+            }
+    },
     
+   
 
 
 }
