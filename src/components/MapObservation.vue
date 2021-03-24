@@ -29,7 +29,7 @@
             </select>
         </div>
     </div>
-
+    <common-util ref="CommonUtil"/>
     </div>
 </template>
 
@@ -69,8 +69,10 @@ let parser = new WMTSCapabilities();
 export default {
      name : 'MapObservation',
      props : ['observationId','geoinfo','isMapPanelVisible','locationPointOfInterestId'],
+     components : {CommonUtil},
      data(){
          return {
+                    CONST_URL_DOMAIN    :   '',
                     isMyMapPanelVisible :   '',
                     myGeoInfo           :   '',
                     latitude            :   0,
@@ -288,7 +290,7 @@ export default {
 
             lstPOI.push({pointOfInterestId:'undefined',name:'No POI Selected'});
 
-            fetch(CommonUtil.CONST_URL_DOMAIN +CommonUtil.CONST_URL_USER_POI, 
+            fetch(this.CONST_URL_DOMAIN +CommonUtil.CONST_URL_USER_POI, 
             {
                 method: "GET",
                 headers: jsonHeader,
@@ -368,6 +370,7 @@ export default {
 
      },
      mounted() {
+         this.CONST_URL_DOMAIN = this.$refs.CommonUtil.getDomain();
         this.latitude = CommonUtil.CONST_GPS_DEFAULT_LATITUDE_NORWAY;
         this.longitude = CommonUtil.CONST_GPS_DEFAULT_LONGITUDE_NORWAY;
 

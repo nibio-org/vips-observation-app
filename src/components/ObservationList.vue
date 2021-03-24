@@ -20,7 +20,7 @@ import { DateTime } from "luxon";
   <div v-else class="alert alert-warning" role="alert">
       <p class="text-danger">You don't have any observations.</p>
   </div>
-
+  <common-util ref="CommonUtil"/>
 </div>
 </template>
 
@@ -33,9 +33,11 @@ export default {
   data() {
     return {
       /*msg: 'Startsiden'*/
-      observations : undefined,
+      CONST_URL_DOMAIN  : '',
+      observations      : undefined,
     };
   },
+  components : {CommonUtil},
   methods : {
         /** TODO
          *  This function need to be shifted for two way sync process
@@ -45,7 +47,7 @@ export default {
             let strUUID     = localStorage.getItem(CommonUtil.CONST_STORAGE_UUID);
             let jsonHeader  = { Authorization: strUUID };
 
-            fetch(CommonUtil.CONST_URL_DOMAIN + CommonUtil.CONST_URL_USER_OBSERVATION_LIST, {
+            fetch(this.CONST_URL_DOMAIN + CommonUtil.CONST_URL_USER_OBSERVATION_LIST, {
                 method: "GET",
                 headers: jsonHeader,
               }).then((response) => response.json())
@@ -70,10 +72,11 @@ export default {
     }
   },
   mounted()  {
+              this.CONST_URL_DOMAIN = this.$refs.CommonUtil.getDomain();
               let strUUID     = localStorage.getItem(CommonUtil.CONST_STORAGE_UUID);
               if(strUUID)
               {
-                //this.fetchFromServer(); // TODO - Tobe shifted to two way Sync process
+                this.fetchFromServer(); // TODO - Tobe shifted to two way Sync process
                 this.getObservationsFromStore(); // TODO -- to be in effect after two sync in process
               }
   }

@@ -1,9 +1,12 @@
 <template>
-    <div v-if="loading">
-        <div class="spinner-border text-success" role="status">
-            
-        </div> <span class="text-danger"> Data Loading...</span>
-         <!-- -- Sync :  <div v-html="isSyncNeeded"></div> -->
+    <div>
+        <div v-if="loading">
+            <div class="spinner-border text-success" role="status">
+                
+            </div> <span class="text-danger"> Data Loading...</span>
+            <!-- -- Sync :  <div v-html="isSyncNeeded"></div> -->
+        </div>
+     <common-util ref="CommonUtil"/>
     </div>
 </template>
 
@@ -12,11 +15,13 @@ import CommonUtil from "@/components/CommonUtil";
 
 export default {
   name: "Sync",
+  components : {CommonUtil},
   props: {
         isSyncNeeded: Boolean
   },
   data() {
     return {
+      CONST_URL_DOMAIN      : '',
       booIsSyncOneWayReady  : false,
       arrSyncOneWay         :   [
                                     {"name":CommonUtil.CONST_STORAGE_CROP_CATEGORY,"complete":false}    ,
@@ -91,20 +96,21 @@ export default {
                 // TODO if appUser is not available
             }
             else
-             {       let strUrl = '';
+             {       let strUrl =   '';
+                     let This   =   this;
                     $.each(this.arrSyncOneWay, function(index, value){
                         switch(value.name) {
                             case CommonUtil.CONST_STORAGE_CROP_CATEGORY :
-                                 strUrl = CommonUtil.CONST_URL_DOMAIN +CommonUtil.CONST_URL_CROP_CATEGORY+appUser.organization_id;
+                                 strUrl = This.CONST_URL_DOMAIN +CommonUtil.CONST_URL_CROP_CATEGORY+appUser.organization_id;
                                 break;
                             case CommonUtil.CONST_STORAGE_CROP_LIST :
-                                 strUrl = CommonUtil.CONST_URL_DOMAIN +CommonUtil.CONST_URL_CROP_LIST;
+                                 strUrl = This.CONST_URL_DOMAIN +CommonUtil.CONST_URL_CROP_LIST;
                                 break;
                              case CommonUtil.CONST_STORAGE_PEST_LIST :
-                                 strUrl = CommonUtil.CONST_URL_DOMAIN +CommonUtil.CONST_URL_PEST_LIST;
+                                 strUrl = This.CONST_URL_DOMAIN +CommonUtil.CONST_URL_PEST_LIST;
                                 break;                           
                              case CommonUtil.CONST_STORAGE_CROP_PEST_LIST :
-                                 strUrl = CommonUtil.CONST_URL_DOMAIN +CommonUtil.CONST_URL_CROP_PEST_LIST;
+                                 strUrl = This.CONST_URL_DOMAIN +CommonUtil.CONST_URL_CROP_PEST_LIST;
                                 break;  
                             default :
                         }
@@ -218,7 +224,7 @@ export default {
                 let jsonHeader = {Authorization:appUser.userUuid};
 
                         fetch(
-                                CommonUtil.CONST_URL_DOMAIN +CommonUtil.CONST_URL_LAST_TIMESTAMP,
+                                this.CONST_URL_DOMAIN +CommonUtil.CONST_URL_LAST_TIMESTAMP,
                                 {
                                     method:"GET",
                                     headers: jsonHeader,
@@ -260,6 +266,11 @@ export default {
 
 
   },
+  mounted () {
+      console.log('mounted in Sync ');
+      this.CONST_URL_DOMAIN = this.$refs.CommonUtil.getDomain();
+
+  }
  
 };
 </script>
