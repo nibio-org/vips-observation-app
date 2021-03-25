@@ -15,6 +15,7 @@ export default {
     CONST_STORAGE_PEST_LIST             :   'store-pest-list',
     CONST_STORAGE_CROP_PEST_LIST        :   'store-crop-pest-list',
     CONST_STORAGE_OBSERVATION_LIST      :   'store-observation-list',
+    CONST_STORAGE_IMAGE_LIST            :   'store-image-list',
 
 
     CONST_CROP_CATEGORY_ID              :   'cropCategoryId',
@@ -33,6 +34,8 @@ export default {
     
     CONST_URL_USER_OBSERVATION_LIST     :   '/rest/observation/list/user',
     CONST_URL_USER_POI                  :   '/rest/poi/user',
+
+    CONST_URL_STATIC_IMAGE_PATH         :   '/static/images/observations/',
     
 
     CONST_GPS_URL_NORWAY_MAP            :   'https://opencache.statkart.no/gatekeeper/gk/gk.open_wmts?Version=1.0.0&service=wmts&request=getcapabilities',
@@ -48,17 +51,18 @@ export default {
             CONST_URL_DOMAIN_EMULATOR_ANDROID   :   'http://10.0.2.2:8080/VIPSLogic', /** Android emulator host loop back */
 
             domain                              :   'test',
-            domains                             : [
+            domains                             :   [
                                                         'http://vipslogic-local.no',
                                                         'http://10.0.2.2:8080/VIPSLogic'
                                                     ],
+
         }
     },
     methods :
     {
             getDomain()
-            {
-                return (this.isEmulator) ? this.CONST_URL_DOMAIN_EMULATOR_ANDROID : this.CONST_URL_DOMAIN;
+            {   let resultURL = (this.isEmulator) ? this.CONST_URL_DOMAIN_EMULATOR_ANDROID : this.CONST_URL_DOMAIN;
+                return resultURL;
             },
             //TODO - Below code need to be developed basis of HOST domain search for platform independency
              domainCheck()

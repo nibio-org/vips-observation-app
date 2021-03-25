@@ -2,7 +2,7 @@
   <div class="hello">
     <h1 ref='titleObservation'>{{ msg }}</h1>
     <button type="button" class="btn btn-primary" id="cameraLauncher" ref='cameraLauncher' @click="launchCamera">{{ take_photo }}</button>
-<br>
+    <br>
 
     <select id="divCropId" ref='divCropId' v-model="crop.cropId" v-on:change="selectCrop($event)">
         <option v-for="crop in crops" v-bind:value='crop.organismId' >{{crop.latinName}}</option>
@@ -22,16 +22,16 @@
       <div v-if="mapGeoinfo" id="divMapGeoInfo"><map-observation :geoinfo="mapGeoinfo" :isMapPanelVisible="isMapPanelVisible"></map-observation></div> 
 
       
+      <photo-observation :observationId="observation.observationId" :organismId="observation.organismId" :imageFileName="photo.observationIllustrationPK.fileName" v-for="photo in observation.observationIllustrationSet" v-bind:key="photo.observationIllustrationPK.fileName">
+      --
       <div ref='divObservationText'>
         <div>Observation Detail</div>
         <input type="text" v-model="observationHeader"/>
         <p><textarea v-model="observationText" /></p>
       </div>
+      </photo-observation>
         <button class="btn btn-secondary float-right" v-on:click="saveObservation">Save</button>
-           
      
-
-
   </div>  
 </template>
 
@@ -39,13 +39,13 @@
 import CommonUtil from '@/components/CommonUtil'
 import { DateTime } from 'luxon'
 import MapObservation from '@/components/MapObservation'
-
+import PhotoObservation from '@/components/PhotoObservation'
 
 
 export default {
   name: 'Observation',
   props: ['observationId'],
-  components: {MapObservation},
+  components: {MapObservation,PhotoObservation},
   data () {
     return {
       msg: 'Observasjon',

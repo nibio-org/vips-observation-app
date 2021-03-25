@@ -267,9 +267,7 @@ export default {
 
   },
   mounted () {
-      console.log('mounted in Sync ');
       this.CONST_URL_DOMAIN = this.$refs.CommonUtil.getDomain();
-
   }
  
 };
