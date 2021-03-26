@@ -17,6 +17,8 @@ export default {
     CONST_STORAGE_OBSERVATION_LIST      :   'store-observation-list',
     CONST_STORAGE_IMAGE_LIST            :   'store-image-list',
 
+    CONST_IMAGE_CANVAS_WIDTH            :   100,
+    CONST_IMAGE_CANVAS_HEIGHT           :   100,
 
     CONST_CROP_CATEGORY_ID              :   'cropCategoryId',
     CONST_ORGANISM_ID                   :   'organismId',
@@ -37,7 +39,7 @@ export default {
 
     CONST_URL_STATIC_IMAGE_PATH         :   '/static/images/observations/',
     
-
+    
     CONST_GPS_URL_NORWAY_MAP            :   'https://opencache.statkart.no/gatekeeper/gk/gk.open_wmts?Version=1.0.0&service=wmts&request=getcapabilities',
     CONST_GPS_DEFAULT_LATITUDE_NORWAY   :   16,
     CONST_GPS_DEFAULT_LONGITUDE_NORWAY  :   63,
@@ -46,7 +48,7 @@ export default {
     CONST_GPS_OBSERVATION_ZOOM          :   10,
     data(){
         return {
-            isEmulator                          :   false,
+            isEmulator                          :   true,
             CONST_URL_DOMAIN                    :   'http://vipslogic-local.no',
             CONST_URL_DOMAIN_EMULATOR_ANDROID   :   'http://10.0.2.2:8080/VIPSLogic', /** Android emulator host loop back */
 
