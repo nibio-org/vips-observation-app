@@ -118,6 +118,7 @@ export default {
                                 .then(imageTextData => {
                                     This.getImageDataJSON(This.imageFileName,imageTextData);
                                     This.storeData(This);
+                                    This.getPhotosFromStore();
                                 })
                         },
 
