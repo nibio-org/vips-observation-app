@@ -1,9 +1,9 @@
 <template>
     <div>
-        Photo : Observation Id : {{observationId}}
+<!--         Photo : Observation Id : {{observationId}}
                 Organism Id : {{organismId}}
-                Image File Name : {{imageFileName}}
-
+                Image File Name : {{imageFileName}} -->
+    <canvas ref="canvas" class="img-thumbnail float-left"></canvas>
     <common-util ref="CommonUtil"/>
     </div>
 </template>
@@ -34,6 +34,50 @@ export default {
                         }
                     },
     methods     :   {
+                        getPhotosFromStore()
+                        {
+                            let     This                =   this;
+                             let    storageImageData    =   JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_IMAGE_LIST));
+                             if(storageImageData)
+                             {
+                                $.each(storageImageData, function(index, observationImages){
+                                    if (
+                                            (observationImages.observationId    === This.observationId) &&
+                                            (observationImages.organismId       === This.organismId) 
+                                        )
+                                    {
+                                            let illustrations = observationImages.observationIllustrationSet;
+                                            if(illustrations)
+                                            {
+                                                $.each(illustrations, function(index, imageData){
+                                                    if(imageData.fileName === This.imageFileName)
+                                                    {
+                                                        let imgTextData = imageData.imageTextData;
+                                                        This.displayPhoto(imgTextData);
+                                                    }
+                                                })
+                                            }
+                                    }
+                                })
+                             }
+                        },
+                        displayPhoto(imgTextData)
+                        {
+                                let canvas          =   this.$refs.canvas;
+                                    canvas.width    =   75;
+                                    canvas.height   =   75;
+                                let context         =   canvas.getContext("2d");
+                                let image           =   new Image();
+                                    image.width     =   imgTextData.width;
+                                    image.height    =   imgTextData.height;
+                                image.src           =   imgTextData;
+                                image.onload        =   function(){
+                                                            context.drawImage(image,
+                                                                                    0,0,100,100,
+                                                                                    0,0,CommonUtil.CONST_IMAGE_CANVAS_WIDTH,CommonUtil.CONST_IMAGE_CANVAS_HEIGHT
+                                                                            );
+                                                        };
+                        },
                         checkPhotoAvailability()
                             {
                              this.storageData = localStorage.getItem(CommonUtil.CONST_STORAGE_IMAGE_LIST);
@@ -73,7 +117,6 @@ export default {
                                 toDataURL(photoURL)
                                 .then(imageTextData => {
                                     This.getImageDataJSON(This.imageFileName,imageTextData);
-                                    //console.log('RESULT:', imageTextData)
                                     This.storeData(This);
                                 })
                         },
@@ -155,7 +198,6 @@ export default {
                                 }
                              }
                              else{
-                                 console.log('storage system call 2');
                                  
                                  let localObservationImages = [];
                                  let localObservationImageData = {
@@ -181,6 +223,7 @@ export default {
             this.CONST_URL_DOMAIN = this.$refs.CommonUtil.getDomain();
             
             this.fetchFromServer();
+            this.getPhotosFromStore();
             
     }
 
