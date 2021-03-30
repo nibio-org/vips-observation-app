@@ -42,6 +42,7 @@ export default {
                     console.info("Image info: " + imageURI);
                     },
                     launchCamera: function() {
+                        this.searchDBByindex('observationId',this.observationId);
                             console.info("The camera should launch now");
                             navigator.camera.getPicture(this.renderPhoto, this.onFail, { 
                                 quality: 50,
@@ -132,7 +133,29 @@ export default {
                             image.height = CommonUtil.CONST_IMAGE_HEIGHT;
                             image.src=imgTextData;
 
+                        },
+
+                        searchDBByindex(indexName,indexValue)
+                        {
+                            let This = this;
+                             let dbRequest = indexedDB.open(CommonUtil.CONST_DB_NAME, CommonUtil.CONST_DB_VERSION);
+                             dbRequest.onsuccess = function(evt) {
+                                 let db = evt.target.result;
+                                 let transaction    =   db.transaction([This.entityName],'readwrite'); 
+                                 let objectstore    =   transaction.objectStore(This.entityName);
+                                 let indexStore     =   objectstore.index(indexName);
+                                 let keyRange       =   IDBKeyRange.only(indexValue);
+                                 indexStore.openCursor(keyRange).onsuccess = function(event) {
+                                     let cursor = event.target.result;
+                                     if(cursor)
+                                     {
+                                         console.log(cursor.value);
+                                         cursor.continue();
+                                     }
+                                 }
+                             }
                         }
+
 
     },
     mounted(){
