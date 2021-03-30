@@ -17,6 +17,8 @@ export default {
     CONST_STORAGE_OBSERVATION_LIST      :   'store-observation-list',
     CONST_STORAGE_IMAGE_LIST            :   'store-image-list',
 
+    CONST_IMAGE_WIDTH                   :   100,
+    CONST_IMAGE_HEIGHT                  :   100,
     CONST_IMAGE_CANVAS_WIDTH            :   100,
     CONST_IMAGE_CANVAS_HEIGHT           :   100,
 
@@ -46,10 +48,15 @@ export default {
 
     CONST_GPS_DEFAULT_ZOOM              :   4.2,
     CONST_GPS_OBSERVATION_ZOOM          :   10,
+
+    CONST_DB_NAME                       :   'db-index-observation',
+    CONST_DB_VERSION                    :   1,
+    CONST_DB_ENTITY_PHOTO               :   'entityPhoto',
+
     data(){
         return {
-            isEmulator                          :   true,
-            CONST_URL_DOMAIN                    :   'http://vipslogic-local.no',
+            isEmulator                          :   false,
+            CONST_URL_DOMAIN                    :   'http://vipslogic-local.no',  //'http://logic.testvips.nibio.no/', //'http://vipslogic-local.no',
             CONST_URL_DOMAIN_EMULATOR_ANDROID   :   'http://10.0.2.2:8080/VIPSLogic', /** Android emulator host loop back */
 
             domain                              :   'test',

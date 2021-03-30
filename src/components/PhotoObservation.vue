@@ -11,6 +11,8 @@
 <script>
 import CommonUtil from '@/components/CommonUtil'
 
+
+
 export default {
     name        :   'PhotoObservation',
     components  :   {CommonUtil},
@@ -28,12 +30,13 @@ export default {
                                                                                         } ,
                                                         observationIllustrationSet  :   []
                                                     },
-                            storageData         :   [] 
+                            storageData         :   [],
 
 
                         }
                     },
     methods     :   {
+
                         getPhotosFromStore()
                         {
                             let     This                =   this;
@@ -118,6 +121,7 @@ export default {
                                 .then(imageTextData => {
                                     This.getImageDataJSON(This.imageFileName,imageTextData);
                                     This.storeData(This);
+                                    This.getPhotosFromStore();
                                 })
                         },
 
@@ -220,8 +224,9 @@ export default {
     },
     mounted()       {
 
-            this.CONST_URL_DOMAIN = this.$refs.CommonUtil.getDomain();
-            
+            this.CONST_URL_DOMAIN   = this.$refs.CommonUtil.getDomain();
+
+            localStorage.removeItem(CommonUtil.CONST_STORAGE_IMAGE_LIST);
             this.fetchFromServer();
             this.getPhotosFromStore();
             
