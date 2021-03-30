@@ -22,14 +22,17 @@
       <div v-if="mapGeoinfo" id="divMapGeoInfo"><map-observation :geoinfo="mapGeoinfo" :isMapPanelVisible="isMapPanelVisible"></map-observation></div> 
 
       
-      <photo-observation :observationId="observation.observationId" :organismId="observation.organismId" :imageFileName="photo.observationIllustrationPK.fileName" v-for="photo in observation.observationIllustrationSet" v-bind:key="photo.observationIllustrationPK.fileName">
-      --
+      <photo :observationId="observation.observationId" :organismId="observation.organismId" :imageFileName="photo.observationIllustrationPK.fileName" v-for="photo in observation.observationIllustrationSet" v-bind:key="photo.observationIllustrationPK.fileName"></photo>
+      <!-- <photo-observation :observationId="observation.observationId" :organismId="observation.organismId" :imageFileName="photo.observationIllustrationPK.fileName" v-for="photo in observation.observationIllustrationSet" v-bind:key="photo.observationIllustrationPK.fileName"></photo-observation> -->
+      
+      <div class="clearfix"/>
+      
       <div ref='divObservationText'>
         <div>Observation Detail</div>
         <input type="text" v-model="observationHeader"/>
         <p><textarea v-model="observationText" /></p>
       </div>
-      </photo-observation>
+      
         <button class="btn btn-secondary float-right" v-on:click="saveObservation">Save</button>
      
   </div>  
@@ -40,12 +43,13 @@ import CommonUtil from '@/components/CommonUtil'
 import { DateTime } from 'luxon'
 import MapObservation from '@/components/MapObservation'
 import PhotoObservation from '@/components/PhotoObservation'
+import Photo from '@/components/Photo.vue'
 
 
 export default {
   name: 'Observation',
   props: ['observationId'],
-  components: {MapObservation,PhotoObservation},
+  components: {MapObservation,PhotoObservation,Photo},
   data () {
     return {
       msg: 'Observasjon',
