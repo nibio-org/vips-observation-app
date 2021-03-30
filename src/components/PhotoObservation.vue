@@ -67,8 +67,8 @@ export default {
                         displayPhoto(imgTextData)
                         {
                                 let canvas          =   this.$refs.canvas;
-                                    canvas.width    =   75;
-                                    canvas.height   =   75;
+                                    canvas.width    =   CommonUtil.CONST_IMAGE_CANVAS_WIDTH;
+                                    canvas.height   =   CommonUtil.CONST_IMAGE_CANVAS_HEIGHT;
                                 let context         =   canvas.getContext("2d");
                                 let image           =   new Image();
                                     image.width     =   imgTextData.width;

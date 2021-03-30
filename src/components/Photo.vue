@@ -1,8 +1,14 @@
 <template>
     <div>
-     <img src='' class="img-thumbnail float-left" ref="image"/>
+    <div v-if=isImageVisible>
+        <img src='' class="img-thumbnail float-left" ref="image"/>
+    </div>
+    <div v-else>
+         <button type="button" class="btn btn-primary" id="cameraLauncher" ref='cameraLauncher' @click="launchCamera">{{ take_photo }}</button>
+    </div>
     <common-util ref="CommonUtil"/>
     </div>
+
 </template>
 
 <script>
@@ -11,12 +17,13 @@ import CommonUtil from '@/components/CommonUtil'
 export default {
     name        :   'Photo',
     components  :   {CommonUtil},
-    props       :   ['observationId','organismId','imageFileName'], 
+    props       :   ['observationId','organismId','imageFileName','isImageVisible'], 
     data ()  {
                 return {
+                    take_photo          : "Ta bilde",
                     dbIndexPhoto        :   '',
                     entityName          :   '',
-                    observationImage   :   {
+                    observationImage    :   {
                                                 observationId               :   '',
                                                 organismId                  :   '',
                                                 illustration                :   {
@@ -28,12 +35,28 @@ export default {
                 }
     },
     methods     : {
+                    onfail: function(message) {
+                        alert(message);
+                    },
+                    renderPhoto: function(imageURI) {
+                    console.info("Image info: " + imageURI);
+                    },
+                    launchCamera: function() {
+                            console.info("The camera should launch now");
+                            navigator.camera.getPicture(this.renderPhoto, this.onFail, { 
+                                quality: 50,
+                                destinationType: Camera.DestinationType.FILE_URI ,
+                                correctOrientation: true
+                            });
+                    },
                     fetchFromServer()
                         {
                             let photoURL=this.CONST_URL_DOMAIN+CommonUtil.CONST_URL_STATIC_IMAGE_PATH+this.organismId+'/'+this.imageFileName;
                             let imgTest;
                             let This = this; 
-                           const toDataURL = url => fetch(url)
+                            if(this.organismId)
+                            {
+                            const toDataURL = url => fetch(url)
                                 .then(response => response.blob())
                                 .then(blob => new Promise((resolve, reject) => {
                                     const reader = new FileReader()
@@ -49,6 +72,8 @@ export default {
                                         //console.log ('imageTextData : ',imageTextData);
                                         This.storeData();
                                 })
+                            }
+
                         },
                         async storeData()
                         {       let This    =   this;
@@ -56,8 +81,16 @@ export default {
                             let dbRequest = indexedDB.open(CommonUtil.CONST_DB_NAME, CommonUtil.CONST_DB_VERSION);
                             dbRequest.onsuccess = function(evt) {
                                 let db = evt.target.result;
-                                let transaction = db.transaction([This.entityName],'readwrite'); 
-                                let objectstore = transaction.objectStore(This.entityName).add(This.observationImage,This.observationImage.illustration.fileName);
+                                if(db.objectStoreNames.contains(This.entityName)){
+                                    let transaction = db.transaction([This.entityName],'readwrite'); 
+                                    let objectstore = transaction.objectStore(This.entityName).add(This.observationImage,This.observationImage.illustration.fileName);
+                                }
+                                else
+                                {
+                                   let store = db.createObjectStore(This.entityName, {keypath : This.observationImage.illustration.fileName});
+                                    store.createIndex('observationId', 'observationId', { unique: false });
+                                    store.createIndex('organismId', 'organismId', { unique: false });                                    
+                                }
                             } 
                             
 
@@ -111,9 +144,11 @@ export default {
                     this.observationImage.illustration.fileName =   this.imageFileName;      
 
 
-
-                    this.fetchFromServer();
-                    this.getImageFromStore();
+                    if(this.organismId)
+                    {
+                        this.fetchFromServer();
+                        this.getImageFromStore();
+                    }
     }    
 }
 </script>
