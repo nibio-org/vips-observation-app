@@ -121,7 +121,7 @@ export default {
         }
     },
 
-    /**  Writing to server data to localstorage using sync */
+    /**  Writing server data to localstorage using sync */
     oneWaySyncStorageSet(value,strUrl)
     {
         
