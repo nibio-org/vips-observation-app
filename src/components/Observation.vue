@@ -21,7 +21,7 @@
     <router-link id="linkMap" ref='linkMap' :to="{name:'MapObservation', params: {observationId:observationId,geoinfo:mapGeoinfo,isMapPanelVisible:newMapPanel,locationPointOfInterestId:mapLocationPointOfInterestId}}">Observation Map </router-link>
       <div v-if="mapGeoinfo" id="divMapGeoInfo"><map-observation :geoinfo="mapGeoinfo" :isMapPanelVisible="isMapPanelVisible"></map-observation></div> 
 
-     <photo :isImageVisible=false :observationId="observationId"></photo>
+     <photo :isImageVisible=false :observationId="observationId" :organismId="observation.organismId" ></photo>
       <photo :isImageVisible=true :observationId="observation.observationId" :organismId="observation.organismId" :imageFileName="photo.observationIllustrationPK.fileName" v-for="photo in observation.observationIllustrationSet" v-bind:key="photo.observationIllustrationPK.fileName"></photo>
       <!-- <photo-observation :observationId="observation.observationId" :organismId="observation.organismId" :imageFileName="photo.observationIllustrationPK.fileName" v-for="photo in observation.observationIllustrationSet" v-bind:key="photo.observationIllustrationPK.fileName"></photo-observation> -->
       
