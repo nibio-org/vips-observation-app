@@ -1,7 +1,7 @@
 <template>
   <div class="hello">
     <h1 ref='titleObservation'>{{ msg }}</h1>
-    <button type="button" class="btn btn-primary" id="cameraLauncher" ref='cameraLauncher' @click="launchCamera">{{ take_photo }}</button>
+    
     <br>
 
     <select id="divCropId" ref='divCropId' v-model="crop.cropId" v-on:change="selectCrop($event)">
@@ -21,8 +21,8 @@
     <router-link id="linkMap" ref='linkMap' :to="{name:'MapObservation', params: {observationId:observationId,geoinfo:mapGeoinfo,isMapPanelVisible:newMapPanel,locationPointOfInterestId:mapLocationPointOfInterestId}}">Observation Map </router-link>
       <div v-if="mapGeoinfo" id="divMapGeoInfo"><map-observation :geoinfo="mapGeoinfo" :isMapPanelVisible="isMapPanelVisible"></map-observation></div> 
 
-      
-      <photo :observationId="observation.observationId" :organismId="observation.organismId" :imageFileName="photo.observationIllustrationPK.fileName" v-for="photo in observation.observationIllustrationSet" v-bind:key="photo.observationIllustrationPK.fileName"></photo>
+     <photo :isImageVisible=false :observationId="observationId" :organismId="observation.organismId" ></photo>
+      <photo :isImageVisible=true :observationId="observation.observationId" :organismId="observation.organismId" :imageFileName="photo.observationIllustrationPK.fileName" v-for="photo in observation.observationIllustrationSet" v-bind:key="photo.observationIllustrationPK.fileName"></photo>
       <!-- <photo-observation :observationId="observation.observationId" :organismId="observation.organismId" :imageFileName="photo.observationIllustrationPK.fileName" v-for="photo in observation.observationIllustrationSet" v-bind:key="photo.observationIllustrationPK.fileName"></photo-observation> -->
       
       <div class="clearfix"/>
@@ -53,7 +53,6 @@ export default {
   data () {
     return {
       msg: 'Observasjon',
-      take_photo: "Ta bilde",
       observation:{},
       crops:[],
       pests:[],
@@ -81,21 +80,6 @@ export default {
     }
   },
   methods:{
-    onfail: function(message) {
-      alert(message);
-    },
-    renderPhoto: function(imageURI) {
-      console.info("Image info: " + imageURI);
-    },
-    launchCamera: function() {
-			console.info("The camera should launch now");
-			navigator.camera.getPicture(this.renderPhoto, this.onFail, { 
-	            quality: 50,
-	            destinationType: Camera.DestinationType.FILE_URI ,
-	            correctOrientation: true
-	        });
-    },
-
     /** Get observation from local storage system */
     getObservationFromStore(id)
     {
