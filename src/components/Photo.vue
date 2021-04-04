@@ -131,7 +131,13 @@ export default {
                                                 objectstoreRequest.onsuccess = function(event)
                                                 {
                                                     let observationImage = event.target.result;
-                                                    This.displayImage(observationImage.illustration.imageTextData);
+                                                    if(observationImage)
+                                                    {
+                                                        This.displayImage(observationImage.illustration.imageTextData);
+                                                    }
+                                                    else{
+                                                        console.log('Image filename mentioned in Observation, but no image data found');
+                                                    }
                                                 }
                                             }
                                             else{
@@ -169,6 +175,7 @@ export default {
 
                         },
 
+                        /**  Search IndexedDB for available imaages within a observation */
                          searchDBByindex(indexName,indexValue,organismId,imageTextData,storeImage)
                         {
 
@@ -203,6 +210,7 @@ export default {
                             
                         },
 
+                        /** Call back function for create image file name and storing image information and  data */
                         storeImage(observationImages,indexValue,organismId,imageTextData)
                         {
                             let selectedFileFirstName   =   '';
@@ -214,7 +222,14 @@ export default {
                             {
                                 
                                 let len = observationImages.length;
-                                selectedFileFirstName=indexValue+'_illustration'+'_'+(len+1);
+                                if(len === 0)
+                                {
+                                    selectedFileFirstName=indexValue+'_illustration';
+                                }
+                                else
+                                {
+                                    selectedFileFirstName=indexValue+'_illustration'+'_'+(len+1);
+                                }
                                 
                             }
                             else
@@ -235,9 +250,9 @@ export default {
                             this.addImageIntoObservation(observation);
                             this.storeData(observation);
                             
-                            
                         },
 
+                        /** Add image file name into localstorage */
                         addImageIntoObservation(observation)
                         {
                             let lstObservations = JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST));
@@ -247,31 +262,14 @@ export default {
                                  {
                                         if(jobservation.observationId === observation.observationId)
                                         {
-                                            if(jobservation.observationIllustrationSet && jobservation.observationIllustrationSet.length != 0)
-                                            {
-                                                let observationIllustrationSet = [];
-                                                let findRecord = false;
-                                                $.each(jobservation.observationIllustrationSet, function(index, illustration)
-                                                {
-                                                    if(illustration.observationIllustrationPK.fileName === observation.illustration.fileName)
-                                                    {
-                                                        findRecord = true;
-                                                        return false;
-                                                    }
-                                                })
-                                                if (!findRecord)
-                                                {
-                                                    let illustration = {};
-                                                    let observationIllustrationPK = {};
-                                                        observationIllustrationPK.observationId = observation.observationId;
-                                                        observationIllustrationPK.fileName = observation.illustration.fileName;
+                                            let illustration = {};
+                                            let observationIllustrationPK = {};
+                                                observationIllustrationPK.observationId = observation.observationId;
+                                                observationIllustrationPK.fileName = observation.illustration.fileName;
 
-                                                        illustration = {'observationIllustrationPK' : observationIllustrationPK, 'uploaded':false};
-                                                    jobservation.observationIllustrationSet.push(illustration);
-                                                    return false;
-                                                    
-                                                }
-                                            }
+                                                illustration = {'observationIllustrationPK' : observationIllustrationPK, 'uploaded':false};
+                                            jobservation.observationIllustrationSet.push(illustration);
+                                            
                                         }
                                  });
                              }
