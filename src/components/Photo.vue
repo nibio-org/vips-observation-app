@@ -1,11 +1,16 @@
 <template>
-    <div id='divImg'>
+    <div id='divImg' >
+
     <div v-if=isImageVisible>
-        <img src='' class="img-thumbnail float-left" ref="image"/>
+        <div id='divPositionImg' class="float-left imagePosition" >
+            <button class="close" type="button">×</button>
+            <img src=''  class='img-thumbnail ' ref="image"/>
+        </div>
     </div>
     <div v-else>
          <button type="button" class="btn btn-primary" id="cameraLauncher" ref='cameraLauncher' @click="launchCamera">{{ take_photo }}</button>
     </div>
+    
     <common-util ref="CommonUtil"/>
     </div>
 
@@ -159,14 +164,26 @@ export default {
                             else{
                                 console.log('inside display image');
                                 
+                                let divPosition = document.createElement('div');
+                                    divPosition.setAttribute('id','divPositionImg');
+                                    divPosition.setAttribute('class','float-left imagePosition');
+                                    
+                                let buttnClose = document.createElement('button');
+                                    buttnClose.setAttribute('class','close');
+                                    buttnClose.innerHTML='x';
+                                    buttnClose.style.color='red';
+
                                 image = document.createElement('img');
                                let imgSrc = document.createAttribute('src');
                                let att = document.createAttribute("class");
                                     att.value = "img-thumbnail float-left"; 
                                     image.setAttributeNode(att);
 
+                                    divPosition.appendChild(buttnClose);
+                                    divPosition.appendChild(image);
+
                                let divImg = document.getElementById("divImg");
-                               divImg.appendChild(image);
+                               divImg.appendChild(divPosition);
 
                         }
                             image.width = CommonUtil.CONST_IMAGE_WIDTH;
@@ -301,3 +318,13 @@ export default {
     }    
 }
 </script>
+<style scoped>
+.close{
+  position: absolute;
+  right: 0;
+  }
+  .imagePosition
+  {
+      position: relative;
+  }
+</style>
