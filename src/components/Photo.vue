@@ -1,31 +1,60 @@
 <template>
     <div id='divImg' >
 
-    <div v-if=isImageVisible>
-        <div id='divPositionImg' class="float-left imagePosition" >
-            <button class="close" type="button">×</button>
-            <img src=''  class='img-thumbnail ' ref="image"/>
+        <Modal
+            v-show="isModalVisible"
+             v-on:close="closeModal"
+             v-on:action="actionModal"
+        >
+
+        <template v-slot:header>
+            !! ALERT !!
+        </template>
+
+        <template v-slot:body>
+            Selected Image will be deleted !!
+        </template>
+
+        <template v-slot:footer>
+            Please chose the option below :
+        </template>
+
+
+
+        </Modal>
+
+        <div v-if=isImageVisible>
+            <div id='divPositionImg' class="float-left imagePosition" >
+                <button class="close" type="button" @click="showModal">×</button>
+                <img src=''  class='img-thumbnail ' ref="image"/>
+            </div>
         </div>
-    </div>
-    <div v-else>
-         <button type="button" class="btn btn-primary" id="cameraLauncher" ref='cameraLauncher' @click="launchCamera">{{ take_photo }}</button>
-    </div>
-    
-    <common-util ref="CommonUtil"/>
+        <div v-else>
+            <button type="button" class="btn btn-primary" id="cameraLauncher" ref='cameraLauncher' @click="launchCamera">{{ take_photo }}</button>
+        </div>
+        
+        <common-util ref="CommonUtil"/>
+
+
+
+
+
     </div>
 
 </template>
 
 <script>
 import CommonUtil from '@/components/CommonUtil'
+import Modal from '@/components/Modal'
 
 export default {
     name        :   'Photo',
-    components  :   {CommonUtil},
+    components  :   {CommonUtil, Modal},
     props       :   ['observationId','organismId','imageFileName','isImageVisible'], 
     data ()  {
                 return {
                     take_photo          : "Ta bilde",
+                    isModalVisible           :   false,
                     dbIndexPhoto        :   '',
                     entityName          :   '',
                     observationImages   :   [],
@@ -41,6 +70,17 @@ export default {
                 }
     },
     methods     : {
+
+                    showModal() {
+                        this.isModalVisible = true;
+                    },
+                    closeModal() {
+                        this.isModalVisible = false;
+                    },
+                    actionModal() {
+                        this.isModalVisible = false;
+                    },
+
                     onfail: function(message) {
                         alert(message);
                     },
@@ -163,6 +203,11 @@ export default {
                             }
                             else{
                                 console.log('inside display image');
+
+                                let modalForm = document.createElement('Modal');
+                                    modalForm.setAttribute('v-show','isModalVisible');
+                                    modalForm.setAttribute('v-on:close','closeModal');
+                                    modalForm.setAttribute('v-on:action','actionModal');
                                 
                                 let divPosition = document.createElement('div');
                                     divPosition.setAttribute('id','divPositionImg');
@@ -183,6 +228,7 @@ export default {
                                     divPosition.appendChild(image);
 
                                let divImg = document.getElementById("divImg");
+                               divImg.appendChild(modalForm);
                                divImg.appendChild(divPosition);
 
                         }
