@@ -1,6 +1,20 @@
 <template>
-    <div id='divImg' >
+    <div class='divImg' :imgFile='imageFileName'>
 
+
+
+        <div v-if=isImageVisible>
+            <div id='divPositionImg' class="float-left imagePosition" >
+                <button class="close" type="button" @click="showModal">×</button>
+                <img src=''  class='img-thumbnail ' ref="image"/>
+            </div>
+        </div>
+        <div v-else>
+            <button type="button" class="btn btn-primary" id="cameraLauncher" ref='cameraLauncher' @click="launchCamera">{{ take_photo }}</button>
+            <div id='divPhoto'></div>
+        </div>
+        
+        <common-util ref="CommonUtil"/>
         <Modal
             v-show="isModalVisible"
              v-on:close="closeModal"
@@ -12,7 +26,7 @@
         </template>
 
         <template v-slot:body>
-            Selected Image will be deleted !!
+            {{observationImage.illustration.fileName}} Image will be deleted !!
         </template>
 
         <template v-slot:footer>
@@ -22,23 +36,6 @@
 
 
         </Modal>
-
-        <div v-if=isImageVisible>
-            <div id='divPositionImg' class="float-left imagePosition" >
-                <button class="close" type="button" @click="showModal">×</button>
-                <img src=''  class='img-thumbnail ' ref="image"/>
-            </div>
-        </div>
-        <div v-else>
-            <button type="button" class="btn btn-primary" id="cameraLauncher" ref='cameraLauncher' @click="launchCamera">{{ take_photo }}</button>
-        </div>
-        
-        <common-util ref="CommonUtil"/>
-
-
-
-
-
     </div>
 
 </template>
@@ -78,7 +75,9 @@ export default {
                         this.isModalVisible = false;
                     },
                     actionModal() {
+                        this.deleteImage(this.observationImage);
                         this.isModalVisible = false;
+                        
                     },
 
                     onfail: function(message) {
@@ -122,7 +121,6 @@ export default {
                                 toDataURL(photoURL) 
                                 .then(imageTextData => {
                                     This.observationImage.illustration.imageTextData = imageTextData;
-                                        //console.log ('imageTextData : ',imageTextData);
                                         This.storeData(This.observationImage);
                                 })
                             }
@@ -186,7 +184,7 @@ export default {
                                                 }
                                             }
                                             else{
-                                                console.log(This.observationImage);
+                                                //console.log(This.observationImage);
                                             }
 
                                      }
@@ -202,7 +200,6 @@ export default {
                                  image = this.$refs.image;
                             }
                             else{
-                                console.log('inside display image');
 
                                 let modalForm = document.createElement('Modal');
                                     modalForm.setAttribute('v-show','isModalVisible');
@@ -227,9 +224,14 @@ export default {
                                     divPosition.appendChild(buttnClose);
                                     divPosition.appendChild(image);
 
-                               let divImg = document.getElementById("divImg");
+                               let divPhoto = document.getElementById("divPhoto");
+                               let divImg = document.createElement('div');
+                               divImg.setAttribute('class','divImg');
                                divImg.appendChild(modalForm);
                                divImg.appendChild(divPosition);
+                               divPhoto.appendChild(divImg);
+
+                               //console.log(divImg);
 
                         }
                             image.width = CommonUtil.CONST_IMAGE_WIDTH;
@@ -339,7 +341,80 @@ export default {
 
                              localStorage.setItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST,JSON.stringify(lstObservations));
 
+                        },
+                        /* Delete Image */
+                        deleteImage(observationImage)
+                        {
+                            this.deleteImageFromLocalStore(observationImage);
+                            //var divImg = document.getElementById("divImg");
+                            var divImg=$("div[imgFile='"+observationImage.illustration.fileName+"']");
+                            divImg.remove();
+                        },
+
+                        deleteImageFromLocalStore(observationImage)
+                        {
+                                let This = this;
+                                let isDeletePermissible = false;
+                                let observationId = observationImage.observationId;
+                                let lstObservations = JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST));
+
+                               if(observationId)
+                                {
+                                    $.each(lstObservations, function(index, jobservation)
+                                    {
+                                        if(jobservation.observationId === observationId)
+                                        {
+                                             let illustrations = jobservation.observationIllustrationSet;
+                                             $.each(illustrations, function(counter, illustration){
+                                                if(illustration.observationIllustrationPK.fileName === observationImage.illustration.fileName)
+                                                {
+                                                    if(illustration.uploaded)
+                                                    {
+                                                        illustration.uploaded = false;
+                                                    }
+                                                    else{
+                                                        if(!illustration.uploaded)
+                                                        {
+                                                            /** Removing element */
+                                                            illustrations.splice(counter,1);
+                                                        }
+                                                        else
+                                                        {
+                                                             illustration.uploaded = false;
+                                                        }
+                                                    }
+                                                    isDeletePermissible = true;
+                                                   
+                                                    return false;
+                                                }
+                                             });
+                                        }
+                                    });
+                                    if(isDeletePermissible)
+                                    {
+                                        localStorage.setItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST,JSON.stringify(lstObservations));
+                                        This.deleteImageFromIndexedDB(observationImage);
+                                        
+                                    }
+
+                                }
+
+                        },
+                        deleteImageFromIndexedDB(observationImage)
+                        {
+                            let This = this;
+                            let dbRequest =  indexedDB.open(CommonUtil.CONST_DB_NAME, CommonUtil.CONST_DB_VERSION);
+                            dbRequest.onsuccess = function(evt) {
+                                let db = evt.target.result;
+                                let transaction    =   db.transaction([This.entityName],'readwrite'); 
+                                let objectstore    =   transaction.objectStore(This.entityName);
+
+                                let objectStoreRequest = objectstore.delete(observationImage.illustration.fileName);
+
+                            }
+
                         }
+
 
 
 

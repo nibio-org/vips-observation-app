@@ -37,7 +37,7 @@
         <button
           type="button"
           class="btn-red"
-          @click="close"
+          @click="action"
         >
           Action 
         </button>
