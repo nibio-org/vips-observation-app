@@ -355,6 +355,7 @@ export default {
                         {
                                 let This = this;
                                 let isDeletePermissible = false;
+                                let isMarkDeleted = false;
                                 let observationId = observationImage.observationId;
                                 let lstObservations = JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST));
 
@@ -365,26 +366,36 @@ export default {
                                         if(jobservation.observationId === observationId)
                                         {
                                              let illustrations = jobservation.observationIllustrationSet;
+                                             
                                              $.each(illustrations, function(counter, illustration){
                                                 if(illustration.observationIllustrationPK.fileName === observationImage.illustration.fileName)
                                                 {
                                                     if(illustration.uploaded)
                                                     {
-                                                        illustration.uploaded = false;
+                                                        illustration.uploaded   = false;
+                                                        isMarkDeleted           = true;
                                                     }
                                                     else{
                                                         if(!illustration.uploaded)
                                                         {
-                                                            /** Removing element */
-                                                            illustrations.splice(counter,1);
+                                                            if (typeof(illustration.uploaded) === 'undefined')
+                                                            {
+                                                               illustration.uploaded = false;
+                                                                isMarkDeleted         = true; 
+                                                            }
+                                                            else
+                                                            {
+                                                                /** Removing element */
+                                                                illustrations.splice(counter,1);
+                                                            }
                                                         }
                                                         else
                                                         {
                                                              illustration.uploaded = false;
+                                                             isMarkDeleted         = true;
                                                         }
                                                     }
                                                     isDeletePermissible = true;
-                                                   
                                                     return false;
                                                 }
                                              });
@@ -392,24 +403,35 @@ export default {
                                     });
                                     if(isDeletePermissible)
                                     {
+                                        
+                                        
                                         localStorage.setItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST,JSON.stringify(lstObservations));
-                                        This.deleteImageFromIndexedDB(observationImage);
+                                        This.deleteImageFromIndexedDB(observationImage, isMarkDeleted );
                                         
                                     }
 
                                 }
 
                         },
-                        deleteImageFromIndexedDB(observationImage)
+                        deleteImageFromIndexedDB(observationImage, isMarkDeleted)
                         {
                             let This = this;
                             let dbRequest =  indexedDB.open(CommonUtil.CONST_DB_NAME, CommonUtil.CONST_DB_VERSION);
+
                             dbRequest.onsuccess = function(evt) {
                                 let db = evt.target.result;
                                 let transaction    =   db.transaction([This.entityName],'readwrite'); 
                                 let objectstore    =   transaction.objectStore(This.entityName);
-
-                                let objectStoreRequest = objectstore.delete(observationImage.illustration.fileName);
+                                if(isMarkDeleted)
+                                {
+                                    observationImage.illustration.deleted=true;
+                                    observationImage.illustration.imageTextData='';
+                                     let objectStoreRequest = objectstore.put(observationImage,observationImage.illustration.fileName);
+                                }
+                                else
+                                {
+                                    let objectStoreRequest = objectstore.delete(observationImage.illustration.fileName);
+                                }
 
                             }
 
