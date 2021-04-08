@@ -4,10 +4,14 @@
 
 
         <div v-if=isImageVisible>
+            <div v-if=isDeleted> <!-- Don't show photo marked as deleted --> </div>
+            <div v-else>
             <div id='divPositionImg' class="float-left imagePosition" >
                 <button class="close" type="button" @click="showModal">×</button>
                 <img src=''  class='img-thumbnail ' ref="image"/>
             </div>
+            </div>
+
         </div>
         <div v-else>
             <button type="button" class="btn btn-primary" id="cameraLauncher" ref='cameraLauncher' @click="launchCamera">{{ take_photo }}</button>
@@ -47,7 +51,7 @@ import Modal from '@/components/Modal'
 export default {
     name        :   'Photo',
     components  :   {CommonUtil, Modal},
-    props       :   ['observationId','organismId','imageFileName','isImageVisible'], 
+    props       :   ['observationId','organismId','imageFileName','isImageVisible','isDeleted'], 
     data ()  {
                 return {
                     take_photo          : "Ta bilde",
@@ -355,6 +359,7 @@ export default {
                         {
                                 let This = this;
                                 let isDeletePermissible = false;
+                                let isMarkDeleted = false;
                                 let observationId = observationImage.observationId;
                                 let lstObservations = JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST));
 
@@ -365,26 +370,40 @@ export default {
                                         if(jobservation.observationId === observationId)
                                         {
                                              let illustrations = jobservation.observationIllustrationSet;
+                                             
                                              $.each(illustrations, function(counter, illustration){
                                                 if(illustration.observationIllustrationPK.fileName === observationImage.illustration.fileName)
                                                 {
                                                     if(illustration.uploaded)
                                                     {
-                                                        illustration.uploaded = false;
+                                                        illustration.uploaded   = false;
+                                                        isMarkDeleted           = true;
                                                     }
                                                     else{
                                                         if(!illustration.uploaded)
                                                         {
-                                                            /** Removing element */
-                                                            illustrations.splice(counter,1);
+                                                            if (typeof(illustration.uploaded) === 'undefined')
+                                                            {
+                                                                /** Selected existing record marked deleted in localstorage */
+                                                                illustration.uploaded = false;
+                                                                illustration.deleted = true;
+                                                                
+                                                                isMarkDeleted         = true; 
+                                                            }
+                                                            else
+                                                            {
+                                                                /** Removing element */
+                                                                illustrations.splice(counter,1);
+                                                            }
                                                         }
                                                         else
                                                         {
                                                              illustration.uploaded = false;
+                                                             illustration.deleted = true;
+                                                             isMarkDeleted         = true;
                                                         }
                                                     }
                                                     isDeletePermissible = true;
-                                                   
                                                     return false;
                                                 }
                                              });
@@ -392,24 +411,39 @@ export default {
                                     });
                                     if(isDeletePermissible)
                                     {
+                                        
+                                        
                                         localStorage.setItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST,JSON.stringify(lstObservations));
-                                        This.deleteImageFromIndexedDB(observationImage);
+                                        This.deleteImageFromIndexedDB(observationImage, isMarkDeleted );
                                         
                                     }
 
                                 }
 
                         },
-                        deleteImageFromIndexedDB(observationImage)
+                        deleteImageFromIndexedDB(observationImage, isMarkDeleted)
                         {
                             let This = this;
                             let dbRequest =  indexedDB.open(CommonUtil.CONST_DB_NAME, CommonUtil.CONST_DB_VERSION);
+
                             dbRequest.onsuccess = function(evt) {
                                 let db = evt.target.result;
                                 let transaction    =   db.transaction([This.entityName],'readwrite'); 
                                 let objectstore    =   transaction.objectStore(This.entityName);
 
-                                let objectStoreRequest = objectstore.delete(observationImage.illustration.fileName);
+                                //TODO - Remove the blocking below if marking the image for justification require
+                                /*
+                                if(isMarkDeleted)
+                                {
+                                    observationImage.illustration.deleted=true;
+                                    observationImage.illustration.imageTextData='';
+                                     let objectStoreRequest = objectstore.put(observationImage,observationImage.illustration.fileName);
+                                }
+                                else
+                                */
+                                {
+                                    let objectStoreRequest = objectstore.delete(observationImage.illustration.fileName);
+                                }
 
                             }
 
@@ -430,8 +464,7 @@ export default {
                     this.observationImage.organismId            =   this.organismId;
                     this.observationImage.illustration.fileName =   this.imageFileName;      
 
-
-                    if(this.organismId)
+                     if(this.organismId)
                     {
                         //this.fetchFromServer();
                         this.getImageFromStore();
