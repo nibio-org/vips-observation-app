@@ -4,10 +4,14 @@
 
 
         <div v-if=isImageVisible>
+            <div v-if=isDeleted> <!-- Don't show photo marked as deleted --> </div>
+            <div v-else>
             <div id='divPositionImg' class="float-left imagePosition" >
                 <button class="close" type="button" @click="showModal">×</button>
                 <img src=''  class='img-thumbnail ' ref="image"/>
             </div>
+            </div>
+
         </div>
         <div v-else>
             <button type="button" class="btn btn-primary" id="cameraLauncher" ref='cameraLauncher' @click="launchCamera">{{ take_photo }}</button>
@@ -47,7 +51,7 @@ import Modal from '@/components/Modal'
 export default {
     name        :   'Photo',
     components  :   {CommonUtil, Modal},
-    props       :   ['observationId','organismId','imageFileName','isImageVisible'], 
+    props       :   ['observationId','organismId','imageFileName','isImageVisible','isDeleted'], 
     data ()  {
                 return {
                     take_photo          : "Ta bilde",
@@ -380,7 +384,10 @@ export default {
                                                         {
                                                             if (typeof(illustration.uploaded) === 'undefined')
                                                             {
-                                                               illustration.uploaded = false;
+                                                                /** Selected existing record marked deleted in localstorage */
+                                                                illustration.uploaded = false;
+                                                                illustration.deleted = true;
+                                                                
                                                                 isMarkDeleted         = true; 
                                                             }
                                                             else
@@ -392,6 +399,7 @@ export default {
                                                         else
                                                         {
                                                              illustration.uploaded = false;
+                                                             illustration.deleted = true;
                                                              isMarkDeleted         = true;
                                                         }
                                                     }
@@ -422,6 +430,9 @@ export default {
                                 let db = evt.target.result;
                                 let transaction    =   db.transaction([This.entityName],'readwrite'); 
                                 let objectstore    =   transaction.objectStore(This.entityName);
+
+                                //TODO - Remove the blocking below if marking the image for justification require
+                                /*
                                 if(isMarkDeleted)
                                 {
                                     observationImage.illustration.deleted=true;
@@ -429,6 +440,7 @@ export default {
                                      let objectStoreRequest = objectstore.put(observationImage,observationImage.illustration.fileName);
                                 }
                                 else
+                                */
                                 {
                                     let objectStoreRequest = objectstore.delete(observationImage.illustration.fileName);
                                 }
@@ -452,8 +464,7 @@ export default {
                     this.observationImage.organismId            =   this.organismId;
                     this.observationImage.illustration.fileName =   this.imageFileName;      
 
-
-                    if(this.organismId)
+                     if(this.organismId)
                     {
                         //this.fetchFromServer();
                         this.getImageFromStore();
