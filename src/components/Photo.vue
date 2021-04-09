@@ -8,7 +8,7 @@
             <div v-else>
             <div id='divPositionImg' class="float-left imagePosition" >
                 <button class="close" type="button" @click="showModal">×</button>
-                <img src=''  class='img-thumbnail ' ref="image"/>
+                <img src=''  class='img-thumbnail ' ref="image" @click='showModalPhoto'/>
             </div>
             </div>
 
@@ -24,7 +24,7 @@
              v-on:close="closeModal"
              v-on:action="actionModal"
         >
-
+    
         <template v-slot:header>
             !! ALERT !!
         </template>
@@ -37,9 +37,10 @@
             Please chose the option below :
         </template>
 
-
-
         </Modal>
+
+    <modal-photo :propImageSource='observationImage.illustration.imageTextData' v-show="isModalPhotoVisible" v-on:close="closeModalPhoto"></modal-photo>
+
     </div>
 
 </template>
@@ -47,15 +48,17 @@
 <script>
 import CommonUtil from '@/components/CommonUtil'
 import Modal from '@/components/Modal'
+import ModalPhoto from './ModalPhoto.vue'
 
 export default {
     name        :   'Photo',
-    components  :   {CommonUtil, Modal},
+    components  :   {CommonUtil, Modal,ModalPhoto},
     props       :   ['observationId','organismId','imageFileName','isImageVisible','isDeleted'], 
     data ()  {
                 return {
                     take_photo          : "Ta bilde",
-                    isModalVisible           :   false,
+                    isModalVisible      :   false,
+                    isModalPhotoVisible :   false,
                     dbIndexPhoto        :   '',
                     entityName          :   '',
                     observationImages   :   [],
@@ -82,6 +85,17 @@ export default {
                         this.deleteImage(this.observationImage);
                         this.isModalVisible = false;
                         
+                    },
+
+                    showModalPhoto()
+                    {
+                        this.isModalPhotoVisible = true;
+                        this.getImageDataFromStore();
+                        //console.log(this.observationImage);
+                    },
+                    closeModalPhoto()
+                    {
+                        this.isModalPhotoVisible = false;
                     },
 
                     onfail: function(message) {
@@ -194,6 +208,45 @@ export default {
                                      }
 
 
+
+                        },
+                        getImageDataFromStore()
+                        {
+                             let This = this;
+                                 let dbRequest = indexedDB.open(CommonUtil.CONST_DB_NAME, CommonUtil.CONST_DB_VERSION);
+                                    dbRequest.onsuccess = function(evt) {
+                                        let db = evt.target.result;
+                                            let transaction = db.transaction([This.entityName],'readwrite');  
+                                            let objectstore = transaction.objectStore(This.entityName);
+
+                                            if(This.observationImage.illustration.fileName)
+                                            {
+                                                let objectstoreRequest = objectstore.get(This.observationImage.illustration.fileName);
+                                                
+                                                objectstoreRequest.onsuccess = function(event)
+                                                {
+                                                    let observationImage = event.target.result;
+                                                    if(observationImage)
+                                                    {
+                                                        console.log(observationImage);
+                                                        //This.displayImage(observationImage.illustration.imageTextData);
+                                                        This.observationImage.illustration.imageTextData = observationImage.illustration.imageTextData;
+                                                        //console.log('image Data : '+This.observationImage.illustration.imageTextData);
+                                                        
+                                                    }
+                                                    else{
+                                                        console.log('Image filename mentioned in Observation, but no image data found');
+                                                    }
+                                                }
+                                            }
+                                            else{
+                                                //console.log(This.observationImage);
+                                            }
+
+                                     }
+                        },
+                        getImageData()
+                        {
 
                         },
                          displayImage(imgTextData)
