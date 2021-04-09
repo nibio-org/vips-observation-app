@@ -4,20 +4,32 @@
 
 
         <div v-if=isImageVisible>
-            <div v-if=isDeleted> <!-- Don't show photo marked as deleted --> </div>
+            <div v-if=isDeleted> </div>
             <div v-else>
-            <div id='divPositionImg' class="float-left imagePosition" >
-                <button class="close" type="button" @click="showModal">×</button>
-                <img src=''  class='img-thumbnail ' ref="image"/>
+                <div id='divPositionImg' class="float-left imagePosition" >
+                    <button class="close" type="button" @click="showModal">×</button>
+                    <img src=''  class='img-thumbnail ' ref="image"/>
+                </div>
             </div>
-            </div>
-
         </div>
         <div v-else>
             <button type="button" class="btn btn-primary" id="cameraLauncher" ref='cameraLauncher' @click="launchCamera">{{ take_photo }}</button>
-            <div id='divPhoto'></div>
+            <div v-for="divImage in divAddPhotos" v-bind:key="divImage">
+                {{divImage}}
+            </div>
         </div>
         
+
+<!--         <div v-if=isDeleted> </div>
+        <div v-else>
+                <div id='divPositionImg' class="float-left imagePosition" >
+                    <button class="close" type="button" @click="showModal">×</button>
+                    <img src=''  class='img-thumbnail ' ref="image"/>
+                </div>
+        </div> -->
+
+<!-- <div id='divPhoto'></div> -->
+
         <common-util ref="CommonUtil"/>
         <Modal
             v-show="isModalVisible"
@@ -55,7 +67,9 @@ export default {
     data ()  {
                 return {
                     take_photo          : "Ta bilde",
-                    isModalVisible           :   false,
+                    isModalVisible      :   false,
+                    counterDiv          :   1,
+                    divAddPhotos        :   [],
                     dbIndexPhoto        :   '',
                     entityName          :   '',
                     observationImages   :   [],
@@ -199,13 +213,21 @@ export default {
                          displayImage(imgTextData)
                         {
                             let image = null;
+                            
+                            let divStr =       '<div id="divPositionImg" class="float-left imagePosition" >'+
+                                                    '<button class="close" type="button" @click="showModal">×</button>' +
+                                                    '<img src=""  class="img-thumbnail" ref="image"/>' +
+                                                '</div>';
+
                             if(this.$refs.image)
                             {
                                  image = this.$refs.image;
+                                 
                             }
                             else{
+                                this.divAddPhotos.push(divStr);
 
-                                let modalForm = document.createElement('Modal');
+/*                                 let modalForm = document.createElement('Modal');
                                     modalForm.setAttribute('v-show','isModalVisible');
                                     modalForm.setAttribute('v-on:close','closeModal');
                                     modalForm.setAttribute('v-on:action','actionModal');
@@ -216,6 +238,7 @@ export default {
                                     
                                 let buttnClose = document.createElement('button');
                                     buttnClose.setAttribute('class','close');
+                                    buttnClose.setAttribute('v-on:click','showModal');
                                     buttnClose.innerHTML='x';
                                     buttnClose.style.color='red';
 
@@ -233,7 +256,7 @@ export default {
                                divImg.setAttribute('class','divImg');
                                divImg.appendChild(modalForm);
                                divImg.appendChild(divPosition);
-                               divPhoto.appendChild(divImg);
+                               divPhoto.appendChild(divImg); */
 
                                //console.log(divImg);
 
@@ -315,7 +338,11 @@ export default {
                             observation.illustration = illustration;
                             
                             this.observationImage = observation;
-
+                            this.imageFileName = illustration.fileName;
+                            //if(this.counterDiv != 1) 
+                            {
+                                this.counterDiv = this.counterDiv+1;
+                            }
                             this.addImageIntoObservation(observation);
                             this.storeData(observation);
                             
