@@ -1,30 +1,33 @@
 <template>
-    <div class='divImg' :imgFile='imageFileName'>
-
-
-
+    <div>
+ 
         <div v-if=isImageVisible>
-            <div v-if=isDeleted> <!-- Don't show photo marked as deleted --> </div>
+            <div v-if=isDeleted> </div>
             <div v-else>
-            <div id='divPositionImg' class="float-left imagePosition" >
-                <button class="close" type="button" @click="showModal">×</button>
-                <img src=''  class='img-thumbnail ' ref="image"/>
+                <div class='divImg' :imgFile='imageFileName'>
+                    <div id='divPositionImg' class="float-left imagePosition" >
+                        <button class="close" type="button" @click="showModal">×</button>
+                        <img src=''  class='img-thumbnail ' ref="image"  @click='showModalPhoto'/>
+                    </div>
+                </div>
             </div>
-            </div>
-
         </div>
         <div v-else>
             <button type="button" class="btn btn-primary" id="cameraLauncher" ref='cameraLauncher' @click="launchCamera">{{ take_photo }}</button>
-            <div id='divPhoto'></div>
+                
+            <div v-for="divImage in divAddPhotos" v-bind:key="divImage">
+                <photo-tag :imageSource='divImage.illustration.imageTextData' :imageFileName='divImage.illustration.fileName' v-on:action="deleteImageByFileName"> </photo-tag>                
+            </div> 
         </div>
         
+
         <common-util ref="CommonUtil"/>
         <Modal
             v-show="isModalVisible"
              v-on:close="closeModal"
              v-on:action="actionModal"
         >
-
+    
         <template v-slot:header>
             !! ALERT !!
         </template>
@@ -37,25 +40,31 @@
             Please chose the option below :
         </template>
 
-
-
         </Modal>
-    </div>
 
+    <modal-photo :propImageSource='observationImage.illustration.imageTextData' v-show="isModalPhotoVisible" v-on:close="closeModalPhoto"></modal-photo>
+
+    </div>
 </template>
 
 <script>
 import CommonUtil from '@/components/CommonUtil'
 import Modal from '@/components/Modal'
+import PhotoTag from '@/components/PhotoTag.vue'
+import ModalPhoto from './ModalPhoto.vue'
+
 
 export default {
     name        :   'Photo',
-    components  :   {CommonUtil, Modal},
+    components  :   {CommonUtil, Modal,ModalPhoto,PhotoTag},
     props       :   ['observationId','organismId','imageFileName','isImageVisible','isDeleted'], 
     data ()  {
                 return {
                     take_photo          : "Ta bilde",
-                    isModalVisible           :   false,
+                    isModalVisible      :   false,
+                    counterDiv          :   1,
+                    divAddPhotos        :   [],
+                    isModalPhotoVisible :   false,
                     dbIndexPhoto        :   '',
                     entityName          :   '',
                     observationImages   :   [],
@@ -71,7 +80,6 @@ export default {
                 }
     },
     methods     : {
-
                     showModal() {
                         this.isModalVisible = true;
                     },
@@ -79,9 +87,21 @@ export default {
                         this.isModalVisible = false;
                     },
                     actionModal() {
+
                         this.deleteImage(this.observationImage);
                         this.isModalVisible = false;
                         
+                    },
+
+                    showModalPhoto()
+                    {
+                        this.isModalPhotoVisible = true;
+                        this.getImageDataFromStore();
+                        //console.log(this.observationImage);
+                    },
+                    closeModalPhoto()
+                    {
+                        this.isModalPhotoVisible = false;
                     },
 
                     onfail: function(message) {
@@ -180,7 +200,10 @@ export default {
                                                     let observationImage = event.target.result;
                                                     if(observationImage)
                                                     {
-                                                        This.displayImage(observationImage.illustration.imageTextData);
+                                                        if(observationImage.illustration.imageTextData)
+                                                        {
+                                                            This.displayImage(observationImage.illustration.imageTextData);
+                                                        }
                                                     }
                                                     else{
                                                         console.log('Image filename mentioned in Observation, but no image data found');
@@ -193,54 +216,63 @@ export default {
 
                                      }
 
-
-
                         },
-                         displayImage(imgTextData)
+                        getImageDataFromStore()
                         {
-                            let image = null;
-                            if(this.$refs.image)
+                             let This = this;
+                                 let dbRequest = indexedDB.open(CommonUtil.CONST_DB_NAME, CommonUtil.CONST_DB_VERSION);
+                                    dbRequest.onsuccess = function(evt) {
+                                        let db = evt.target.result;
+                                            let transaction = db.transaction([This.entityName],'readwrite');  
+                                            let objectstore = transaction.objectStore(This.entityName);
+
+                                            if(This.observationImage.illustration.fileName)
+                                            {
+                                                let objectstoreRequest = objectstore.get(This.observationImage.illustration.fileName);
+                                                
+                                                objectstoreRequest.onsuccess = function(event)
+                                                {
+                                                    let observationImage = event.target.result;
+                                                    if(observationImage)
+                                                    {
+                                                        //This.displayImage(observationImage.illustration.imageTextData);
+                                                        This.observationImage.illustration.imageTextData = observationImage.illustration.imageTextData;
+                                                        
+                                                    }
+                                                    else{
+                                                        console.log('Image filename mentioned in Observation, but no image data found');
+                                                    }
+                                                }
+                                            }
+                                            else{
+
+                                            }
+
+                                     }
+                        },
+
+                        displayImage(imgTextData)
+                        {
+                            if(imgTextData)
                             {
-                                 image = this.$refs.image;
-                            }
-                            else{
+                                let image = null;
 
-                                let modalForm = document.createElement('Modal');
-                                    modalForm.setAttribute('v-show','isModalVisible');
-                                    modalForm.setAttribute('v-on:close','closeModal');
-                                    modalForm.setAttribute('v-on:action','actionModal');
-                                
-                                let divPosition = document.createElement('div');
-                                    divPosition.setAttribute('id','divPositionImg');
-                                    divPosition.setAttribute('class','float-left imagePosition');
+                                if(this.$refs.image)
+                                {
+                                    image = this.$refs.image;
                                     
-                                let buttnClose = document.createElement('button');
-                                    buttnClose.setAttribute('class','close');
-                                    buttnClose.innerHTML='x';
-                                    buttnClose.style.color='red';
+                                }
+                                else{
+                                    this.divAddPhotos.push(this.observationImage);
 
-                                image = document.createElement('img');
-                               let imgSrc = document.createAttribute('src');
-                               let att = document.createAttribute("class");
-                                    att.value = "img-thumbnail float-left"; 
-                                    image.setAttributeNode(att);
-
-                                    divPosition.appendChild(buttnClose);
-                                    divPosition.appendChild(image);
-
-                               let divPhoto = document.getElementById("divPhoto");
-                               let divImg = document.createElement('div');
-                               divImg.setAttribute('class','divImg');
-                               divImg.appendChild(modalForm);
-                               divImg.appendChild(divPosition);
-                               divPhoto.appendChild(divImg);
-
-                               //console.log(divImg);
-
+                            }
+                                if(image)
+                                {
+                                    image.width = CommonUtil.CONST_IMAGE_WIDTH;
+                                    image.height = CommonUtil.CONST_IMAGE_HEIGHT;
+                                    image.src=imgTextData;
+                                }
                         }
-                            image.width = CommonUtil.CONST_IMAGE_WIDTH;
-                            image.height = CommonUtil.CONST_IMAGE_HEIGHT;
-                            image.src=imgTextData;
 
                         },
 
@@ -274,9 +306,6 @@ export default {
                                  }
                                  
                              }
-                             
-                            
-                            
                         },
 
                         /** Call back function for create image file name and storing image information and  data */
@@ -297,7 +326,27 @@ export default {
                                 }
                                 else
                                 {
-                                    selectedFileFirstName=indexValue+'_illustration'+'_'+(len+1);
+                                    let arrFileNumber = [];
+                                    $.each(observationImages, function(index, observation){
+                                        let fileNumber  =   0;
+                                        let fileName    =   observation.illustration.fileName;
+                                        let pos01       =   fileName.indexOf('.');
+                                        let pos02       =   fileName.lastIndexOf('n',pos01);
+                                        let numberStr   =   fileName.substring(pos02+1,pos01);
+                                        if(numberStr.substring(0,1)==='_')
+                                        {
+                                            fileNumber = parseInt(numberStr.substring(1));
+                                        }
+                                        else
+                                        {
+                                            fileNumber = 1;
+                                        }
+                                        arrFileNumber.push(fileNumber);
+
+                                    })
+                                    let maxNumber = Math.max.apply(null,arrFileNumber);
+
+                                    selectedFileFirstName=indexValue+'_illustration'+'_'+(maxNumber+1);
                                 }
                                 
                             }
@@ -315,7 +364,12 @@ export default {
                             observation.illustration = illustration;
                             
                             this.observationImage = observation;
+                            this.imageFileName = illustration.fileName;
 
+                            //if(this.counterDiv != 1) 
+                            {
+                                this.counterDiv = this.counterDiv+1;
+                            }
                             this.addImageIntoObservation(observation);
                             this.storeData(observation);
                             
@@ -345,6 +399,22 @@ export default {
 
                              localStorage.setItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST,JSON.stringify(lstObservations));
 
+                        },
+                        deleteImageByFileName(fileName)
+                        {
+                            console.log('File Name : '+fileName);
+                            let This = this;
+                            let dbRequest =  indexedDB.open(CommonUtil.CONST_DB_NAME, CommonUtil.CONST_DB_VERSION);
+                            dbRequest.onsuccess = function(evt) {
+                                let db = evt.target.result;
+                                let transaction    =   db.transaction([This.entityName],'readwrite'); 
+                                let objectstore    =   transaction.objectStore(This.entityName);
+                                let objectStoreRequest = objectstore.get(fileName);
+                                objectStoreRequest.onsuccess = function(event) {
+                                    let observationImage = event.target.result;
+                                     This.deleteImage(observationImage)
+                                }
+                            }
                         },
                         /* Delete Image */
                         deleteImage(observationImage)
@@ -482,3 +552,4 @@ export default {
       position: relative;
   }
 </style>
+
