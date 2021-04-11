@@ -7,7 +7,7 @@
                 <div class='divImg' :imgFile='imageFileName'>
                     <div id='divPositionImg' class="float-left imagePosition" >
                         <button class="close" type="button" @click="showModal">×</button>
-                        <img src=''  class='img-thumbnail ' ref="image"/>
+                        <img src=''  class='img-thumbnail ' ref="image"  @click='showModalPhoto'/>
                     </div>
                 </div>
             </div>
