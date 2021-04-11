@@ -216,8 +216,6 @@ export default {
 
                                      }
 
-
-
                         },
                         getImageDataFromStore()
                         {
@@ -237,10 +235,8 @@ export default {
                                                     let observationImage = event.target.result;
                                                     if(observationImage)
                                                     {
-                                                        console.log(observationImage);
                                                         //This.displayImage(observationImage.illustration.imageTextData);
                                                         This.observationImage.illustration.imageTextData = observationImage.illustration.imageTextData;
-                                                        //console.log('image Data : '+This.observationImage.illustration.imageTextData);
                                                         
                                                     }
                                                     else{
@@ -249,16 +245,13 @@ export default {
                                                 }
                                             }
                                             else{
-                                                //console.log(This.observationImage);
+
                                             }
 
                                      }
                         },
-                        getImageData()
-                        {
 
-                        },
-                         displayImage(imgTextData)
+                        displayImage(imgTextData)
                         {
                             if(imgTextData)
                             {
@@ -313,9 +306,6 @@ export default {
                                  }
                                  
                              }
-                             
-                            
-                            
                         },
 
                         /** Call back function for create image file name and storing image information and  data */
@@ -336,7 +326,27 @@ export default {
                                 }
                                 else
                                 {
-                                    selectedFileFirstName=indexValue+'_illustration'+'_'+(len+1);
+                                    let arrFileNumber = [];
+                                    $.each(observationImages, function(index, observation){
+                                        let fileNumber  =   0;
+                                        let fileName    =   observation.illustration.fileName;
+                                        let pos01       =   fileName.indexOf('.');
+                                        let pos02       =   fileName.lastIndexOf('n',pos01);
+                                        let numberStr   =   fileName.substring(pos02+1,pos01);
+                                        if(numberStr.substring(0,1)==='_')
+                                        {
+                                            fileNumber = parseInt(numberStr.substring(1));
+                                        }
+                                        else
+                                        {
+                                            fileNumber = 1;
+                                        }
+                                        arrFileNumber.push(fileNumber);
+
+                                    })
+                                    let maxNumber = Math.max.apply(null,arrFileNumber);
+
+                                    selectedFileFirstName=indexValue+'_illustration'+'_'+(maxNumber+1);
                                 }
                                 
                             }
