@@ -16,7 +16,7 @@
 
       <section class="modal-body overflow-auto" >
         <slot name="body">
-          <img :src='propImageSource' />
+          <img :src='propImageSource' class='imgStyle'/>
         </slot>
        </section>
 
@@ -87,8 +87,8 @@
     display: flex;
     flex-direction: column;
     
-    width:300px;
-    height:400px;
+    width:95vw;
+    height:75vh;
     top: 25%;
     
     bottom: 0;
@@ -146,5 +146,10 @@
     background: #d82249;
     border: 1px solid #cc2045;
     border-radius: 2px;
+  }
+    .imgStyle {
+    max-width:100%;
+    max-height:100%;
+  
   }
 </style>
