@@ -42,7 +42,14 @@
 
         </Modal>
 
-    <modal-photo :propImageSource='observationImage.illustration.imageTextData' v-show="isModalPhotoVisible" v-on:close="closeModalPhoto"></modal-photo>
+    <modal-photo :propImageSource='observationImage.illustration.imageTextData' v-show="isModalPhotoVisible" v-on:close="closeModalPhoto">
+        <template v-slot:header>
+            !! Observation Photo !!
+        </template>
+        <template v-slot:footer>
+            -
+        </template>
+    </modal-photo>
 
     </div>
 </template>

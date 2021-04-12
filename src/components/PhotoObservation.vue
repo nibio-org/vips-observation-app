@@ -1,8 +1,6 @@
 <template>
     <div>
-<!--         Photo : Observation Id : {{observationId}}
-                Organism Id : {{organismId}}
-                Image File Name : {{imageFileName}} -->
+
     <canvas ref="canvas" class="img-thumbnail float-left"></canvas>
     <common-util ref="CommonUtil"/>
     </div>
