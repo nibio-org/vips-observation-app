@@ -16,7 +16,7 @@
             <button type="button" class="btn btn-primary" id="cameraLauncher" ref='cameraLauncher' @click="launchCamera">{{ take_photo }}</button>
                 
             <div v-for="divImage in divAddPhotos" v-bind:key="divImage">
-                <photo-tag :imageSource='divImage.illustration.imageTextData' :imageFileName='divImage.illustration.fileName' v-on:action="deleteImageByFileName"> </photo-tag>                
+                <photo-tag :imageSource='divImage.illustration.imageTextData' :imageFileName='divImage.illustration.fileName' v-on:action="deleteImageByFileName" v-on:showImage="showModalPhoto"> </photo-tag>                
             </div> 
         </div>
         
@@ -100,11 +100,20 @@ export default {
                         
                     },
 
-                    showModalPhoto()
+                    showModalPhoto(fileName)
                     {
+                                              
+                        let imgFileName = '';
+                        if(typeof(fileName)=== 'object')
+                        {
+
+                            imgFileName=this.observationImage.illustration.fileName;
+                        }
+                        else{
+                            imgFileName = fileName;
+                        }
                         this.isModalPhotoVisible = true;
-                        this.getImageDataFromStore();
-                        //console.log(this.observationImage);
+                        this.getImageDataFromStore(imgFileName);
                     },
                     closeModalPhoto()
                     {
@@ -224,7 +233,7 @@ export default {
                                      }
 
                         },
-                        getImageDataFromStore()
+                        getImageDataFromStore(fileName)
                         {
                              let This = this;
                                  let dbRequest = indexedDB.open(CommonUtil.CONST_DB_NAME, CommonUtil.CONST_DB_VERSION);
@@ -235,7 +244,7 @@ export default {
 
                                             if(This.observationImage.illustration.fileName)
                                             {
-                                                let objectstoreRequest = objectstore.get(This.observationImage.illustration.fileName);
+                                                let objectstoreRequest = objectstore.get(fileName);
                                                 
                                                 objectstoreRequest.onsuccess = function(event)
                                                 {
@@ -409,7 +418,6 @@ export default {
                         },
                         deleteImageByFileName(fileName)
                         {
-                            console.log('File Name : '+fileName);
                             let This = this;
                             let dbRequest =  indexedDB.open(CommonUtil.CONST_DB_NAME, CommonUtil.CONST_DB_VERSION);
                             dbRequest.onsuccess = function(evt) {
