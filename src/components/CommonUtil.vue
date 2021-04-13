@@ -16,6 +16,7 @@ export default {
     CONST_STORAGE_CROP_PEST_LIST        :   'store-crop-pest-list',
     CONST_STORAGE_OBSERVATION_LIST      :   'store-observation-list',
     CONST_STORAGE_IMAGE_LIST            :   'store-image-list',
+    CONST_STORAGE_POI_LIST              :   'store-poi-list',
 
     CONST_IMAGE_WIDTH                   :   100,
     CONST_IMAGE_HEIGHT                  :   100,
@@ -40,7 +41,6 @@ export default {
     CONST_URL_USER_POI                  :   '/rest/poi/user',
 
     CONST_URL_STATIC_IMAGE_PATH         :   '/static/images/observations/',
-    
     
     CONST_GPS_URL_NORWAY_MAP            :   'https://opencache.statkart.no/gatekeeper/gk/gk.open_wmts?Version=1.0.0&service=wmts&request=getcapabilities',
     CONST_GPS_DEFAULT_LATITUDE_NORWAY   :   16,

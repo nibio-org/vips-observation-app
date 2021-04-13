@@ -409,7 +409,6 @@ export default {
                         },
                         deleteImageByFileName(fileName)
                         {
-                            console.log('File Name : '+fileName);
                             let This = this;
                             let dbRequest =  indexedDB.open(CommonUtil.CONST_DB_NAME, CommonUtil.CONST_DB_VERSION);
                             dbRequest.onsuccess = function(evt) {
