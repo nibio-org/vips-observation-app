@@ -3,7 +3,7 @@
         <div class="divImg" :imgFile="imageFileName" >
             <div id="divPositionImg" class="float-left imagePosition" >
                 <button class="close" type="button" @click="showModal">×</button>
-                <img src=''  class="img-thumbnail border border-danger" ref="image"/>
+                <img src=''  class="img-thumbnail border border-danger" @click='showModalPhoto' ref="image"/>
             </div>
         </div>  
          
@@ -54,6 +54,10 @@ export default {
                         this.$emit('action', this.imageFileName);
                         this.isModalVisible = false;
                         
+                    },
+                    showModalPhoto()
+                    {
+                        this.$emit('showImage',this.imageFileName);
                     },
     },
     mounted() {
