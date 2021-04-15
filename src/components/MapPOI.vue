@@ -2,7 +2,7 @@
     <div>
             <router-link :to="{name:'PlacesList', params: {}}" >Back</router-link>
             MAP
-            <div id='map-poi'></div>
+            <div id='map-poi' style="border: 2px solid green;height: 400px;"></div>
             <div id="poiMarker">
                 <img src="@/assets/map_icon.png"> 
             </div>
@@ -207,8 +207,8 @@ console.log(vectorSource);
     mounted() {
         this.mapZoom    = CommonUtil.CONST_GPS_OBSERVATION_ZOOM;
         this.getPointOfInterest(this.$route.params.pointOfInterestId);
-        //this.initMap();
-        this.mapInit();
+        this.initMap();
+        //this.mapInit();
     }
 }
 </script>
