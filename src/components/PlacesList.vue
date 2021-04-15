@@ -1,12 +1,12 @@
 <template>
   <div class="hello">
     <h1>{{ msg }}</h1>
-    <ul class="list-group">
-        <li v-for="poi in listPOI" v-bind:key="poi.pointOfInterestId" class="list-group-item d-flex justify-content-between align-items-start" >
-            <div class="fw-bold">{{poi.name}}</div>
-            <span><i class="fas fa-plus-circle fa-2x"></i> </span>
-          </li>
-    </ul>
+    <div class="container">
+            <router-link  class="row fw-bold" ref='linkMapPoi' :to="{name:'MapPOI', params: {pointOfInterestId:poi.pointOfInterestId}}"  v-for="poi in listPOI" v-bind:key="poi.pointOfInterestId">
+                <div class='col-10 '><h5>{{poi.name}}</h5></div>
+                <div class='col'><i class="fas fa-plus-circle fa-2x"></i></div>
+            </router-link>
+    </div>
     <common-util ref="CommonUtil"/>
     </div>
 </template>
