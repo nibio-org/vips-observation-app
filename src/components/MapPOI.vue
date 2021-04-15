@@ -1,7 +1,6 @@
 <template>
     <div>
-            <router-link :to="{name:'PlacesList', params: {}}" >Back</router-link>
-            MAP
+            <router-link id='btnBack' :to="{name:'PlacesList', params: {}}" class="btn btn-success">Back</router-link>
             <div id='map-poi' style="border: 2px solid green;height: 400px;"></div>
             <div id="poiMarker">
                 <img src="@/assets/map_icon.png"> 
@@ -160,7 +159,8 @@ console.log(vectorSource);
                 let This                =   this;
                 let urlMap              =   CommonUtil.CONST_GPS_URL_NORWAY_MAP;
                 let latitude            =   this.poi.latitude;
-                let longitude           =   this.poi.longitude;                
+                let longitude           =   this.poi.longitude;  
+                let mapZoom             =   this.mapZoom;              
 
                 let geoInfo             =   JSON.parse(this.poi.geoJSON);
 
@@ -176,27 +176,38 @@ console.log(vectorSource);
                                             matrixSet: 'EPSG:3857',
                                         });
                     
-                    let map = new Map({
-                        layers: [
-                            new TileLayer({
-                                opacity: 1,
-                                source: new WMTS(options),
-                            }) ,                            
-                            new VectorLayer({
-                                source  :      new VectorSource({
-                                                                    features : new GeoJSON({
-                                                                                                dataProjection:"EPSG:4326", 
-                                                                                                featureProjection:"EPSG:3857"}).readFeatures(geoInfo),
-                                                }),
-                                }),
+                    let map =   new Map({
+                                        layers: [
+                                                    new TileLayer({
+                                                        opacity: 1,
+                                                        source: new WMTS(options),
+                                                    }) ,                            
+                                                    new VectorLayer({
+                                                                        source  :      new VectorSource({
+                                                                                                            features : new GeoJSON({
+                                                                                                                                        dataProjection:"EPSG:4326", 
+                                                                                                                                        featureProjection:"EPSG:3857"
+                                                                                                                                    }).readFeatures(geoInfo),
+                                                                                        }),
+                                                                        style   :       new Style({
+                                                                                                    image: new CircleStyle({
+                                                                                                                                radius: 5,
+                                                                                                                                fill: new Fill({
+                                                                                                                                                color: '#FF0000'    //[180, 0, 0, 0.3]
+                                                                                                                                                }),
+                                                                                                                                stroke: new Stroke({color: 'red', width: 4}),
+                                                                                                                            }),
+                                                                                                    }),                                                
+                                                                    }),
 
-                            ],
-                        target: 'map-poi',
-                        view: new View({
-                            center: fromLonLat([longitude,latitude]),
-                            zoom: 5,
-                        }),
-                        });
+                                            ],
+                                        controls    :   [],
+                                        target      :   'map-poi',
+                                        view        :   new View({
+                                                                center  : fromLonLat([longitude,latitude]),
+                                                                zoom    : mapZoom,
+                                                        }),
+                                });
                     });
 
             }
@@ -205,10 +216,37 @@ console.log(vectorSource);
     },
 
     mounted() {
+        var appDiv                      =   document.getElementById("app");
+        var navDiv                      =   document.getElementById("vipsobsappmenu");
+        var mapDiv                      =   document.getElementById("map-poi");
+            appDiv.style.marginTop      =   "0";
+            appDiv.style.paddingRight   =   "0";
+            appDiv.style.paddingLeft    =   "0"; 
+            mapDiv.style.height         =   (screen.height - navDiv.offsetHeight) + "px"; 
+
         this.mapZoom    = CommonUtil.CONST_GPS_OBSERVATION_ZOOM;
         this.getPointOfInterest(this.$route.params.pointOfInterestId);
-        this.initMap();
-        //this.mapInit();
-    }
+        //this.initMap();
+        this.mapInit();
+    },
+	 beforeDestroy() {
+        // This resets the container layout when leaving the router page
+ 		var appDiv = document.getElementById("app");
+		appDiv.style.marginTop="60px";
+		appDiv.style.paddingRight="15px";
+		appDiv.style.paddingLeft="15px"; 
+    },    
 }
 </script>
+
+<style>
+   html, body, #map-poi {
+        margin: 0;
+    width: 100%;
+    }
+
+    #btnBack{
+        position: fixed;
+        z-index: 2000;
+    }
+</style>
