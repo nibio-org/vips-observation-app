@@ -14,7 +14,7 @@
         </div>
         <div v-else>
             <button type="button" class="btn btn-primary" id="cameraLauncher" ref='cameraLauncher' @click="launchCamera">{{ take_photo }}</button>
-                
+            <button type="button" class="btn btn-primary" id="cameraLauncher" ref='cameraLauncher' @click="launchGallary">{{ choose_photo }}</button>    
             <div v-for="divImage in divAddPhotos" v-bind:key="divImage">
                 <photo-tag :imageSource='divImage.illustration.imageTextData' :imageFileName='divImage.illustration.fileName' v-on:action="deleteImageByFileName" v-on:showImage="showModalPhoto"> </photo-tag>                
             </div> 
@@ -68,6 +68,7 @@ export default {
     data ()  {
                 return {
                     take_photo          : "Ta bilde",
+                    choose_photo        :  "Choose Photo",
                     isModalVisible      :   false,
                     counterDiv          :   1,
                     divAddPhotos        :   [],
@@ -134,7 +135,24 @@ export default {
                             navigator.camera.getPicture(this.renderPhoto, this.onFail, { 
                                 quality: 50,
                                 destinationType: Camera.DestinationType.DATA_URL, //FILE_URI
-                                correctOrientation: true
+                                correctOrientation: true,
+
+                            });
+                        }
+                        {
+                            console.log('WARNING : Functional Cordova plugin needed to launch camera');
+                        }
+                    },
+                    launchGallary : function() {
+                        if(navigator.camera)
+                        {
+                            console.info("Other photo location should launch now");
+                            navigator.camera.getPicture(this.renderPhoto, this.onFail, { 
+                                quality: 50,
+                                sourceType: Camera.PictureSourceType.PHOTOLIBRARY,
+                                destinationType: Camera.DestinationType.DATA_URL, //FILE_URI
+                                correctOrientation: true,
+
                             });
                         }
                         {
