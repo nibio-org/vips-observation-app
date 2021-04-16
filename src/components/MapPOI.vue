@@ -2,7 +2,15 @@
     <div>
             <router-link id='btnBack' :to="{name:'PlacesList', params: {}}" class="btn btn-success">Back</router-link>
             <div id='map-poi' style="border: 2px solid green;height: 400px;"></div>
-            <div id="poiMarker">
+
+            <div id='divPoiData'>
+                <input id='poiName' ref='poiName' v-model="poi.name"/>
+                <br>
+                <select v-model="poi.pointOfInterestTypeId">
+                    <option v-for="poiType in poiTypes" v-bind:key="poiType.point_of_interest_type_id" :value='poiType.point_of_interest_type_id'>{{poiType.default_name}}</option>
+                </select>
+            </div>
+            <div id="poiMarker" style="display:none">
                 <img src="@/assets/map_icon.png"> 
             </div>
     </div>
@@ -42,8 +50,9 @@ export default{
     props   :   ['pointOfInterestId'],
     data()      {
                     return {
-                        poi         : {},
-                        mapZoom     :   0
+                        poi         :   {},
+                        mapZoom     :   0,
+                        poiTypes    :   [],
                     }
     },
     methods :   {
@@ -69,7 +78,7 @@ export default{
                     let pointMarker         =   this.myOverLay (coordinate);
                     let pointMarkerCoord    =   this.myOverLayCoord(longitude,latitude);
                     //let mapInteractions     =   this.myInteractions(this.mapInteractions);
-console.log(vectorSource);
+
                     fetch(urlMap)
                         .then(function (response){
                                 return response.text();
@@ -224,7 +233,8 @@ console.log(vectorSource);
             appDiv.style.paddingLeft    =   "0"; 
             mapDiv.style.height         =   (screen.height - navDiv.offsetHeight) + "px"; 
 
-        this.mapZoom    = CommonUtil.CONST_GPS_OBSERVATION_ZOOM;
+            this.mapZoom                =   CommonUtil.CONST_GPS_OBSERVATION_ZOOM;
+            this.poiTypes               =   JSON.parse(CommonUtil.CONST_POI_TYPES);
         this.getPointOfInterest(this.$route.params.pointOfInterestId);
         //this.initMap();
         this.mapInit();
@@ -247,6 +257,11 @@ console.log(vectorSource);
 
     #btnBack{
         position: fixed;
-        z-index: 2000;
+        z-index: 1000;
+    }
+    #divPoiData {
+        position: fixed;
+        z-index: 1100;
+        bottom: 0;
     }
 </style>
