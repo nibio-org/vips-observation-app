@@ -252,6 +252,14 @@ export default{
                                                                     });
 
                                         map.addLayer(vectorLayer);
+
+                                        let     geoGSON         =   new GeoJSON();
+                                        let     resultGeoGSON   =   geoGSON.writeFeatures(vectorLayer.getSource().getFeatures(), {
+                                                                        dataProjection      :   'EPSG:4326',
+                                                                        featureProjection   :   'EPSG:3857'
+                                                                    })
+                                        This.poi.geoJSON        =   resultGeoGSON;
+                                        
                                     })
 
 
