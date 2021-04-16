@@ -6,6 +6,7 @@ import Settings from '@/components/Settings'
 import Observation from '@/components/Observation'
 import CropCategory from '@/components/CropCategory'
 import MapObservation from '@/components/MapObservation'
+import MapPOI from '@/components/MapPOI'
 
 
 Vue.use(Router)
@@ -42,6 +43,11 @@ export default new Router({
       path: '/MapObservation',
       name: 'MapObservation',
       component: MapObservation
+    },
+    {
+      path : '/MapPOI',
+      name : 'MapPOI',
+      component : MapPOI
     }    
 
   ]
