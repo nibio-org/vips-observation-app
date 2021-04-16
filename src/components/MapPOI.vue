@@ -3,12 +3,19 @@
             <router-link id='btnBack' :to="{name:'PlacesList', params: {}}" class="btn btn-success">Back</router-link>
             <div id='map-poi' style="border: 2px solid green;height: 400px;"></div>
 
-            <div id='divPoiData'>
-                <input id='poiName' ref='poiName' v-model="poi.name"/>
-                <br>
-                <select v-model="poi.pointOfInterestTypeId">
-                    <option v-for="poiType in poiTypes" v-bind:key="poiType.point_of_interest_type_id" :value='poiType.point_of_interest_type_id'>{{poiType.default_name}}</option>
-                </select>
+            <div id='divPoiData' class="container" >
+                <div ><input id='poiName' ref='poiName' v-model="poi.name"/></div>
+                <div class="clearfix"/>
+                <div class='row'>
+                    <div class='col-10'>
+                        <select v-model="poi.pointOfInterestTypeId">
+                            <option v-for="poiType in poiTypes" v-bind:key="poiType.point_of_interest_type_id" :value='poiType.point_of_interest_type_id'>{{poiType.default_name}}</option>
+                        </select>
+                    </div>
+                    <div class="col-1">
+                        <button class="btn btn-success">Save</button>
+                    </div>
+                </div>
             </div>
             <div id="poiMarker" style="display:none">
                 <img src="@/assets/map_icon.png"> 
