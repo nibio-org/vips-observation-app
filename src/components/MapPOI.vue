@@ -185,38 +185,78 @@ export default{
                                             matrixSet: 'EPSG:3857',
                                         });
                     
-                    let map =   new Map({
-                                        layers: [
-                                                    new TileLayer({
-                                                        opacity: 1,
-                                                        source: new WMTS(options),
-                                                    }) ,                            
-                                                    new VectorLayer({
-                                                                        source  :      new VectorSource({
-                                                                                                            features : new GeoJSON({
-                                                                                                                                        dataProjection:"EPSG:4326", 
-                                                                                                                                        featureProjection:"EPSG:3857"
-                                                                                                                                    }).readFeatures(geoInfo),
-                                                                                        }),
-                                                                        style   :       new Style({
-                                                                                                    image: new CircleStyle({
-                                                                                                                                radius: 5,
-                                                                                                                                fill: new Fill({
-                                                                                                                                                color: '#FF0000'    //[180, 0, 0, 0.3]
-                                                                                                                                                }),
-                                                                                                                                stroke: new Stroke({color: 'red', width: 4}),
-                                                                                                                            }),
-                                                                                                    }),                                                
-                                                                    }),
+                        let map =   new Map({
+                                            layers: [
+                                                        new TileLayer({
+                                                            opacity: 1,
+                                                            source: new WMTS(options),
+                                                        }) ,                            
+                                                        new VectorLayer({
+                                                                            source  :      new VectorSource({
+                                                                                                                features : new GeoJSON({
+                                                                                                                                            dataProjection:"EPSG:4326", 
+                                                                                                                                            featureProjection:"EPSG:3857"
+                                                                                                                                        }).readFeatures(geoInfo),
+                                                                                            }),
+                                                                            style   :       new Style({
+                                                                                                        image: new CircleStyle({
+                                                                                                                                    radius: 5,
+                                                                                                                                    fill: new Fill({
+                                                                                                                                                    color: '#FF0000'    //[180, 0, 0, 0.3]
+                                                                                                                                                    }),
+                                                                                                                                    stroke: new Stroke({color: 'red', width: 4}),
+                                                                                                                                }),
+                                                                                                        }),                                                
+                                                                        }),
 
-                                            ],
-                                        controls    :   [],
-                                        target      :   'map-poi',
-                                        view        :   new View({
-                                                                center  : fromLonLat([longitude,latitude]),
-                                                                zoom    : mapZoom,
-                                                        }),
-                                });
+                                                ],
+                                            controls    :   [],
+                                            target      :   'map-poi',
+                                            view        :   new View({
+                                                                    center  : fromLonLat([longitude,latitude]),
+                                                                    zoom    : mapZoom,
+                                                            }),
+                                    });
+
+
+                                    map.on(['singleclick'],function(event){
+                                        let   transFormCord =       transform(event.coordinate, 'EPSG:3857','EPSG:4326');
+                                                                    map.getView().setCenter(fromLonLat(transFormCord));
+                                    
+                                        let mapLayers       =       map.getLayers();
+                                            mapLayers.forEach(function(layer){
+                                                let source  =   layer.get('source');
+                                                source.clear();
+                                            })
+
+                                        let vectorLayer     =       new VectorLayer({
+                                                                            source  : new VectorSource ({
+                                                                                            features    :   [
+                                                                                                                new Feature({
+                                                                                                                    geometry : new Point(fromLonLat(transFormCord))
+                                                                                                                })
+                                                                                                            ],
+                                                                                    }),
+                                                                            style   : new Style({
+                                                                                                image : new CircleStyle ({
+                                                                                                                            radius  :   5,
+                                                                                                                            fill    :   new Fill({
+                                                                                                                                                color : 'red'
+                                                                                                                                        }),
+                                                                                                                            stroke  :   new Stroke({
+                                                                                                                                                color   : 'red',
+                                                                                                                                                width   : 4
+                                                                                                                             })
+                                                                                                                        })
+                                                                                        })
+                                                                    });
+
+                                        map.addLayer(vectorLayer);
+                                    })
+
+
+
+
                     });
 
             }
