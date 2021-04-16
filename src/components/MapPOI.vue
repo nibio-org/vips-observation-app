@@ -96,6 +96,7 @@ export default{
                 actionModal() {
 
                     this.isModalVisible = false;
+                    this.saveToStore();
                     
                 },        
                 getPointOfInterest(id){
@@ -104,6 +105,24 @@ export default{
                     
                     this.poi    =   poi;
 
+                },
+                saveToStore(){
+                    let This    =   this;
+                    let lstPOI  =   JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_POI_LIST));
+                    $.each(lstPOI, function(index, poi){
+                            if(poi.pointOfInterestId === This.poi.pointOfInterestId)
+                            {
+                                poi.latitude=This.poi.latitude;
+                                poi.longitude=This.poi.longitude;
+                                poi.name=This.poi.name;
+                                poi.pointOfInterestTypeId=This.poi.pointOfInterestTypeId;
+                                poi.geoJSON=This.poi.geoJSON
+                                poi.uploaded=false;
+                                
+                                return false;
+                            }
+                    })
+                    localStorage.setItem(CommonUtil.CONST_STORAGE_POI_LIST,JSON.stringify(lstPOI));
                 },
                 initMap() 
                 {
@@ -263,6 +282,9 @@ export default{
 
                                     map.on(['singleclick'],function(event){
                                         let   transFormCord =       transform(event.coordinate, 'EPSG:3857','EPSG:4326');
+                                              This.poi.longitude    =   transFormCord[0];
+                                              This.poi.latitude     =   transFormCord[1];
+
                                                                     map.getView().setCenter(fromLonLat(transFormCord));
                                     
                                         let mapLayers       =       map.getLayers();
