@@ -13,17 +13,37 @@
                         </select>
                     </div>
                     <div class="col-1">
-                        <button class="btn btn-success">Save</button>
+                        <button class="btn btn-success" @click="showModal">Save</button>
                     </div>
                 </div>
             </div>
             <div id="poiMarker" style="display:none">
                 <img src="@/assets/map_icon.png"> 
             </div>
+            <Modal
+                    v-show="isModalVisible"
+                    v-on:close="closeModal"
+                    v-on:action="actionModal"
+            >
+                <template v-slot:header>
+                    !! ALERT !!
+                </template>
+
+                <template v-slot:body>
+                    Saving information for : {{poi.name}} ?
+                </template>
+
+                <template v-slot:footer>
+                    Please chose the option below :
+                </template>
+
+            </Modal>
     </div>
 </template>
+
 <script>
-import CommonUtil from '@/components/CommonUtil'
+import CommonUtil from '@/components/CommonUtil';
+import Modal from '@/components/Modal';
 
 import 'ol/ol.css';
 import Map from 'ol/Map';
@@ -52,17 +72,32 @@ import Overlay from 'ol/Overlay';
 import Geolocation from 'ol/Geolocation';
 
 
+
 export default{
-    name    :   'MapPOI',
-    props   :   ['pointOfInterestId'],
+    name        :   'MapPOI',
+    components  :   {Modal},
+    props       :   ['pointOfInterestId'],
+
     data()      {
                     return {
-                        poi         :   {},
-                        mapZoom     :   0,
-                        poiTypes    :   [],
+                        isModalVisible      :   false,
+                        poi                 :   {},
+                        mapZoom             :   0,
+                        poiTypes            :   [],
                     }
     },
     methods :   {
+                showModal() {
+                    this.isModalVisible = true;
+                },        
+                closeModal() {
+                    this.isModalVisible = false;
+                },
+                actionModal() {
+
+                    this.isModalVisible = false;
+                    
+                },        
                 getPointOfInterest(id){
                     let lstPOI  =   JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_POI_LIST));
                     let poi     =   lstPOI.find(({pointOfInterestId}) => pointOfInterestId === id);
