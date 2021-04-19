@@ -1,6 +1,6 @@
 <template>
   <div class="modal-backdrop">
-    <div class="modalPhoto">
+    <div class="modal">
       <header class="modal-header">
         <slot name="header">
           This is the default title!
@@ -14,9 +14,9 @@
         </button>
       </header>
 
-      <section class="modal-body overflow-auto" >
+      <section class="modal-body">
         <slot name="body">
-          <img :src='propImageSource' class='imgStyle'/>
+          This is the default body!
         </slot>
        </section>
 
@@ -33,7 +33,6 @@
         >
           Close 
         </button>
-        &nbsp;
         </div>
 
       </footer>
@@ -43,8 +42,7 @@
 
 <script>
   export default {
-    name: 'ModalPhoto',
-    props : ['propImageSource'],
+    name: 'Modal',
     methods: {
       close() {
         this.$emit('close');
@@ -71,17 +69,15 @@
 
   }
 
-  .modalPhoto {
+  .modal {
     background: #FFFFFF;
     /*box-shadow: 2px 2px 20px 1px;*/
     overflow-x: auto;
     display: flex;
     flex-direction: column;
-    
-    width:95vw;
-    height:75vh;
-    top: 25%;
-    
+    width:300px;
+    height:180px;
+        top: 35%;
     bottom: 0;
     left: 15%;
     
@@ -137,10 +133,5 @@
     background: #d82249;
     border: 1px solid #cc2045;
     border-radius: 2px;
-  }
-    .imgStyle {
-    max-width:100%;
-    max-height:100%;
-  
   }
 </style>
