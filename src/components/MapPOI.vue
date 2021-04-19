@@ -13,7 +13,7 @@
                         </select>
                     </div>
                     <div class="col-1">
-                        <button class="btn btn-success" @click="showModal">Save</button>
+                        <button class="btn btn-success" @click="validate">Save</button>
                     </div>
                 </div>
             </div>
@@ -38,12 +38,30 @@
                 </template>
 
             </Modal>
+
+            <modal-simple
+                v-show="isModalSimpleVisible" 
+                v-on:close="closeModal"           
+            >
+                <template v-slot:header>
+                    !! ERROR !!
+                </template>
+
+                <template v-slot:body>
+                    {{msgErr}} 
+                </template>
+
+                <template v-slot:footer>
+                   &nbsp;
+                </template>            
+            </modal-simple>
     </div>
 </template>
 
 <script>
 import CommonUtil from '@/components/CommonUtil';
 import Modal from '@/components/Modal';
+import ModalSimple from '@/components/ModalSimple.vue';
 
 import 'ol/ol.css';
 import Map from 'ol/Map';
@@ -73,31 +91,62 @@ import Geolocation from 'ol/Geolocation';
 
 
 
+
 export default{
     name        :   'MapPOI',
-    components  :   {Modal},
+    components  :   {Modal,ModalSimple},
     props       :   ['pointOfInterestId'],
 
     data()      {
                     return {
-                        isModalVisible      :   false,
-                        poi                 :   {},
-                        mapZoom             :   0,
-                        poiTypes            :   [],
+                        isModalVisible          :   false,
+                        isModalSimpleVisible    :   false,
+                        poi                     :   {},
+                        mapZoom                 :   0,
+                        poiTypes                :   [],
+                        msgErr                  :   '',
+                        
                     }
     },
     methods :   {
+                validate()
+                {
+                    if((!this.poi.name) || (this.trimString(this.poi.name) === '')) 
+                    {
+                        this.msgErr = 'Name should not be empty';
+                        this.isModalSimpleVisible = true;
+                    }else 
+                    {
+                        if ((!this.poi.pointOfInterestTypeId) )
+                        {
+                            if(this.poi.pointOfInterestTypeId === 0) 
+                            {
+                                this.isModalVisible         = false;
+                                this.showModal();
+                            }
+                            else
+                            {
+                            this.msgErr = 'Type should not be empty';
+                            this.isModalSimpleVisible = true;
+                            }
+                        }
+                        else
+                        {
+                        this.isModalVisible         = false;
+                        this.showModal();
+                        }
+                    }
+                },
                 showModal() {
                     this.isModalVisible = true;
                 },        
                 closeModal() {
-                    this.isModalVisible = false;
+                    this.isModalVisible         = false;
+                    this.isModalSimpleVisible   =  false;
                 },
                 actionModal() {
-
-                    this.isModalVisible = false;
-                    this.saveToStore();
-                    
+                            this.isModalVisible = false;
+                            this.saveToStore();
                 },        
                 getPointOfInterest(id){
                     let lstPOI  =   JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_POI_LIST));
@@ -109,6 +158,8 @@ export default{
                 saveToStore(){
                     let This    =   this;
                     let lstPOI  =   JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_POI_LIST));
+                    if(this.poi.pointOfInterestId)
+                    {
                     $.each(lstPOI, function(index, poi){
                             if(poi.pointOfInterestId === This.poi.pointOfInterestId)
                             {
@@ -122,9 +173,61 @@ export default{
                                 return false;
                             }
                     })
+                    }
+                    else
+                    {
+                        this.poi.pointOfInterestId = this.getNewPoiId(lstPOI);
+                        this.poi.uploaded=false;
+                        if(lstPOI)
+                        {
+                            lstPOI.push(this.poi);
+                        }
+                        else
+                        {
+                            lstPOI = [];
+                            lstPOI.push(this.poi);
+                        }
+                        
+                    }
+
                     localStorage.setItem(CommonUtil.CONST_STORAGE_POI_LIST,JSON.stringify(lstPOI));
                 },
-                initMap() 
+                /** new POI pointOfInterestId */
+                getNewPoiId(lstPOI)
+                {
+                    let newId = 0;
+                    let poiIds=[];
+                    
+                    
+                    if(lstPOI)
+                    {
+                        $.each(lstPOI, function(index, poi){
+                            if(poi.pointOfInterestId < 0)
+                            {
+                            poiIds.push(Math.abs(poi.pointOfInterestId));
+                            }
+                        });
+                        if(poiIds.length === 0)
+                        {
+                        newId = CommonUtil.CONST_POI_COUNT_START_ID;
+                        }
+                        else
+                        {
+                        let largestValue = Math.max.apply(null, poiIds);
+                        newId = -Math.abs(largestValue + 1);
+                        }
+                    }
+                    else
+                    {
+                        newId = CommonUtil.CONST_POI_COUNT_START_ID;
+                    }
+
+                    return newId;
+                },
+
+
+
+/*                 initMap() 
                 {
                     let mapZoom             =   this.mapZoom;
                     let urlMap              =   CommonUtil.CONST_GPS_URL_NORWAY_MAP;
@@ -169,7 +272,7 @@ export default{
                                         renderer    : 'canvas',
                             })
                         })
-                },
+                }, */
             myImage()
             {
                 var fill = new Fill({
@@ -224,8 +327,65 @@ export default{
                 return (mapInteractions) ? [] : '';
             },
             
+            /** My current location */
+            myposition()
+            {
+                let options = { enableHighAccuracy: true };
+                navigator.geolocation.getCurrentPosition(this.geolocationSuccess, this.geolocationError, options);
+                //navigator.geolocation.getCurrentPosition(this.geolocationSuccess, this.geolocationError, this.geolocationOptions);
+
+                
+            },
+
+            geolocationOptions(options){
+                console.log('geolocation options : '+options);
+            },
+            geolocationError(error){
+                console.log('geolocation error : '+geolocationError);
+            },
+
+            geolocationSuccess(pos) {
+                    let This = this;
+                    This.poi.latitude = pos.coords.latitude;
+                    This.poi.longitude = pos.coords.longitude;
+                    let coord = [pos.coords.longitude,pos.coords.latitude];
+                    let   transFormCord =       transform(coord, 'EPSG:3857','EPSG:4326');
+
+                    let vectorLayer     =       new VectorLayer({
+                                                        source  : new VectorSource ({
+                                                                        features    :   [
+                                                                                            new Feature({
+                                                                                                geometry : new Point(fromLonLat(transFormCord))
+                                                                                            })
+                                                                                        ],
+                                                                }),
+                                                        style   : new Style({
+                                                                            image : new CircleStyle ({
+                                                                                                        radius  :   5,
+                                                                                                        fill    :   new Fill({
+                                                                                                                            color : 'red'
+                                                                                                                    }),
+                                                                                                        stroke  :   new Stroke({
+                                                                                                                            color   : 'red',
+                                                                                                                            width   : 4
+                                                                                                            })
+                                                                                                    })
+                                                                    })
+                                                });
+
+                        let     geoGSON         =   new GeoJSON();
+                        let     resultGeoGSON   =   geoGSON.writeFeatures(vectorLayer.getSource().getFeatures());
+                        This.poi.geoJSON        =   resultGeoGSON;                                                
+
+                        This.mapInit();
+            },
+
             mapInit()
             {
+
+ 
+
+
                 let This                =   this;
                 let urlMap              =   CommonUtil.CONST_GPS_URL_NORWAY_MAP;
                 let latitude            =   this.poi.latitude;
@@ -331,11 +491,21 @@ export default{
 
                     });
 
+            },
+            trimString(param)
+            {
+                return param.replace(/\s*/g,"")
             }
 
 
     },
-
+    filters: {
+    
+        trim: function(string) {
+            return string.trim()
+            }
+    
+    },
     mounted() {
         var appDiv                      =   document.getElementById("app");
         var navDiv                      =   document.getElementById("vipsobsappmenu");
@@ -347,9 +517,19 @@ export default{
 
             this.mapZoom                =   CommonUtil.CONST_GPS_OBSERVATION_ZOOM;
             this.poiTypes               =   JSON.parse(CommonUtil.CONST_POI_TYPES);
-        this.getPointOfInterest(this.$route.params.pointOfInterestId);
+
+        if(this.$route.params.pointOfInterestId)
+        {
+            this.getPointOfInterest(this.$route.params.pointOfInterestId);
+            this.mapInit();
+        }
+        else
+        {
+            this.myposition();
+        }
         //this.initMap();
-        this.mapInit();
+        
+        
     },
 	 beforeDestroy() {
         // This resets the container layout when leaving the router page
