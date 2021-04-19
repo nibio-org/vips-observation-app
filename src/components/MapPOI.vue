@@ -84,6 +84,7 @@ export default{
                         poi                 :   {},
                         mapZoom             :   0,
                         poiTypes            :   [],
+                        
                     }
     },
     methods :   {
@@ -124,7 +125,7 @@ export default{
                     })
                     localStorage.setItem(CommonUtil.CONST_STORAGE_POI_LIST,JSON.stringify(lstPOI));
                 },
-                initMap() 
+/*                 initMap() 
                 {
                     let mapZoom             =   this.mapZoom;
                     let urlMap              =   CommonUtil.CONST_GPS_URL_NORWAY_MAP;
@@ -169,7 +170,7 @@ export default{
                                         renderer    : 'canvas',
                             })
                         })
-                },
+                }, */
             myImage()
             {
                 var fill = new Fill({
@@ -224,8 +225,76 @@ export default{
                 return (mapInteractions) ? [] : '';
             },
             
+            /** My current location */
+            myposition()
+            {
+                let options = { enableHighAccuracy: true };
+                navigator.geolocation.getCurrentPosition(this.geolocationSuccess, this.geolocationError, options);
+                //navigator.geolocation.getCurrentPosition(this.geolocationSuccess, this.geolocationError, this.geolocationOptions);
+
+                
+            },
+
+            geolocationOptions(options){
+                console.log('geolocation options : '+options);
+            },
+            geolocationError(error){
+                console.log('geolocation error : '+geolocationError);
+            },
+
+            geolocationSuccess(pos) {
+                    let This = this;
+                    console.log(pos);
+                    This.poi.latitude = pos.coords.latitude;
+                    This.poi.longitude = pos.coords.longitude;
+                    let coord = [pos.coords.longitude,pos.coords.latitude];
+                    let   transFormCord =       transform(coord, 'EPSG:3857','EPSG:4326');
+
+                    let vectorLayer     =       new VectorLayer({
+                                                        source  : new VectorSource ({
+                                                                        features    :   [
+                                                                                            new Feature({
+                                                                                                geometry : new Point(fromLonLat(transFormCord))
+                                                                                            })
+                                                                                        ],
+                                                                }),
+                                                        style   : new Style({
+                                                                            image : new CircleStyle ({
+                                                                                                        radius  :   5,
+                                                                                                        fill    :   new Fill({
+                                                                                                                            color : 'red'
+                                                                                                                    }),
+                                                                                                        stroke  :   new Stroke({
+                                                                                                                            color   : 'red',
+                                                                                                                            width   : 4
+                                                                                                            })
+                                                                                                    })
+                                                                    })
+                                                });
+
+
+
+                        let     geoGSON         =   new GeoJSON();
+                        let     resultGeoGSON   =   geoGSON.writeFeatures(vectorLayer.getSource().getFeatures(), {
+                                                        dataProjection      :   'EPSG:4326',
+                                                        featureProjection   :   'EPSG:3857'
+                                                    })
+                        This.poi.geoJSON        =   resultGeoGSON;                                                
+
+
+
+
+
+
+                    This.mapInit();
+            },
+
             mapInit()
             {
+
+ 
+
+
                 let This                =   this;
                 let urlMap              =   CommonUtil.CONST_GPS_URL_NORWAY_MAP;
                 let latitude            =   this.poi.latitude;
@@ -347,9 +416,19 @@ export default{
 
             this.mapZoom                =   CommonUtil.CONST_GPS_OBSERVATION_ZOOM;
             this.poiTypes               =   JSON.parse(CommonUtil.CONST_POI_TYPES);
-        this.getPointOfInterest(this.$route.params.pointOfInterestId);
+
+        if(this.$route.params.pointOfInterestId)
+        {
+            this.getPointOfInterest(this.$route.params.pointOfInterestId);
+            this.mapInit();
+        }
+        else
+        {
+            this.myposition();
+        }
         //this.initMap();
-        this.mapInit();
+        
+        
     },
 	 beforeDestroy() {
         // This resets the container layout when leaving the router page

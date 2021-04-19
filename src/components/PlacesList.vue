@@ -6,7 +6,16 @@
                 <div class='col-10 '><h5>{{poi.name}}</h5></div>
                 <div class='col'><i class="fas fa-plus-circle fa-2x"></i></div>
             </router-link>
+          <div class="clearfix" />
     </div>
+    <div id='divNewPOI' class="container">
+          <router-link  class="row fw-bold" ref='linkMapPoi' :to="{name:'MapPOI', params: {}}"  >
+                <div class='col-10 '></div>
+                <div class='col'><i class="fas fa-plus-circle fa-2x"></i></div>
+          </router-link>
+    </div>
+   
+
     <common-util ref="CommonUtil"/>
     </div>
 </template>
@@ -47,6 +56,7 @@ export default {
                 getPlacesList()
                 {
                   let lstPOI = JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_POI_LIST));
+                  
                   return lstPOI;
                 }
 
@@ -61,3 +71,9 @@ export default {
     }  
 }
 </script>
+<style>
+  #divNewPOI {
+    position: fixed; 
+    bottom : 0;
+  }
+</style>
