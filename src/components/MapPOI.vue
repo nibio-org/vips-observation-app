@@ -225,11 +225,6 @@ export default{
                     return newId;
                 },
 
-                validatePOISave(poi)
-                {
-
-                },
-
 
 
 /*                 initMap() 
@@ -378,16 +373,11 @@ export default{
                                                                     })
                                                 });
 
-
-
                         let     geoGSON         =   new GeoJSON();
-                        let     resultGeoGSON   =   geoGSON.writeFeatures(vectorLayer.getSource().getFeatures(), {
-                                                        dataProjection      :   'EPSG:4326',
-                                                        featureProjection   :   'EPSG:3857'
-                                                    })
+                        let     resultGeoGSON   =   geoGSON.writeFeatures(vectorLayer.getSource().getFeatures());
                         This.poi.geoJSON        =   resultGeoGSON;                                                
 
-                    This.mapInit();
+                        This.mapInit();
             },
 
             mapInit()
