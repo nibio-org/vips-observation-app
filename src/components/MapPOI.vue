@@ -227,52 +227,7 @@ export default{
 
 
 
-/*                 initMap() 
-                {
-                    let mapZoom             =   this.mapZoom;
-                    let urlMap              =   CommonUtil.CONST_GPS_URL_NORWAY_MAP;
-                    let latitude            =   this.poi.latitude;
-                    let longitude           =   this.poi.longitude;
-                    let image               =   this.myImage();
-                    let vectorSource        =   this.myVectorGeoSource(JSON.parse(this.poi.geoJSON));
-                    let vectorGeoLayer      =   this.myVectorGeoLayer(vectorSource,image)
-                    let mapView             =   this.myView(longitude,latitude,mapZoom);
-                    let coordinate          =   [longitude,latitude];
-                    let mapInteractions     =   [];
-                    let pointMarker         =   this.myOverLay (coordinate);
-                    let pointMarkerCoord    =   this.myOverLayCoord(longitude,latitude);
-                    //let mapInteractions     =   this.myInteractions(this.mapInteractions);
 
-                    fetch(urlMap)
-                        .then(function (response){
-                                return response.text();
-                        })
-                        .then(function(text){
-                        
-                        let parser  =   new WMTSCapabilities();
-                        let result  =   parser.read(text);
-                        let options =   optionsFromCapabilities(result, { 
-                                            layer       : 'topo4',
-                                            matrixSet   : 'EPSG:3857',
-                                        });
-                   
-                        let myMap = new Map({
-                                        layers : [
-                                            new TileLayer ({
-                                                opacity : 1,
-                                                source  : new WMTS(options),
-                                            }),
-                                            vectorGeoLayer
-                                        ],
-                                        controls    : [],
-                                        interactions: mapInteractions,
-                                        target      : 'map-poi',
-                                        view        :  mapView,
-                                        overlays    : [pointMarkerCoord],                                        
-                                        renderer    : 'canvas',
-                            })
-                        })
-                }, */
             myImage()
             {
                 var fill = new Fill({
