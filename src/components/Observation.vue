@@ -26,7 +26,11 @@
       <!-- <photo-observation :observationId="observation.observationId" :organismId="observation.organismId" :imageFileName="photo.observationIllustrationPK.fileName" v-for="photo in observation.observationIllustrationSet" v-bind:key="photo.observationIllustrationPK.fileName"></photo-observation> -->
       
       <div class="clearfix"/>
-      
+
+     <div v-if="isMounted" >
+        <router-link :to="{name: 'Quantification', params: {observationId:observation.observationId, organismId:observation.organismId, schemaData:observation.observationData}}" >Tell/kvantifiser</router-link>
+        <quantification :isEditable="false" :observationId="observationId" :organismId="observation.organismId" :schemaData="observation.observationData" v-on:updateQuntificationData="updateQuntificationData"> </quantification>
+     </div>
       <div ref='divObservationText'>
         <div>Observation Detail</div>
         <input type="text" v-model="observationHeader"/>
@@ -44,14 +48,16 @@ import { DateTime } from 'luxon'
 import MapObservation from '@/components/MapObservation'
 import PhotoObservation from '@/components/PhotoObservation'
 import Photo from '@/components/Photo.vue'
+import Quantification from '@/components/Quantification.vue'
 
 
 export default {
   name: 'Observation',
   props: ['observationId'],
-  components: {MapObservation,PhotoObservation,Photo},
+  components: {MapObservation,PhotoObservation,Photo,Quantification},
   data () {
     return {
+      isMounted : false,
       msg: 'Observasjon',
       observation:{},
       crops:[],
@@ -92,6 +98,13 @@ export default {
               let lstObservations     = JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST));              // Observation List
               jsonObservation         = lstObservations.find(({observationId})=> observationId === id);                           // Selection Observation
               this.observation        = jsonObservation;
+              
+/*              
+              let lastQuoteRemoved    = this.observation.observationData.slice(0,0);
+              console.log(lastQuoteRemoved);
+              this.observation.observationData = lastQuoteRemoved.slice(0,0);
+              console.log(this.observation.observationData);
+*/
               /* For related Crop and Crop list */
               this.getObservationCrops(jsonObservation);
               /* For related Pest and Pest list */
@@ -363,8 +376,10 @@ export default {
           this.$router.push({path:'/'});
           this.$router.go();
            
-      }
-
+      },
+      updateQuntificationData(schemaData){
+          this.observation.observationData = schemaData;
+      },
 
   },
   filters: {
@@ -373,6 +388,7 @@ export default {
     }
   },  
   mounted(){
+    this.isMounted = true;
     if(this.observationId)
     {
       this.getObservationFromStore(this.observationId);

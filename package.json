@@ -11,6 +11,7 @@
     "start": "npm run dev"
   },
   "dependencies": {
+    "@formschema/native": "^2.0.0-alpha.2",
     "@fortawesome/vue-fontawesome": "^2.0.2",
     "luxon": "^1.26.0",
     "ol": "^6.5.0",
@@ -75,9 +76,7 @@
       "android"
     ],
     "plugins": {
-      "cordova-plugin-geolocation": {
-        "GPS_REQUIRED": "true"
-      },
+      "cordova-plugin-geolocation": {},
       "cordova-plugin-whitelist": {},
       "cordova-plugin-camera": {
         "ANDROID_SUPPORT_V4_VERSION": "27.+"

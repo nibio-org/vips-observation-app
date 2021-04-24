@@ -107,7 +107,7 @@ export default {
                                  strUrl = This.CONST_URL_DOMAIN +CommonUtil.CONST_URL_CROP_LIST;
                                 break;
                              case CommonUtil.CONST_STORAGE_PEST_LIST :
-                                 strUrl = This.CONST_URL_DOMAIN +CommonUtil.CONST_URL_PEST_LIST;
+                                 strUrl = This.CONST_URL_DOMAIN +CommonUtil.CONST_URL_PEST_LIST+'?organizationId='+appUser.organization_id;
                                 break;                           
                              case CommonUtil.CONST_STORAGE_CROP_PEST_LIST :
                                  strUrl = This.CONST_URL_DOMAIN +CommonUtil.CONST_URL_CROP_PEST_LIST;
