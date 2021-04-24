@@ -7,7 +7,7 @@ import Observation from '@/components/Observation'
 import CropCategory from '@/components/CropCategory'
 import MapObservation from '@/components/MapObservation'
 import MapPOI from '@/components/MapPOI'
-
+import Quantification from '@/components/Quantification'
 
 Vue.use(Router)
 
@@ -48,6 +48,11 @@ export default new Router({
       path : '/MapPOI',
       name : 'MapPOI',
       component : MapPOI
+    },
+    {
+      path : '/Quantification',
+      name : 'Quantification',
+      component : Quantification
     }    
 
   ]

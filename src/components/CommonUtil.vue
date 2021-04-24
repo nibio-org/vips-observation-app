@@ -37,7 +37,7 @@ export default {
 
     CONST_URL_CROP_CATEGORY             :   '/rest/organism/cropcategory/',
     CONST_URL_CROP_LIST                 :   '/rest/organism/crop/list',
-    CONST_URL_PEST_LIST                 :   '/rest/organism/pest/list',
+    CONST_URL_PEST_LIST                 :   '/rest/organism/pest/list/',
     CONST_URL_CROP_PEST_LIST            :   '/rest/organism/crop/pest/list',
     
     CONST_URL_USER_OBSERVATION_LIST     :   '/rest/observation/list/user',
