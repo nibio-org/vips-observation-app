@@ -46,8 +46,6 @@ export default {
         this.isMounted = true;
         this.observation_Id = (this.observationId) ? this.observationId : this.$route.params.observationId;
         this.organism_id    = (this.organismId) ? this.organismId : this.$route.params.organismId;
-        console.log(this.schemaData);
-        console.log(this.$route.params.schemaData);
         this.observationData = (this.schemaData) ? JSON.parse(this.schemaData) : JSON.parse(this.$route.params.schemaData);
 
         
