@@ -27,9 +27,10 @@
       
       <div class="clearfix"/>
 
-     <div v-if="isMounted" >
-        <router-link :to="{name: 'Quantification', params: {observationId:observation.observationId, organismId:observation.organismId, schemaData:observation.observationData}}" >Tell/kvantifiser</router-link>
-        <quantification :isEditable="false" :observationId="observationId" :organismId="observation.organismId" :schemaData="observation.observationData" v-on:updateQuntificationData="updateQuntificationData"> </quantification>
+     <div v-if="isMounted" id='divSchemaForm' class="border border-primary rounded" >
+        <!-- <router-link :to="{name: 'Quantification', params: {observationId:observation.observationId, organismId:observation.organismId, schemaData:observation.observationData}}" >Tell/kvantifiser</router-link> -->
+        <span><h5>Tell/kvantifiser</h5></span>
+        <quantification :isEditable="false" :observationId="observation.observationId" :organismId="observation.organismId" :schemaData="observation.observationData" v-on:updateQuntificationData="updateQuntificationData"> </quantification>
      </div>
       <div ref='divObservationText'>
         <div>Observation Detail</div>
@@ -331,6 +332,7 @@ export default {
       /** Save Observation */
       saveObservation()
       {
+        let This = this;
         let lstObservations = JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST));
 
           this.observationForStore.cropOrganismId     = this.crop.cropId;
@@ -354,6 +356,7 @@ export default {
                       jobservation.organismId     = localObservationForStore.organismId;
                       jobservation.timeOfObservation  = localObservationForStore.timeOfObservation;
                       jobservation.statusChangedTime  = localObservationForStore.statusChangedTime;
+                      jobservation.observationData    = this.observation.observationData;
                       jobservation.observationHeading = localObservationForStore.observationHeading;
                       jobservation.observationText    = localObservationForStore.observationText;
 
@@ -386,17 +389,47 @@ export default {
     dateFormat: function(timeStr) {
       return DateTime.fromISO(timeStr).toFormat('yyyy-MM-dd\'T\'hh:mm:ss');
     }
-  },  
+  },
+  watch: {
+      pest:  {
+      
+      handler  (val)
+      {
+          if(this.pest.pestId)
+          {
+            this.observation.organismId=this.pest.pestId;
+            this.isMounted = true;
+          }
+      },
+      deep : true,
+      immediate : true
+      }
+
+
+  } ,
+
   mounted(){
-    this.isMounted = true;
+
     if(this.observationId)
     {
       this.getObservationFromStore(this.observationId);
+      this.observation.observationId=this.observationId
     }
     else{
-      this.getNewObservation();
+            let newObservationId  = 0;
+            let lstObservations   = JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST));
+                newObservationId  = this.getNewObservationId(lstObservations);   
+                this.observation.observationId  = newObservationId;  
+                this.observation.observationData='';
+                this.getNewObservation();
     }
   },
 
 }
 </script>
+
+<style scoped>
+  #divSchemaForm {
+    padding: 10px;
+  }
+</style>
