@@ -41,12 +41,16 @@ export default {
 
         }
     },
-
+    errorCaptured(err, vm, info) {
+        console.log('err : '+err);
+        console.log('vm : '+vm);
+        console.log('info : '+info);
+    },
     mounted(){
         this.isMounted = true;
         this.observation_Id = (this.observationId) ? this.observationId : this.$route.params.observationId;
         this.organism_id    = (this.organismId) ? this.organismId : this.$route.params.organismId;
-        this.observationData = (this.schemaData) ? JSON.parse(this.schemaData) : JSON.parse(this.$route.params.schemaData);
+        this.observationData = (this.schemaData) ? JSON.parse(this.schemaData) : (this.$route.params.schemaData) ? JSON.parse(this.$route.params.schemaData):'';
 
         
 
