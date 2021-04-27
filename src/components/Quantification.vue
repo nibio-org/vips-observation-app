@@ -1,7 +1,6 @@
 <template>
     <div>
-
-        <router-link v-show="iseditable" :to="{name:'Observation', params:{observationId:observation_Id}}">Back</router-link>
+        <!-- <router-link v-show="iseditable" :to="{name:'Observation', params:{observationId:observation_Id}}">Back</router-link> -->
        <div v-if="isMounted">
             <FormSchema :schema="observationDataSchema" v-model="observationData" @change="change"></FormSchema>
        </div>
