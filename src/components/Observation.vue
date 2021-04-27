@@ -27,11 +27,15 @@
       
       <div class="clearfix"/>
 
-     <div v-if="isMounted" id='divSchemaForm' class="border border-primary rounded" >
-        <!-- <router-link :to="{name: 'Quantification', params: {observationId:observation.observationId, organismId:observation.organismId, schemaData:observation.observationData}}" >Tell/kvantifiser</router-link> -->
-        <span><h5>Tell/kvantifiser</h5></span>
-        <quantification :isEditable="false" :observationId="observation.observationId" :organismId="observation.organismId" :schemaData="observation.observationData" v-on:updateQuntificationData="updateQuntificationData"> </quantification>
-     </div>
+      <button class="btn btn-success" v-on:click="showQuantification"><span><h5>Tell/kvantifiser</h5></span></button>
+      <div v-if="isQuantification">
+          <div v-if="isMounted" id='divSchemaForm' class="border border-primary rounded" >
+              <button id="btnCloseQuantification" class="border border-primary rounded-circle" type="button" v-on:click="closeQuantification">x</button>              
+              <!-- <router-link :to="{name: 'Quantification', params: {observationId:observation.observationId, organismId:observation.organismId, schemaData:observation.observationData}}" >Tell/kvantifiser</router-link> -->
+              
+              <quantification :isEditable="false" :observationId="observation.observationId" :organismId="observation.organismId" :schemaData="observation.observationData" v-on:updateQuntificationData="updateQuntificationData"> </quantification>
+          </div>
+      </div>
       <div ref='divObservationText'>
         <div>Observation Detail</div>
         <input type="text" v-model="observationHeader"/>
@@ -58,6 +62,7 @@ export default {
   components: {MapObservation,PhotoObservation,Photo,Quantification},
   data () {
     return {
+      isQuantification : false,
       isMounted : false,
       msg: 'Observasjon',
       observation:{},
@@ -87,6 +92,13 @@ export default {
     }
   },
   methods:{
+    showQuantification()
+    {
+        this.isQuantification = true;
+    },
+    closeQuantification(){
+      this.isQuantification = false;
+    },
     /** Get observation from local storage system */
     getObservationFromStore(id)
     {
@@ -430,6 +442,12 @@ export default {
 </script>
 
 <style scoped>
+  #btnCloseQuantification {
+        float: right;
+        top: 0px;
+        right: 0px;
+  }
+
   #divSchemaForm {
     padding: 10px;
   }
