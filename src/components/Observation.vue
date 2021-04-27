@@ -122,7 +122,8 @@ export default {
               }
               else
               {
-                if(jsonObservation.location.geoJSON)
+                
+                if(jsonObservation.location && jsonObservation.location.geoJSON)
                 {
                    this.mapGeoinfo                      =   JSON.parse(jsonObservation.location.geoJSON);
                    this.mapLocationPointOfInterestId    =   jsonObservation.locationPointOfInterestId;
