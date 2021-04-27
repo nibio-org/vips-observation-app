@@ -122,7 +122,8 @@ export default {
               }
               else
               {
-                if(jsonObservation.location.geoJSON)
+                
+                if(jsonObservation.location && jsonObservation.location.geoJSON)
                 {
                    this.mapGeoinfo                      =   JSON.parse(jsonObservation.location.geoJSON);
                    this.mapLocationPointOfInterestId    =   jsonObservation.locationPointOfInterestId;
@@ -356,7 +357,7 @@ export default {
                       jobservation.organismId     = localObservationForStore.organismId;
                       jobservation.timeOfObservation  = localObservationForStore.timeOfObservation;
                       jobservation.statusChangedTime  = localObservationForStore.statusChangedTime;
-                      jobservation.observationData    = this.observation.observationData;
+                      jobservation.observationData    = This.observation.observationData;
                       jobservation.observationHeading = localObservationForStore.observationHeading;
                       jobservation.observationText    = localObservationForStore.observationText;
 
