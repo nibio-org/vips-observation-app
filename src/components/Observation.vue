@@ -356,7 +356,7 @@ export default {
                       jobservation.organismId     = localObservationForStore.organismId;
                       jobservation.timeOfObservation  = localObservationForStore.timeOfObservation;
                       jobservation.statusChangedTime  = localObservationForStore.statusChangedTime;
-                      jobservation.observationData    = this.observation.observationData;
+                      jobservation.observationData    = This.observation.observationData;
                       jobservation.observationHeading = localObservationForStore.observationHeading;
                       jobservation.observationText    = localObservationForStore.observationText;
 
