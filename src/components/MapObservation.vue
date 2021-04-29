@@ -2,7 +2,12 @@
     <div>
     <div id='map-observation'>
         <div v-if="isMyMapPanelVisible"><router-link id='btnBack' :to="{name: 'Observation', params:{observationId:myObservationId}}" class="btn btn-success ">Back</router-link></div>
+        <div v-if="isMyMapPanelVisible" id='map-mylocation'>
+            <button class="border border-primary rounded-circle" v-on:click="myposition"><i class='fas fa-crosshairs'></i></button>
+        </div>
     </div>
+
+    
 
     <div id="ObservationMapPanel" v-if="isMyMapPanelVisible" ref='ObservationMapPanel'> 
         <div>
@@ -86,6 +91,53 @@ export default {
              }
      },
      methods : {
+            /** My current location */
+            myposition()
+            {
+                let options = { enableHighAccuracy: true };
+                navigator.geolocation.getCurrentPosition(this.geolocationSuccess, this.geolocationError, options);
+                //navigator.geolocation.getCurrentPosition(this.geolocationSuccess, this.geolocationError, this.geolocationOptions);
+
+                
+            },         
+            geolocationSuccess(pos) {
+                    this.poi.pointOfInterestId='undefined';                    
+                    this.longitude= pos.coords.latitude;
+                    this.latitude = pos.coords.longitude;
+                    let coord = [pos.coords.longitude,pos.coords.latitude];
+                    let transFormCord =       transform(coord, 'EPSG:3857','EPSG:4326');
+                    this.myMap.getView().setCenter(fromLonLat(coord));
+                    
+
+                    let myImage             = this.myImage();
+
+                    let   vectorSource      =   new VectorSource({});
+                    var iconFeature = new Feature({
+                        geometry: new Point(fromLonLat(coord)) 
+                    });                   
+                    vectorSource.addFeature(iconFeature);
+                    var vectorLayer = new VectorLayer({
+                                        source: vectorSource,
+                                        style: new Style({
+                                               image: myImage,
+                                            }),
+                                    });                    
+                    this.clearMapLayers();
+                    this.myMap.addLayer(vectorLayer); 
+                    this.myMap.getView().setZoom(CommonUtil.CONST_GPS_OBSERVATION_ZOOM);
+
+                    let     geoGSON         =   new GeoJSON();
+                    let     resultGeoGSON   =   geoGSON.writeFeatures(vectorLayer.getSource().getFeatures());
+                            this.myGeoInfo  =   JSON.parse(resultGeoGSON);   
+                        
+                        
+
+
+            },
+            geolocationError(error){
+                console.log('geolocation error : '+geolocationError);
+            },
+
             initMap(myLatitude,myLongitude){
                 //let thisMap           =   this.myMap;
                 let pointOfInterestId   =   this.poi.pointOfInterestId;
@@ -186,27 +238,32 @@ export default {
                                         geometry: new Point(fromLonLat(transFormCord)) 
                                     });
                                     This.clearMapLayers();
+                                    if(vectorSource){}
+                                    else{
+                                        vectorSource      =   new VectorSource({});
+                                    }
+
+                                    if(vectorSource)
+                                    {
+                                        vectorSource.addFeature(iconFeature);
+
+                                        var vectorLayer = new VectorLayer({
+                                                            source: vectorSource,
+                                                            style: new Style({
+                                                                    image: image,
+                                                                }),
+                                                        });
+
+                                        This.myMap.addLayer(vectorLayer); 
                                     
-                                    vectorSource.addFeature(iconFeature);
+                                        let geoGSON = new GeoJSON();
+                                        let resultGeoGSON = geoGSON.writeFeatures(vectorLayer.getSource().getFeatures(), {
+                                            dataProjection: 'EPSG:4326',
+                                            featureProjection: 'EPSG:3857' 
+                                        });
 
-                                    var vectorLayer = new VectorLayer({
-                                                        source: vectorSource,
-                                                        style: new Style({
-                                                                image: image,
-                                                            }),
-                                                    });
-
-                                     
-                                    This.myMap.addLayer(vectorLayer); 
-                                   
-                                    let geoGSON = new GeoJSON();
-                                    let resultGeoGSON = geoGSON.writeFeatures(vectorLayer.getSource().getFeatures(), {
-                                        dataProjection: 'EPSG:4326',
-                                        featureProjection: 'EPSG:3857' 
-                                    });
-
-                                    This.myGeoInfo = JSON.parse(resultGeoGSON);
-
+                                        This.myGeoInfo = JSON.parse(resultGeoGSON);
+                                    }
                         }
 
                     });
@@ -312,11 +369,17 @@ export default {
         clearMapLayers()
         {
             let myLayers = this.myMap.getLayers();
-            this.myMap.getLayers().forEach(function (layer){
-                let source = layer.get('source');
-                source.clear();
+            if(myLayers)
+            {
+                this.myMap.getLayers().forEach(function (layer){
+                    let source = layer.get('source');
+                    if(source)
+                    {
+                        source.clear();
+                    }
 
-            })
+                })
+            }
         },
  
         selectPOI(event)
@@ -361,7 +424,7 @@ export default {
             this.myMap.addLayer(vectorLayer); 
 
             this.myMap.getView().setCenter(fromLonLat(coordinate));
-
+            this.myMap.getView().setZoom(CommonUtil.CONST_GPS_OBSERVATION_ZOOM);
             }
 
             
@@ -439,6 +502,7 @@ export default {
         else
         {
             this.mapZoom = CommonUtil.CONST_GPS_DEFAULT_ZOOM;
+            //this.mapZoom = CommonUtil.CONST_GPS_OBSERVATION_ZOOM;
         }
 
        if(routeParam.locationPointOfInterestId)
@@ -476,6 +540,11 @@ export default {
     
     #btnBack{
         position: fixed;
+        z-index: 2000;
+    }
+    #map-mylocation {
+        position: fixed;    
+        right: 0;
         z-index: 2000;
     }
     
