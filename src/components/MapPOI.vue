@@ -1,6 +1,7 @@
 <template>
     <div>
             <router-link id='btnBack' :to="{name:'PlacesList', params: {}}" class="btn btn-success">Back</router-link>
+            <button id='map-mylocation' class="border border-primary rounded-circle" v-on:click="myposition"><i class='fas fa-crosshairs'></i></button>
             <div id='map-poi' style="border: 2px solid green;height: 400px;"></div>
 
             <div id='divPoiData' class="container" >
@@ -62,6 +63,7 @@
 import CommonUtil from '@/components/CommonUtil';
 import Modal from '@/components/Modal';
 import ModalSimple from '@/components/ModalSimple.vue';
+import '@fortawesome/fontawesome-free/js/all.js'
 
 import 'ol/ol.css';
 import Map from 'ol/Map';
@@ -105,6 +107,8 @@ export default{
                         mapZoom                 :   0,
                         poiTypes                :   [],
                         msgErr                  :   '',
+                        map                     :   '',
+                        
                         
                     }
     },
@@ -300,7 +304,7 @@ export default{
             },
 
             geolocationSuccess(pos) {
-                    let This = this;
+                      let This = this;
                     This.poi.latitude = pos.coords.latitude;
                     This.poi.longitude = pos.coords.longitude;
                     let coord = [pos.coords.longitude,pos.coords.latitude];
@@ -310,7 +314,7 @@ export default{
                                                         source  : new VectorSource ({
                                                                         features    :   [
                                                                                             new Feature({
-                                                                                                geometry : new Point(fromLonLat(transFormCord))
+                                                                                                geometry : new Point(fromLonLat(coord))
                                                                                             })
                                                                                         ],
                                                                 }),
@@ -330,9 +334,19 @@ export default{
 
                         let     geoGSON         =   new GeoJSON();
                         let     resultGeoGSON   =   geoGSON.writeFeatures(vectorLayer.getSource().getFeatures());
-                        This.poi.geoJSON        =   resultGeoGSON;                                                
+                        this.poi.geoJSON        =   resultGeoGSON;                                                
 
-                        This.mapInit();
+                        if(this.map)
+                        {
+                            let mapLayers       =       this.map.getLayers();
+                            mapLayers.forEach(function(layer){
+                                let source  =   layer.get('source');
+                                source.clear();
+                            })
+                        this.map.addLayer(vectorLayer); 
+                        this.map.getView().setCenter(fromLonLat(coord));
+                        this.map.getView().setZoom(CommonUtil.CONST_GPS_OBSERVATION_ZOOM);
+                    }
             },
 
             mapInit()
@@ -347,7 +361,39 @@ export default{
                 let longitude           =   this.poi.longitude;  
                 let mapZoom             =   this.mapZoom;              
 
-                let geoInfo             =   JSON.parse(this.poi.geoJSON);
+                let geoInfo             =   '';
+                if(this.poi && this.poi.geoJSON)
+                {
+                    geoInfo = JSON.parse(this.poi.geoJSON);
+                }
+                else
+                {
+                    let image = this.myImage();
+                    latitude = CommonUtil.CONST_GPS_DEFAULT_LATITUDE_02_NORWAY;
+                    longitude = CommonUtil.CONST_GPS_DEFAULT_LONGITUDE_02_NORWAY;
+                    mapZoom   = CommonUtil.CONST_GPS_DEFAULT_ZOOM;
+
+                    let coord = [CommonUtil.CONST_GPS_DEFAULT_LONGITUDE_02_NORWAY,CommonUtil.CONST_GPS_DEFAULT_LATITUDE_02_NORWAY];
+                    let   transFormCord =       transform(coord, 'EPSG:3857','EPSG:4326');
+                    let iconFeature = new Feature({
+                        geometry: new Point(fromLonLat(transFormCord)) 
+                    }); 
+
+                    let vectorSource      =   new VectorSource({});
+                    vectorSource.addFeature(iconFeature);
+                    let vectorLayer = new VectorLayer({
+                        source: vectorSource,
+                         style: new Style({
+                                image: image,
+                            }), 
+                    });
+
+                    let     geoGSON         =   new GeoJSON();
+                    let     resultGeoGSON   =   JSON.parse(geoGSON.writeFeatures(vectorLayer.getSource().getFeatures()));
+                            this.poi.geoJSON        =   JSON.stringify(resultGeoGSON);
+                            geoInfo = resultGeoGSON;
+
+                }
 
                     fetch(urlMap)
                     .then(function (response) {
@@ -361,7 +407,7 @@ export default{
                                             matrixSet: 'EPSG:3857',
                                         });
                     
-                        let map =   new Map({
+                         This.map =   new Map({
                                             layers: [
                                                         new TileLayer({
                                                             opacity: 1,
@@ -394,15 +440,25 @@ export default{
                                                             }),
                                     });
 
+                        /** Remove map pointer for first time newly poi  */
+                        if(!This.poi.longitude)
+                        {
 
-                                    map.on(['singleclick'],function(event){
+                            let mapLayers       =       This.map.getLayers();
+                            mapLayers.forEach(function(layer){
+                                let source  =   layer.get('source');
+                                source.clear();
+                            })
+                        }
+
+                                    This.map.on(['singleclick'],function(event){
                                         let   transFormCord =       transform(event.coordinate, 'EPSG:3857','EPSG:4326');
                                               This.poi.longitude    =   transFormCord[0];
                                               This.poi.latitude     =   transFormCord[1];
 
-                                                                    map.getView().setCenter(fromLonLat(transFormCord));
+                                                                    This.map.getView().setCenter(fromLonLat(transFormCord));
                                     
-                                        let mapLayers       =       map.getLayers();
+                                        let mapLayers       =       This.map.getLayers();
                                             mapLayers.forEach(function(layer){
                                                 let source  =   layer.get('source');
                                                 source.clear();
@@ -430,7 +486,7 @@ export default{
                                                                                         })
                                                                     });
 
-                                        map.addLayer(vectorLayer);
+                                        This.map.addLayer(vectorLayer);
 
                                         let     geoGSON         =   new GeoJSON();
                                         let     resultGeoGSON   =   geoGSON.writeFeatures(vectorLayer.getSource().getFeatures(), {
@@ -476,13 +532,8 @@ export default{
         if(this.$route.params.pointOfInterestId)
         {
             this.getPointOfInterest(this.$route.params.pointOfInterestId);
-            this.mapInit();
         }
-        else
-        {
-            this.myposition();
-        }
-        //this.initMap();
+        this.mapInit();
         
         
     },
@@ -506,6 +557,11 @@ export default{
         position: fixed;
         z-index: 1000;
     }
+    #map-mylocation {
+        position: fixed;    
+        right: 0;
+        z-index: 2000;
+    }    
     #divPoiData {
         position: fixed;
         z-index: 1100;
