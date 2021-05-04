@@ -28,10 +28,7 @@
     </div>
     <div v-else >
         <div id='divPrivacy' ref='divPrivacy'>
-            <select >
-                    <option>Select</option>
-                    <option>some text</option>
-            </select>
+                <visibility/>
         </div>
     </div>
     <common-util ref="CommonUtil"/>
@@ -65,6 +62,7 @@ import {Modify} from 'ol/interaction';
 import Draw from 'ol/interaction/Draw';
 import Overlay from 'ol/Overlay';
 import Geolocation from 'ol/Geolocation';
+import Visibility from '@/components/Visibility'
 
 
 
@@ -74,7 +72,7 @@ let parser = new WMTSCapabilities();
 export default {
      name : 'MapObservation',
      props : ['observationId','geoinfo','isMapPanelVisible','locationPointOfInterestId'],
-     components : {CommonUtil},
+     components : {CommonUtil,Visibility},
      data(){
          return {
                     CONST_URL_DOMAIN    :   '',

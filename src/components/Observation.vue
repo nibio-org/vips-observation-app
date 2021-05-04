@@ -56,6 +56,7 @@ import Photo from '@/components/Photo.vue'
 import Quantification from '@/components/Quantification.vue'
 
 
+
 export default {
   name: 'Observation',
   props: ['observationId'],
