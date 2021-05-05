@@ -28,10 +28,7 @@
     </div>
     <div v-else >
         <div id='divPrivacy' ref='divPrivacy'>
-            <select >
-                    <option>Select</option>
-                    <option>some text</option>
-            </select>
+                <visibility :locationIsPrivate="locationIsPrivate" :polygonService="polygonService" v-on:visibilityMapAction="visibilityMapAction"/>
         </div>
     </div>
     <common-util ref="CommonUtil"/>
@@ -65,6 +62,7 @@ import {Modify} from 'ol/interaction';
 import Draw from 'ol/interaction/Draw';
 import Overlay from 'ol/Overlay';
 import Geolocation from 'ol/Geolocation';
+import Visibility from '@/components/Visibility'
 
 
 
@@ -73,8 +71,8 @@ let parser = new WMTSCapabilities();
 
 export default {
      name : 'MapObservation',
-     props : ['observationId','geoinfo','isMapPanelVisible','locationPointOfInterestId'],
-     components : {CommonUtil},
+     props : ['observationId','geoinfo','isMapPanelVisible','locationPointOfInterestId','locationIsPrivate','polygonService'],
+     components : {CommonUtil,Visibility},
      data(){
          return {
                     CONST_URL_DOMAIN    :   '',
@@ -91,6 +89,9 @@ export default {
              }
      },
      methods : {
+             visibilityMapAction(paramPrivate, paramPolygonService){
+                this.$emit('visibilityObservationAction', paramPrivate, paramPolygonService);
+            },
             /** My current location */
             myposition()
             {
@@ -433,6 +434,7 @@ export default {
 
      },
      mounted() {
+         
          this.CONST_URL_DOMAIN = this.$refs.CommonUtil.getDomain();
         this.latitude = CommonUtil.CONST_GPS_DEFAULT_LATITUDE_NORWAY;
         this.longitude = CommonUtil.CONST_GPS_DEFAULT_LONGITUDE_NORWAY;

@@ -17,6 +17,7 @@ export default {
     CONST_STORAGE_OBSERVATION_LIST      :   'store-observation-list',
     CONST_STORAGE_IMAGE_LIST            :   'store-image-list',
     CONST_STORAGE_POI_LIST              :   'store-poi-list',
+    CONST_STORAGE_VISIBILITY_POLYGON    :   'store-polygon',
 
     CONST_POI_TYPES                     :   '[{"point_of_interest_type_id":0,"default_name":"General"},{"point_of_interest_type_id":4,"default_name":"Region"},{"point_of_interest_type_id":1,"default_name":"Weather Station"},{"point_of_interest_type_id":2,"default_name":"Farm"},{"point_of_interest_type_id":3,"default_name":"Field"}]',
 
@@ -42,6 +43,7 @@ export default {
     
     CONST_URL_USER_OBSERVATION_LIST     :   '/rest/observation/list/user',
     CONST_URL_USER_POI                  :   '/rest/poi/user',
+    CONST_URL_POLYGON_SERVICES          :   '/rest/observation/polygonservices/',
 
     CONST_URL_STATIC_IMAGE_PATH         :   '/static/images/observations/',
     

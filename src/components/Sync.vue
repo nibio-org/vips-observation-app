@@ -27,7 +27,8 @@ export default {
                                     {"name":CommonUtil.CONST_STORAGE_CROP_CATEGORY,"complete":false}    ,
                                     {"name":CommonUtil.CONST_STORAGE_CROP_LIST,"complete":false}    ,
                                     {"name":CommonUtil.CONST_STORAGE_PEST_LIST,"complete":false}    ,
-                                     {"name":CommonUtil.CONST_STORAGE_CROP_PEST_LIST,"complete":false}    ,
+                                    {"name":CommonUtil.CONST_STORAGE_CROP_PEST_LIST,"complete":false}    ,
+                                    {"name":CommonUtil.CONST_STORAGE_VISIBILITY_POLYGON,"complete":false}    ,
                                 ],
       appUser               : {},
       loading               : false,
@@ -112,6 +113,9 @@ export default {
                              case CommonUtil.CONST_STORAGE_CROP_PEST_LIST :
                                  strUrl = This.CONST_URL_DOMAIN +CommonUtil.CONST_URL_CROP_PEST_LIST;
                                 break;  
+                             case CommonUtil.CONST_STORAGE_VISIBILITY_POLYGON :
+                                 strUrl = This.CONST_URL_DOMAIN +CommonUtil.CONST_URL_POLYGON_SERVICES+appUser.organization_id;
+                                break;                                  
                             default :
                         }
 
