@@ -28,7 +28,7 @@
     </div>
     <div v-else >
         <div id='divPrivacy' ref='divPrivacy'>
-                <visibility/>
+                <visibility :locationIsPrivate="locationIsPrivate" :polygonService="polygonService" v-on:visibilityMapAction="visibilityMapAction"/>
         </div>
     </div>
     <common-util ref="CommonUtil"/>
@@ -71,7 +71,7 @@ let parser = new WMTSCapabilities();
 
 export default {
      name : 'MapObservation',
-     props : ['observationId','geoinfo','isMapPanelVisible','locationPointOfInterestId'],
+     props : ['observationId','geoinfo','isMapPanelVisible','locationPointOfInterestId','locationIsPrivate','polygonService'],
      components : {CommonUtil,Visibility},
      data(){
          return {
@@ -89,6 +89,9 @@ export default {
              }
      },
      methods : {
+             visibilityMapAction(paramPrivate, paramPolygonService){
+                this.$emit('visibilityObservationAction', paramPrivate, paramPolygonService);
+            },
             /** My current location */
             myposition()
             {
@@ -431,6 +434,7 @@ export default {
 
      },
      mounted() {
+         
          this.CONST_URL_DOMAIN = this.$refs.CommonUtil.getDomain();
         this.latitude = CommonUtil.CONST_GPS_DEFAULT_LATITUDE_NORWAY;
         this.longitude = CommonUtil.CONST_GPS_DEFAULT_LONGITUDE_NORWAY;

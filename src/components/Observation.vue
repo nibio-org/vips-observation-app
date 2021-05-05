@@ -19,7 +19,7 @@
         <input type="datetime-local" v-model="strDateObservation" />
     </div>
     <router-link id="linkMap" ref='linkMap' :to="{name:'MapObservation', params: {observationId:observationId,geoinfo:mapGeoinfo,isMapPanelVisible:newMapPanel,locationPointOfInterestId:mapLocationPointOfInterestId}}">Observation Map </router-link>
-      <div v-if="mapGeoinfo" id="divMapGeoInfo"><map-observation :geoinfo="mapGeoinfo" :isMapPanelVisible="isMapPanelVisible"></map-observation></div> 
+      <div v-if="mapGeoinfo" id="divMapGeoInfo"><div v-if="isMounted"><map-observation :geoinfo="mapGeoinfo" :isMapPanelVisible="isMapPanelVisible" :locationIsPrivate="observation.locationIsPrivate" :polygonService="observation.polygonService" v-on:visibilityObservationAction="visibilityObservationAction"></map-observation></div></div> 
 
      <photo :isImageVisible=false :observationId="observationId" :organismId="observation.organismId" ></photo>
       <photo :isImageVisible=true :observationId="observation.observationId" :organismId="observation.organismId" :imageFileName="photo.observationIllustrationPK.fileName" :isDeleted='photo.deleted' v-for="photo in observation.observationIllustrationSet" v-bind:key="photo.observationIllustrationPK.fileName"></photo>
@@ -88,11 +88,22 @@ export default {
         organismId: '',
         cropOrganismId: '',
         observationHeading: '',
-        observationText: ''        
+        observationText: '',
+        uploaded:false        
       },
     }
   },
   methods:{
+    visibilityObservationAction(paramPrivate, paramPolygonService){
+       this.observationForStore.locationIsPrivate=paramPrivate;
+       if(paramPolygonService)
+       {
+         this.observationForStore.polygonService=paramPolygonService;
+       }
+       else{
+         this.observationForStore.polygonService='';
+       }
+    },
     showQuantification()
     {
         this.isQuantification = true;
@@ -355,6 +366,7 @@ export default {
           this.observationForStore.statusChangedTime  = this.strDateObservation;
           this.observationForStore.observationHeading = this.observationHeader;
           this.observationForStore.observationText    = this.observationText;
+          
 
          if(this.observationId)
          {
@@ -373,6 +385,9 @@ export default {
                       jobservation.observationData    = This.observation.observationData;
                       jobservation.observationHeading = localObservationForStore.observationHeading;
                       jobservation.observationText    = localObservationForStore.observationText;
+                      jobservation.locationIsPrivate  = localObservationForStore.locationIsPrivate;
+                      jobservation.polygonService     = localObservationForStore.polygonService;
+                      jobservation.uploaded           = localObservationForStore.uploaded;
 
                       return false;
                     }
@@ -437,6 +452,8 @@ export default {
                 this.observation.observationData='';
                 this.getNewObservation();
     }
+    this.observationForStore.locationIsPrivate=this.observation.locationIsPrivate;
+    this.observationForStore.polygonService=this.observation.polygonService;
   },
 
 }
