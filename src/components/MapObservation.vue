@@ -1,7 +1,7 @@
 <template>
     <div>
     <div id='map-observation'>
-        <div v-if="isMyMapPanelVisible"><router-link id='btnBack' :to="{name: 'Observation', params:{observationId:myObservationId, paramGeoinfo:myGeoInfo}}" class="btn btn-success ">Back</router-link></div>
+        <div v-if="isMyMapPanelVisible"><router-link id='btnBack' :to="{name: 'Observation', params:{observationId:myObservationId, paramGeoinfo:myGeoInfo, paramObservation:mapObservation}}" class="btn btn-success ">Back</router-link></div>
         <div v-if="isMyMapPanelVisible" id='map-mylocation'>
             <button class="border border-primary rounded-circle" v-on:click="myposition"><i class='fas fa-crosshairs'></i></button>
         </div>
@@ -71,7 +71,7 @@ let parser = new WMTSCapabilities();
 
 export default {
      name : 'MapObservation',
-     props : ['observationId','geoinfo','isMapPanelVisible','locationPointOfInterestId','locationIsPrivate','polygonService'],
+     props : ['observationId','geoinfo','isMapPanelVisible','locationPointOfInterestId','locationIsPrivate','polygonService','observation'],
      components : {CommonUtil,Visibility},
      data(){
          return {
@@ -86,6 +86,7 @@ export default {
                     poi                 :   {pointOfInterestId:'undefined',name:'Select POI'},
                     myMap               :   '',
                     myObservationId     :   '',
+                    mapObservation      :   {},
              }
      },
      methods : {
@@ -448,6 +449,11 @@ export default {
         var appDiv      =   document.getElementById("app");
         var panelObDiv = document.getElementById("ObservationMapPanel");
         var divPrivacy  =   document.getElementById("divPrivacy");
+
+        if(routeParam.observation)
+        {
+            this.mapObservation = routeParam.observation;
+        }
 
         if(routeParam.observationId)
         {
