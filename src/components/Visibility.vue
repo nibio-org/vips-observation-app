@@ -84,7 +84,6 @@ export default {
             },
     },
     mounted () {
-        console.log('locationIsPrivate :: '+this.locationIsPrivate);
         this.buildVisibilities();
     }
     

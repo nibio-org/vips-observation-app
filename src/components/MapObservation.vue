@@ -1,7 +1,7 @@
 <template>
     <div>
     <div id='map-observation'>
-        <div v-if="isMyMapPanelVisible"><router-link id='btnBack' :to="{name: 'Observation', params:{observationId:myObservationId}}" class="btn btn-success ">Back</router-link></div>
+        <div v-if="isMyMapPanelVisible"><router-link id='btnBack' :to="{name: 'Observation', params:{observationId:myObservationId, paramGeoinfo:myGeoInfo}}" class="btn btn-success ">Back</router-link></div>
         <div v-if="isMyMapPanelVisible" id='map-mylocation'>
             <button class="border border-primary rounded-circle" v-on:click="myposition"><i class='fas fa-crosshairs'></i></button>
         </div>
@@ -264,6 +264,7 @@ export default {
                                         });
 
                                         This.myGeoInfo = JSON.parse(resultGeoGSON);
+
                                     }
                         }
 

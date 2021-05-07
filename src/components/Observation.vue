@@ -19,7 +19,7 @@
         <input type="datetime-local" v-model="strDateObservation" />
     </div>
     <router-link id="linkMap" ref='linkMap' :to="{name:'MapObservation', params: {observationId:observationId,geoinfo:mapGeoinfo,isMapPanelVisible:newMapPanel,locationPointOfInterestId:mapLocationPointOfInterestId}}">Observation Map </router-link>
-      <div v-if="mapGeoinfo" id="divMapGeoInfo"><div v-if="isMounted"><map-observation :geoinfo="mapGeoinfo" :isMapPanelVisible="isMapPanelVisible" :locationIsPrivate="observation.locationIsPrivate" :polygonService="observation.polygonService" v-on:visibilityObservationAction="visibilityObservationAction"></map-observation></div></div> 
+      <div v-if="mapGeoinfo" id="divMapGeoInfo"><div v-if="isMounted"><map-observation :geoinfo="mapGeoinfo" :isMapPanelVisible="isMapPanelVisible" :locationIsPrivate="observation.locationIsPrivate" :polygonService="observation.polygonService" v-on:visibilityObservationAction="visibilityObservationAction" ></map-observation></div></div> 
 
      <photo :isImageVisible=false :observationId="observationId" :organismId="observation.organismId" ></photo>
       <photo :isImageVisible=true :observationId="observation.observationId" :organismId="observation.organismId" :imageFileName="photo.observationIllustrationPK.fileName" :isDeleted='photo.deleted' v-for="photo in observation.observationIllustrationSet" v-bind:key="photo.observationIllustrationPK.fileName"></photo>
@@ -59,7 +59,7 @@ import Quantification from '@/components/Quantification.vue'
 
 export default {
   name: 'Observation',
-  props: ['observationId'],
+  props: ['observationId','paramGeoinfo'],
   components: {MapObservation,PhotoObservation,Photo,Quantification},
   data () {
     return {
@@ -94,6 +94,7 @@ export default {
     }
   },
   methods:{
+
     visibilityObservationAction(paramPrivate, paramPolygonService){
        this.observationForStore.locationIsPrivate=paramPrivate;
        if(paramPolygonService)
@@ -140,7 +141,11 @@ export default {
               this.observationHeader  =  jsonObservation.observationHeading;
               this.observationText    =   jsonObservation.observationText;
 
-              if(jsonObservation.geoinfo)
+              if(this.paramGeoinfo)
+              {
+                this.mapGeoinfo = this.paramGeoinfo;
+              }
+              else if(jsonObservation.geoinfo)
               {
                 this.mapGeoinfo            =   JSON.parse(jsonObservation.geoinfo);
               }
@@ -437,7 +442,15 @@ export default {
 
   } ,
 
+
+
   mounted(){
+    if(this.paramGeoinfo)
+    {
+        this.mapGeoinfo = this.paramGeoinfo;
+    }
+
+
 
     if(this.observationId)
     {
