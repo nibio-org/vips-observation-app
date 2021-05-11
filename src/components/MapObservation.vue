@@ -109,14 +109,16 @@ export default {
                     let coord = [pos.coords.longitude,pos.coords.latitude];
                     let transFormCord =       transform(coord, 'EPSG:3857','EPSG:4326');
                     this.myMap.getView().setCenter(fromLonLat(coord));
-                    
+
+                    this.clearMapLayers();
 
                     let myImage             = this.myImage();
 
                     let   vectorSource      =   new VectorSource({});
                     var iconFeature = new Feature({
                         geometry: new Point(fromLonLat(coord)) 
-                    });                   
+                    });    
+
                     vectorSource.addFeature(iconFeature);
                     var vectorLayer = new VectorLayer({
                                         source: vectorSource,
@@ -124,16 +126,15 @@ export default {
                                                image: myImage,
                                             }),
                                     });                    
-                    this.clearMapLayers();
-                    this.myMap.addLayer(vectorLayer); 
-                    this.myMap.getView().setZoom(CommonUtil.CONST_GPS_OBSERVATION_ZOOM);
 
                     let     geoGSON         =   new GeoJSON();
                     let     resultGeoGSON   =   geoGSON.writeFeatures(vectorLayer.getSource().getFeatures());
                             this.myGeoInfo  =   JSON.parse(resultGeoGSON);   
-                        
-                        
+                            this.myGeoInfo.features[0].geometry.coordinates=coord;
+                    
+                     this.myMap.addLayer(vectorLayer); 
 
+                    this.myMap.getView().setZoom(CommonUtil.CONST_GPS_OBSERVATION_ZOOM);
 
             },
             geolocationError(error){
@@ -263,7 +264,7 @@ export default {
                                             dataProjection: 'EPSG:4326',
                                             featureProjection: 'EPSG:3857' 
                                         });
-
+                console.log(resultGeoGSON);
                                         This.myGeoInfo = JSON.parse(resultGeoGSON);
 
                                     }
