@@ -16,15 +16,17 @@
     <div class="clearfix"/>
     <div ref='divDateTime'>
       <!-- <input type="datetime-local" v-bind='strDateObservation | dateFormat' v-model="strDateObservation"/> -->
-        <input type="datetime-local" v-model="strDateObservation" />
+        <input type="datetime-local" v-model="strDateObservation" v-on:change="capturedTime($event)"/>
     </div>
-    <router-link id="linkMap" ref='linkMap' :to="{name:'MapObservation', params: {observationId:observationId,geoinfo:mapGeoinfo,isMapPanelVisible:newMapPanel,locationPointOfInterestId:mapLocationPointOfInterestId}}">Observation Map </router-link>
-      <div v-if="mapGeoinfo" id="divMapGeoInfo"><div v-if="isMounted"><map-observation :geoinfo="mapGeoinfo" :isMapPanelVisible="isMapPanelVisible" :locationIsPrivate="observation.locationIsPrivate" :polygonService="observation.polygonService" v-on:visibilityObservationAction="visibilityObservationAction"></map-observation></div></div> 
-
-     <photo :isImageVisible=false :observationId="observationId" :organismId="observation.organismId" ></photo>
-      <photo :isImageVisible=true :observationId="observation.observationId" :organismId="observation.organismId" :imageFileName="photo.observationIllustrationPK.fileName" :isDeleted='photo.deleted' v-for="photo in observation.observationIllustrationSet" v-bind:key="photo.observationIllustrationPK.fileName"></photo>
+    <div v-if="isMounted">
+    <router-link id="linkMap" ref='linkMap' :to="{name:'MapObservation', params: {observationId:observation.observationId,geoinfo:mapGeoinfo,isMapPanelVisible:newMapPanel,locationPointOfInterestId:mapLocationPointOfInterestId, observation:observation}}">Observation Map </router-link>
+    </div>
+      <div v-if="mapGeoinfo" id="divMapGeoInfo"><div v-if="isMounted"><map-observation :geoinfo="mapGeoinfo" :isMapPanelVisible="isMapPanelVisible" :locationIsPrivate="observation.locationIsPrivate" :polygonService="observation.polygonService" v-on:visibilityObservationAction="visibilityObservationAction" ></map-observation></div></div> 
+    <div v-if="isMounted">
+        <photo :isImageVisible=false :observationId="observationId" :organismId="observation.organismId" ></photo>
+        <photo :isImageVisible=true :observationId="observation.observationId" :organismId="observation.organismId" :imageFileName="photo.observationIllustrationPK.fileName" :isDeleted='photo.deleted' v-for="photo in observation.observationIllustrationSet" v-bind:key="photo.observationIllustrationPK.fileName"></photo>
       <!-- <photo-observation :observationId="observation.observationId" :organismId="observation.organismId" :imageFileName="photo.observationIllustrationPK.fileName" v-for="photo in observation.observationIllustrationSet" v-bind:key="photo.observationIllustrationPK.fileName"></photo-observation> -->
-      
+    </div>      
       <div class="clearfix"/>
 
       <button class="btn btn-success" v-on:click="showQuantification"><span><h5>Tell/kvantifiser</h5></span></button>
@@ -59,7 +61,7 @@ import Quantification from '@/components/Quantification.vue'
 
 export default {
   name: 'Observation',
-  props: ['observationId'],
+  props: ['observationId','paramGeoinfo','paramObservation'],
   components: {MapObservation,PhotoObservation,Photo,Quantification},
   data () {
     return {
@@ -94,6 +96,7 @@ export default {
     }
   },
   methods:{
+
     visibilityObservationAction(paramPrivate, paramPolygonService){
        this.observationForStore.locationIsPrivate=paramPrivate;
        if(paramPolygonService)
@@ -121,8 +124,7 @@ export default {
               let jsonObservation = {};
               
               let lstObservations     = JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST));              // Observation List
-              jsonObservation         = lstObservations.find(({observationId})=> observationId === id);                           // Selection Observation
-              this.observation        = jsonObservation;
+
               
 /*              
               let lastQuoteRemoved    = this.observation.observationData.slice(0,0);
@@ -130,17 +132,36 @@ export default {
               this.observation.observationData = lastQuoteRemoved.slice(0,0);
               console.log(this.observation.observationData);
 */
-              /* For related Crop and Crop list */
-              this.getObservationCrops(jsonObservation);
-              /* For related Pest and Pest list */
-              this.getObservationPests(jsonObservation);
+              
+              if(this.paramObservation)
+              {
+                
+                this.getObservationCrops(this.paramObservation);
+                this.getObservationPests(this.paramObservation);
 
-              this.strDateObservation = DateTime.fromISO(jsonObservation.timeOfObservation).toFormat('yyyy-MM-dd\'T\'HH:mm:ss');
+                this.strDateObservation = DateTime.fromISO(this.paramObservation.timeOfObservation).toFormat('yyyy-MM-dd\'T\'HH:mm:ss');
+              }
+              else
+              {
+                jsonObservation         = lstObservations.find(({observationId})=> observationId === id);                           // Selection Observation
+                this.observation        = jsonObservation;
 
-              this.observationHeader  =  jsonObservation.observationHeading;
-              this.observationText    =   jsonObservation.observationText;
+                /* For related Crop and Crop list */
+                this.getObservationCrops(jsonObservation);
+                /* For related Pest and Pest list */
+                this.getObservationPests(jsonObservation);
 
-              if(jsonObservation.geoinfo)
+                this.strDateObservation = DateTime.fromISO(jsonObservation.timeOfObservation).toFormat('yyyy-MM-dd\'T\'HH:mm:ss');
+                this.observationHeader  =  jsonObservation.observationHeading;
+                this.observationText    =   jsonObservation.observationText;                
+              }
+
+
+              if(this.paramGeoinfo)
+              {
+                this.mapGeoinfo = this.paramGeoinfo;
+              }
+              else if(jsonObservation.geoinfo)
               {
                 this.mapGeoinfo            =   JSON.parse(jsonObservation.geoinfo);
               }
@@ -161,6 +182,7 @@ export default {
 
       /** Get related crop and crop list for a selected Observation */
       getObservationCrops(jsonObservation){
+        
               let lstCrops        = [];
               let lstCropIds      = [];
               let lstCropList     = JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_CROP_LIST));
@@ -180,7 +202,7 @@ export default {
                     this.isActive = true;
                     // iterate and get the required cropids relaed to selected observation id
                       $.each (data, function(index, item){
-                          if(item===jsonObservation.cropOrganismId)
+                          if(parseInt(item)===parseInt(jsonObservation.cropOrganismId))
                           {
                             lstCropIds = data;
                             return false;
@@ -189,11 +211,10 @@ export default {
                   }
                 })
               });
-
             /* Get list of related crops with their id and name */
             this.getCrops(lstCropIds);
 
-              let jsonSelectedCrop= this.crops.find(({organismId}) => organismId === jsonObservation.cropOrganismId);
+              let jsonSelectedCrop= this.crops.find(({organismId}) => organismId === parseInt(jsonObservation.cropOrganismId));
             //  this.crops = lstCrops;
               if(jsonSelectedCrop)
               {
@@ -209,13 +230,12 @@ export default {
             let lstCropPestList     = JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_CROP_PEST_LIST));
  
              $.each(lstCropPestList, function(index,cropPests){
-                if(cropPests.cropOrganismId === jsonObservation.cropOrganismId)
+                if(parseInt(cropPests.cropOrganismId) === parseInt(jsonObservation.cropOrganismId))
                 {
                     lstPestIds = cropPests.pestOrganismIds;
                 }
                 
             }); 
-            
             this.getPests(lstPestIds);
 
             let jsonSelectedPest = this.pests.find(({pestId}) => pestId === jsonObservation.organismId);
@@ -230,6 +250,7 @@ export default {
       /** On selecting a particular crop */
       selectCrop(event)
       {
+          this.observation.cropOrganismId=event.target.value;
           let crop = this.crop;
           let lstPestIds              = [];
           let lstCropPestList         = JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_CROP_PEST_LIST));
@@ -246,6 +267,11 @@ export default {
          
       },
 
+      capturedTime(event)
+      {
+        this.observation.timeOfObservation=this.strDateObservation;
+
+      },
       
       /** Get New Observation  */
       getNewObservation()
@@ -437,12 +463,23 @@ export default {
 
   } ,
 
+
   mounted(){
+    if(this.paramObservation)
+    {
+        this.observation  = this.paramObservation;
+    }
+    if(this.paramGeoinfo)
+    {
+        this.mapGeoinfo = this.paramGeoinfo;
+    }
+
+
 
     if(this.observationId)
     {
       this.getObservationFromStore(this.observationId);
-      this.observation.observationId=this.observationId
+      this.observation.observationId=this.observationId;
     }
     else{
             let newObservationId  = 0;
@@ -452,8 +489,11 @@ export default {
                 this.observation.observationData='';
                 this.getNewObservation();
     }
-    this.observationForStore.locationIsPrivate=this.observation.locationIsPrivate;
-    this.observationForStore.polygonService=this.observation.polygonService;
+    if(!this.paramObservation)
+    {
+        this.observationForStore.locationIsPrivate=this.observation.locationIsPrivate;
+        this.observationForStore.polygonService=this.observation.polygonService;
+    }
   },
 
 }

@@ -1,7 +1,7 @@
 <template>
     <div>
     <div id='map-observation'>
-        <div v-if="isMyMapPanelVisible"><router-link id='btnBack' :to="{name: 'Observation', params:{observationId:myObservationId}}" class="btn btn-success ">Back</router-link></div>
+        <div v-if="isMyMapPanelVisible"><router-link id='btnBack' :to="{name: 'Observation', params:{observationId:myObservationId, paramGeoinfo:myGeoInfo, paramObservation:mapObservation}}" class="btn btn-success ">Back</router-link></div>
         <div v-if="isMyMapPanelVisible" id='map-mylocation'>
             <button class="border border-primary rounded-circle" v-on:click="myposition"><i class='fas fa-crosshairs'></i></button>
         </div>
@@ -71,7 +71,7 @@ let parser = new WMTSCapabilities();
 
 export default {
      name : 'MapObservation',
-     props : ['observationId','geoinfo','isMapPanelVisible','locationPointOfInterestId','locationIsPrivate','polygonService'],
+     props : ['observationId','geoinfo','isMapPanelVisible','locationPointOfInterestId','locationIsPrivate','polygonService','observation'],
      components : {CommonUtil,Visibility},
      data(){
          return {
@@ -86,6 +86,7 @@ export default {
                     poi                 :   {pointOfInterestId:'undefined',name:'Select POI'},
                     myMap               :   '',
                     myObservationId     :   '',
+                    mapObservation      :   {},
              }
      },
      methods : {
@@ -108,14 +109,16 @@ export default {
                     let coord = [pos.coords.longitude,pos.coords.latitude];
                     let transFormCord =       transform(coord, 'EPSG:3857','EPSG:4326');
                     this.myMap.getView().setCenter(fromLonLat(coord));
-                    
+
+                    this.clearMapLayers();
 
                     let myImage             = this.myImage();
 
                     let   vectorSource      =   new VectorSource({});
                     var iconFeature = new Feature({
                         geometry: new Point(fromLonLat(coord)) 
-                    });                   
+                    });    
+
                     vectorSource.addFeature(iconFeature);
                     var vectorLayer = new VectorLayer({
                                         source: vectorSource,
@@ -123,16 +126,15 @@ export default {
                                                image: myImage,
                                             }),
                                     });                    
-                    this.clearMapLayers();
-                    this.myMap.addLayer(vectorLayer); 
-                    this.myMap.getView().setZoom(CommonUtil.CONST_GPS_OBSERVATION_ZOOM);
 
                     let     geoGSON         =   new GeoJSON();
                     let     resultGeoGSON   =   geoGSON.writeFeatures(vectorLayer.getSource().getFeatures());
                             this.myGeoInfo  =   JSON.parse(resultGeoGSON);   
-                        
-                        
+                            this.myGeoInfo.features[0].geometry.coordinates=coord;
+                    
+                     this.myMap.addLayer(vectorLayer); 
 
+                    this.myMap.getView().setZoom(CommonUtil.CONST_GPS_OBSERVATION_ZOOM);
 
             },
             geolocationError(error){
@@ -262,8 +264,9 @@ export default {
                                             dataProjection: 'EPSG:4326',
                                             featureProjection: 'EPSG:3857' 
                                         });
-
+                console.log(resultGeoGSON);
                                         This.myGeoInfo = JSON.parse(resultGeoGSON);
+
                                     }
                         }
 
@@ -447,6 +450,11 @@ export default {
         var appDiv      =   document.getElementById("app");
         var panelObDiv = document.getElementById("ObservationMapPanel");
         var divPrivacy  =   document.getElementById("divPrivacy");
+
+        if(routeParam.observation)
+        {
+            this.mapObservation = routeParam.observation;
+        }
 
         if(routeParam.observationId)
         {
