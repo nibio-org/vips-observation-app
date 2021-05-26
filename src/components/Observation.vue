@@ -43,7 +43,7 @@
         <input type="text" v-model="observationHeader"/>
         <p><textarea v-model="observationText" /></p>
       </div>
-      
+        <div v-show="isSync"><sync ref="sync" :isSyncNeeded="isSync"/></div>
         <button class="btn btn-secondary float-right" v-on:click="saveObservation">Save</button>
      
   </div>  
@@ -56,15 +56,17 @@ import MapObservation from '@/components/MapObservation'
 import PhotoObservation from '@/components/PhotoObservation'
 import Photo from '@/components/Photo.vue'
 import Quantification from '@/components/Quantification.vue'
+import Sync from '@/components/Sync'
 
 
 
 export default {
   name: 'Observation',
   props: ['observationId','paramGeoinfo','paramObservation'],
-  components: {MapObservation,PhotoObservation,Photo,Quantification},
+  components: {MapObservation,PhotoObservation,Photo,Quantification,Sync},
   data () {
     return {
+      isSync           : false,
       isQuantification : false,
       isMounted : false,
       msg: 'Observasjon',
@@ -143,8 +145,10 @@ export default {
               }
               else
               {
-                jsonObservation         = lstObservations.find(({observationId})=> observationId === id);                           // Selection Observation
-                this.observation        = jsonObservation;
+                jsonObservation                         = lstObservations.find(({observationId})=> observationId === id);                           // Selection Observation
+                this.observation                        = jsonObservation;
+                this.observation.observationData        = JSON.parse(jsonObservation.observationData);
+                
 
                 /* For related Crop and Crop list */
                 this.getObservationCrops(jsonObservation);
@@ -383,6 +387,7 @@ export default {
       /** Save Observation */
       saveObservation()
       {
+        //console.log(this.observation.observationData);
         let This = this;
         let lstObservations = JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST));
 
@@ -392,6 +397,8 @@ export default {
           this.observationForStore.statusChangedTime  = this.strDateObservation;
           this.observationForStore.observationHeading = this.observationHeader;
           this.observationForStore.observationText    = this.observationText;
+          this.observationForStore.observationData    = JSON.stringify(this.observation.observationData); //"{\"number\":0,\"unit\":\"Number\"}"; 
+          this.observationForStore.observationIllustrationSet = this.observation.observationIllustrationSet;
           
 
          if(this.observationId)
@@ -408,7 +415,7 @@ export default {
                       jobservation.organismId     = localObservationForStore.organismId;
                       jobservation.timeOfObservation  = localObservationForStore.timeOfObservation;
                       jobservation.statusChangedTime  = localObservationForStore.statusChangedTime;
-                      jobservation.observationData    = This.observation.observationData;
+                      jobservation.observationData    = localObservationForStore.observationData;
                       jobservation.observationHeading = localObservationForStore.observationHeading;
                       jobservation.observationText    = localObservationForStore.observationText;
                       jobservation.locationIsPrivate  = localObservationForStore.locationIsPrivate;
@@ -431,11 +438,18 @@ export default {
               lstObservations.push(this.observationForStore);
          }
               localStorage.setItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST, JSON.stringify(lstObservations) );
-          this.$router.push({path:'/'});
-          this.$router.go();
+              if(this.isSync===false)
+              {
+                this.isSync = true;
+                this.$refs.sync.syncObservationSendPrepareSingleObject(this.observationForStore);
+                this.isSync = false;
+              }
+          //this.$router.push({path:'/'});
+          //this.$router.go();
            
       },
       updateQuntificationData(schemaData){
+        //console.log(schemaData);
           this.observation.observationData = schemaData;
       },
 

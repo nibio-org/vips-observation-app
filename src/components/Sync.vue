@@ -6,7 +6,7 @@
             </div> <span class="text-danger"> Data Loading...</span>
             <!-- -- Sync :  <div v-html="isSyncNeeded"></div> -->
         </div>
-     <common-util ref="CommonUtil"/>
+     <div v-show="isMounted"><common-util ref="CommonUtil"/></div>
     </div>
 </template>
 
@@ -21,8 +21,10 @@ export default {
   },
   data() {
     return {
+      isMounted             : false,
       CONST_URL_DOMAIN      : '',
       booIsSyncOneWayReady  : false,
+      booIsSyncTwoWayReady  : true,
       arrSyncOneWay         :   [
                                     {"name":CommonUtil.CONST_STORAGE_CROP_CATEGORY,"complete":false}    ,
                                     {"name":CommonUtil.CONST_STORAGE_CROP_LIST,"complete":false}    ,
@@ -30,6 +32,10 @@ export default {
                                     {"name":CommonUtil.CONST_STORAGE_CROP_PEST_LIST,"complete":false}    ,
                                     {"name":CommonUtil.CONST_STORAGE_VISIBILITY_POLYGON,"complete":false}    ,
                                 ],
+      arrSyncTwoWay         :   [
+                                    {"name":CommonUtil.CONST_STORAGE_OBSERVATION_LIST,"complete":false}    ,
+                                    
+                                ],                                
       appUser               : {},
       loading               : false,
     };
@@ -52,7 +58,7 @@ export default {
                 {
                     this.loading = true;
                     /* Starting of Sync */
-                    console.log('----- SYNC STARTED -----');
+                    console.log('----- SYNC ONE WAY STARTED -----');
                     this.syncOneWay();
                 }
                 if(typeof(booIsSyncOneWayReady)==='undefined')
@@ -67,6 +73,20 @@ export default {
                 }
             }
         },
+        booIsSyncTwoWayReady    :
+        {
+            immediate : true,
+            handler(val, oldVal)
+            {
+                if(val)
+                {
+                     this.loading = true;
+                    console.log('----- SYNC TWO WAY STARTED -----');
+                    this.syncTwoWayAtLogin();
+                     this.loading = false;
+                }
+            }
+        }
         
       /*
       isSyncNeeded : 
@@ -123,6 +143,39 @@ export default {
                     });
              }
         }
+    },
+
+    syncTwoWayAtLogin()
+    {
+        
+            let appUser = this.appUser;
+            let funStorageSet = this.oneWaySyncStorageSet;
+
+             if(typeof(appUser)==undefined || appUser == null || appUser === '')
+             {
+                 // TODO if appUser is not available
+             }
+             else
+             {
+                 
+                    this.syncTwoWay();
+             }
+    },
+    syncTwoWay()
+    {
+            let strUrl =   '';
+            let This = this;
+            $.each(this.arrSyncTwoWay, function(index, value){
+                 switch(value.name) {
+                        case CommonUtil.CONST_STORAGE_OBSERVATION_LIST :
+                            strUrl = This.CONST_URL_DOMAIN +CommonUtil.CONST_URL_USER_OBSERVATION_LIST;
+                            
+                            break; 
+                        default :
+                 }
+
+                 This.syncTwoWayInitiate(value,strUrl);
+            });
     },
 
     /**  Writing server data to localstorage using sync */
@@ -268,9 +321,172 @@ export default {
     },
 
 
+    syncTwoWayInitiate(value, strUrl)
+    {
+        
+         switch(value.name)
+         {
+            case CommonUtil.CONST_STORAGE_OBSERVATION_LIST :
+                
+                this.syncTwoWayObservation(value,strUrl);
+                break;
+            default: 
+         }
+       
+    },
+
+    /** Two way Sync - Observation */
+    syncTwoWayObservation(value,strUrl)
+    {
+        
+        this.syncObservationSendPrepare(value);
+    },
+
+    /** Sync - Observation - embed with image data for POST */
+    syncObservationSendPrepare(value)
+    {
+        let This = this;
+        let lstObservations =   JSON.parse(localStorage.getItem(value.name));
+        let entityName      =   CommonUtil.CONST_DB_ENTITY_PHOTO;
+        lstObservations.forEach(function(observation) {
+            This.syncObservationSendPrepareSingleObject(observation);
+/*
+            if(observation.uploaded == false)
+            {
+                let observationUpload = observation;
+                let observationIllustrationSet = observationUpload.observationIllustrationSet;
+                
+                
+                let dbRequest =  indexedDB.open(CommonUtil.CONST_DB_NAME, CommonUtil.CONST_DB_VERSION);                
+                dbRequest.onsuccess = function(evt) {
+                    let db = evt.target.result;
+                    let transaction      =   db.transaction([entityName],'readwrite'); 
+                    let objectstore      =    transaction.objectStore(entityName);
+                    if(observationIllustrationSet)
+                    {
+                        observationIllustrationSet.forEach(function(illustration)
+                        {
+                                let fileName = illustration.observationIllustrationPK.fileName;
+                                
+                                let objectstoreRequest = objectstore.get(fileName);
+                                
+                                
+                                objectstoreRequest.onsuccess = function(event)
+                                {
+                                    
+                                    let observationImage = event.target.result;
+                                        if(observationImage)
+                                        {
+                                            
+                                            let imageTextData = observationImage.illustration.imageTextData;
+                                            illustration.observationIllustrationPK.imageTextData=imageTextData;
+                                            
+                                        }
+                                }
+                        });
+                    }
+
+                }
+
+                This.syncObservationPOST(observation);
+            } 
+            
+            */
+
+
+        });
+    },
+
+    syncObservationSendPrepareSingleObject(observation,syncObservationPOST)
+    {
+            let This        =   this;
+            let entityName  =   CommonUtil.CONST_DB_ENTITY_PHOTO;
+            if(observation.uploaded == false)
+            {
+                let observationUpload = observation;
+                let observationIllustrationSet = observationUpload.observationIllustrationSet;
+                
+                //  talk to Innodb,  embed image data to JSON POST and exit
+                let dbRequest =  indexedDB.open(CommonUtil.CONST_DB_NAME, CommonUtil.CONST_DB_VERSION);                
+                dbRequest.onsuccess = function(evt) {
+                    let db = evt.target.result;
+                    let transaction      =   db.transaction([entityName],'readwrite'); 
+                    let objectstore      =    transaction.objectStore(entityName);
+                    if(observationIllustrationSet)
+                    {
+                        observationIllustrationSet.forEach(function(illustration)
+                        {
+                                let fileName = illustration.observationIllustrationPK.fileName;
+                                
+                                let objectstoreRequest = objectstore.get(fileName);
+                                
+                                
+                                objectstoreRequest.onsuccess = function(event)
+                                {
+                                    
+                                    let observationImage = event.target.result;
+                                        if(observationImage)
+                                        {
+                                            let imageTextData = observationImage.illustration.imageTextData;
+                                            illustration.observationIllustrationPK.imageTextData=imageTextData;
+                                        }
+                                }
+                        });
+                    }
+
+                    transaction.oncomplete = function() {
+                        This.syncObservationPOST(observation);
+                    }
+
+                }
+                //console.log('---------*******-----------');
+                //console.log(observation);
+                /** Send observation post data */
+
+                
+
+            }
+    },
+    syncObservationPOST(observation)
+    {
+        console.log(this.isSyncNeeded);
+        //if(this.isSyncNeeded)
+        {
+            
+            console.log('loading : '+this.loading);
+            let lstObservation = [];
+            lstObservation.push(observation);
+            let jsonBody = JSON.stringify(lstObservation);
+            console.log('fetch url : '+CommonUtil.CONST_URL_DOMAIN + CommonUtil.CONST_URL_SYNC_UPDATE_OBSERVATIONS);
+            console.log(jsonBody);
+            fetch(
+                    CommonUtil.CONST_URL_DOMAIN + CommonUtil.CONST_URL_SYNC_UPDATE_OBSERVATIONS,
+                    {
+                        method: "POST",
+                        headers: {
+                        "Content-Type": "application/json"
+                        },
+                        body : jsonBody
+                    } 
+                )
+            .then(function(response){
+                    return response.text()
+            })
+            .then((data)=>{
+                console.log('-- Reading data --');
+                console.log(data);
+
+            });
+        }
+        
+    }
+
+
 
   },
   mounted () {
+      console.log('mounted .. --');
+      this.isMounted = true;
       this.CONST_URL_DOMAIN = this.$refs.CommonUtil.getDomain();
   }
  
