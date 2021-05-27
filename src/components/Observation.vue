@@ -391,13 +391,20 @@ export default {
         let This = this;
         let lstObservations = JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST));
 
-          this.observationForStore.cropOrganismId     = this.crop.cropId;
-          this.observationForStore.organismId         = this.pest.pestId;
-          this.observationForStore.timeOfObservation  = this.strDateObservation;
-          this.observationForStore.statusChangedTime  = this.strDateObservation;
-          this.observationForStore.observationHeading = this.observationHeader;
-          this.observationForStore.observationText    = this.observationText;
-          this.observationForStore.observationData    = JSON.stringify(this.observation.observationData); //"{\"number\":0,\"unit\":\"Number\"}"; 
+          this.observationForStore.cropOrganismId             = this.crop.cropId;
+          this.observationForStore.organismId                 = this.pest.pestId;
+          this.observationForStore.timeOfObservation          = this.strDateObservation;
+          this.observationForStore.statusChangedTime          = this.strDateObservation;
+          this.observationForStore.statusTypeId               = this.observation.statusTypeId;
+          this.observationForStore.isQuantified               = this.observation.isQuantified;
+          this.observationForStore.userId                     = this.observation.userId;
+          this.observationForStore.geoinfo                    = this.observation.geoinfo;
+          this.observationForStore.locationPointOfInterestId  = this.observation.locationPointOfInterestId;
+          this.observationForStore.broadcastMessage           = this.observation.broadcastMessage;
+          this.observationForStore.statusRemarks              = this.observation.statusRemarks;
+          this.observationForStore.observationHeading         = this.observationHeader;
+          this.observationForStore.observationText            = this.observationText;
+          this.observationForStore.observationData            = JSON.stringify(this.observation.observationData); //"{\"number\":0,\"unit\":\"Number\"}"; 
           this.observationForStore.observationIllustrationSet = this.observation.observationIllustrationSet;
           
 
@@ -441,6 +448,7 @@ export default {
               if(this.isSync===false)
               {
                 this.isSync = true;
+
                 this.$refs.sync.syncObservationSendPrepareSingleObject(this.observationForStore);
                 this.isSync = false;
               }

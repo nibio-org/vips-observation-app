@@ -24,7 +24,7 @@ export default {
       isMounted             : false,
       CONST_URL_DOMAIN      : '',
       booIsSyncOneWayReady  : false,
-      booIsSyncTwoWayReady  : true,
+      booIsSyncTwoWayReady  : false,
       arrSyncOneWay         :   [
                                     {"name":CommonUtil.CONST_STORAGE_CROP_CATEGORY,"complete":false}    ,
                                     {"name":CommonUtil.CONST_STORAGE_CROP_LIST,"complete":false}    ,
@@ -349,49 +349,29 @@ export default {
         let lstObservations =   JSON.parse(localStorage.getItem(value.name));
         let entityName      =   CommonUtil.CONST_DB_ENTITY_PHOTO;
         lstObservations.forEach(function(observation) {
-            This.syncObservationSendPrepareSingleObject(observation);
-/*
-            if(observation.uploaded == false)
-            {
-                let observationUpload = observation;
-                let observationIllustrationSet = observationUpload.observationIllustrationSet;
-                
-                
-                let dbRequest =  indexedDB.open(CommonUtil.CONST_DB_NAME, CommonUtil.CONST_DB_VERSION);                
-                dbRequest.onsuccess = function(evt) {
-                    let db = evt.target.result;
-                    let transaction      =   db.transaction([entityName],'readwrite'); 
-                    let objectstore      =    transaction.objectStore(entityName);
-                    if(observationIllustrationSet)
-                    {
-                        observationIllustrationSet.forEach(function(illustration)
-                        {
-                                let fileName = illustration.observationIllustrationPK.fileName;
-                                
-                                let objectstoreRequest = objectstore.get(fileName);
-                                
-                                
-                                objectstoreRequest.onsuccess = function(event)
-                                {
-                                    
-                                    let observationImage = event.target.result;
-                                        if(observationImage)
-                                        {
-                                            
-                                            let imageTextData = observationImage.illustration.imageTextData;
-                                            illustration.observationIllustrationPK.imageTextData=imageTextData;
-                                            
-                                        }
-                                }
-                        });
-                    }
+            let observationForStore = {};
+            observationForStore.observationId               =   observation.observationId;               
+            observationForStore.cropOrganismId              =   observation.cropOrganismId;
+            observationForStore.organismId                  =   observation.organismId
+            observationForStore.timeOfObservation           =   observation.timeOfObservation;
+            observationForStore.statusChangedTime           =   observation.statusChangedTime;
+            observationForStore.statusTypeId                =   observation.statusTypeId;
+            observationForStore.isQuantified                =   observation.isQuantified;
+            observationForStore.userId                      =   observation.userId;
+            observationForStore.geoinfo                     =   observation.geoinfo;
+            observationForStore.locationPointOfInterestId   =   observation.locationPointOfInterestId;
+            observationForStore.broadcastMessage            =   observation.broadcastMessage;
+            observationForStore.statusRemarks               =   observation.statusRemarks;
+            observationForStore.observationHeading          =   observation.observationHeading;
+            observationForStore.observationText             =   observation.observationText;
+            observationForStore.observationData             =   observation.observationData; 
+            observationForStore.locationIsPrivate           =   observation.locationIsPrivate;
+            observationForStore.polygonService              =   observation.polygonService; 
+            observationForStore.uploaded                    =   observation.uploaded;    
+            observationForStore.observationIllustrationSet  =   observation.observationIllustrationSet;          
 
-                }
+            This.syncObservationSendPrepareSingleObject(observationForStore);
 
-                This.syncObservationPOST(observation);
-            } 
-            
-            */
 
 
         });
@@ -428,7 +408,7 @@ export default {
                                         if(observationImage)
                                         {
                                             let imageTextData = observationImage.illustration.imageTextData;
-                                            illustration.observationIllustrationPK.imageTextData=imageTextData;
+                                            illustration.imageTextData=imageTextData;
                                         }
                                 }
                         });
@@ -454,17 +434,17 @@ export default {
         {
             
             console.log('loading : '+this.loading);
-            let lstObservation = [];
-            lstObservation.push(observation);
-            let jsonBody = JSON.stringify(lstObservation);
-            console.log('fetch url : '+CommonUtil.CONST_URL_DOMAIN + CommonUtil.CONST_URL_SYNC_UPDATE_OBSERVATIONS);
+            let userUUID = localStorage.getItem(CommonUtil.CONST_STORAGE_UUID);
+
+            let jsonBody = JSON.stringify(observation);
             console.log(jsonBody);
             fetch(
-                    CommonUtil.CONST_URL_DOMAIN + CommonUtil.CONST_URL_SYNC_UPDATE_OBSERVATIONS,
+                    CommonUtil.CONST_URL_DOMAIN + CommonUtil.CONST_URL_SYNC_UPDATE_OBSERVATION,
                     {
                         method: "POST",
                         headers: {
-                        "Content-Type": "application/json"
+                                    "Content-Type": "application/json",
+                                    'Authorization' : userUUID
                         },
                         body : jsonBody
                     } 
@@ -474,12 +454,32 @@ export default {
             })
             .then((data)=>{
                 console.log('-- Reading data --');
-                console.log(data);
-
+                //console.log(data);
+                let updatedObservation = JSON.parse(data);
+                console.log(updatedObservation);
+                if(updatedObservation.observationId === observation.observationId)
+                {
+                    this.updateObservation(updatedObservation);
+                    
+                }
             });
         }
         
-    }
+    },
+
+    updateObservation(updatedObservation)
+    {
+            let lstObservation = JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST));
+            lstObservation.forEach(function(jsonObservation){
+                if(jsonObservation.observationId === updatedObservation.observationId)
+                {
+                    jsonObservation = Object.assign({}, updatedObservation); // Deep cloning
+                }
+
+            });
+    },
+
+
 
 
 
