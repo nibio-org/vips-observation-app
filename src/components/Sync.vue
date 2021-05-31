@@ -536,7 +536,7 @@ export default {
                 if(this.counterTwoWaySyncPOST === totalTwoWaySyncPOST)
                 {
                         this.counterTwoWaySyncPOST = 0;
-                        getObservationsFromServerTwowaySync(totalTwoWaySyncPOST,updatedObservation);
+                        this.getObservationsFromServerTwowaySync(totalTwoWaySyncPOST,updatedObservation);
                 }
             }
             

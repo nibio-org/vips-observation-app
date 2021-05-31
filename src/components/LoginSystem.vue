@@ -149,6 +149,7 @@ export default {
               /** Calling of Sync */
               //this.isSyncNeeded = true;
               this.$refs.Sync.isSyncOnewayNeeded(loggedUser);
+              this.$refs.Sync.syncTwoWayAtLogin();
               localStorage.setItem(CommonUtil.CONST_STORAGE_USER_DETAIL,JSON.stringify(loggedUser));
               this.getUserFromStorage();
               $('.offcanvas-collapse').removeClass('open');

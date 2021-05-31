@@ -20,12 +20,15 @@
       <p class="text-danger">You don't have any observations.</p>
   </div>
   <common-util ref="CommonUtil"/>
+  <sync ref="Sync" />
 </div>
 </template>
 
 <script>
 import CommonUtil from '@/components/CommonUtil'
+import Sync from '@/components/Sync'
 import { DateTime } from 'luxon'
+
 
 export default {
   name: "ObservationList",
@@ -36,12 +39,12 @@ export default {
       observations      : undefined,
     };
   },
-  components : {CommonUtil},
+  components : {CommonUtil,Sync},
   methods : {
         /** TODO
          *  This function need to be shifted for two way sync process
          */
-        fetchFromServer()
+/*         fetchFromServer()
         {
             let strUUID     = localStorage.getItem(CommonUtil.CONST_STORAGE_UUID);
             let jsonHeader  = { Authorization: strUUID };
@@ -54,7 +57,7 @@ export default {
                   localStorage.setItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST,JSON.stringify(data));
                   this.getObservationsFromStore();
                 })
-        },
+        }, */
         getObservationsFromStore()
         {
           let strObservations = localStorage.getItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST);
@@ -71,6 +74,8 @@ export default {
     }
   },
   mounted()  {
+              let valueObj = {"name":CommonUtil.CONST_STORAGE_OBSERVATION_LIST,"complete":false};
+              this.$refs.Sync.syncObservationSendPrepare(valueObj);
               this.CONST_URL_DOMAIN = this.$refs.CommonUtil.getDomain();
               let strUUID     = localStorage.getItem(CommonUtil.CONST_STORAGE_UUID);
               if(strUUID)
