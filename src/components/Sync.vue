@@ -24,7 +24,7 @@ export default {
       isMounted             : false,
       CONST_URL_DOMAIN      : '',
       booIsSyncOneWayReady  : false,
-      booIsSyncTwoWayReady  : false,
+      booIsSyncTwoWayReady  : true,
       arrSyncOneWay         :   [
                                     {"name":CommonUtil.CONST_STORAGE_CROP_CATEGORY,"complete":false}    ,
                                     {"name":CommonUtil.CONST_STORAGE_CROP_LIST,"complete":false}    ,
@@ -38,6 +38,8 @@ export default {
                                 ],                                
       appUser               : {},
       loading               : false,
+      counterTwoWaySyncPOST : 0,
+      totalTwoWaySyncPOST   : 0,  
     };
   },
 /*   computed: {
@@ -347,34 +349,40 @@ export default {
     {
         let This = this;
         let lstObservations =   JSON.parse(localStorage.getItem(value.name));
-        let entityName      =   CommonUtil.CONST_DB_ENTITY_PHOTO;
-        lstObservations.forEach(function(observation) {
-            let observationForStore = {};
-            observationForStore.observationId               =   observation.observationId;               
-            observationForStore.cropOrganismId              =   observation.cropOrganismId;
-            observationForStore.organismId                  =   observation.organismId
-            observationForStore.timeOfObservation           =   observation.timeOfObservation;
-            observationForStore.statusChangedTime           =   observation.statusChangedTime;
-            observationForStore.statusTypeId                =   observation.statusTypeId;
-            observationForStore.isQuantified                =   observation.isQuantified;
-            observationForStore.userId                      =   observation.userId;
-            observationForStore.geoinfo                     =   observation.geoinfo;
-            observationForStore.locationPointOfInterestId   =   observation.locationPointOfInterestId;
-            observationForStore.broadcastMessage            =   observation.broadcastMessage;
-            observationForStore.statusRemarks               =   observation.statusRemarks;
-            observationForStore.observationHeading          =   observation.observationHeading;
-            observationForStore.observationText             =   observation.observationText;
-            observationForStore.observationData             =   observation.observationData; 
-            observationForStore.locationIsPrivate           =   observation.locationIsPrivate;
-            observationForStore.polygonService              =   observation.polygonService; 
-            observationForStore.uploaded                    =   observation.uploaded;    
-            observationForStore.observationIllustrationSet  =   observation.observationIllustrationSet;          
+        //totalTwoWaySyncPOST
+           
+        let lstObservationUpload = lstObservations.filter(observation => observation.uploaded === false);
+        this.totalTwoWaySyncPOST = lstObservationUpload.length;
 
-            This.syncObservationSendPrepareSingleObject(observationForStore);
+        if(lstObservationUpload)
+        {
+            lstObservationUpload.forEach(function(observation) {
 
+                let observationForStore = {};
+                observationForStore.observationId               =   observation.observationId;               
+                observationForStore.cropOrganismId              =   observation.cropOrganismId;
+                observationForStore.organismId                  =   observation.organismId
+                observationForStore.timeOfObservation           =   observation.timeOfObservation;
+                observationForStore.statusChangedTime           =   observation.statusChangedTime;
+                observationForStore.statusTypeId                =   observation.statusTypeId;
+                observationForStore.isQuantified                =   observation.isQuantified;
+                observationForStore.userId                      =   observation.userId;
+                observationForStore.geoinfo                     =   observation.geoinfo;
+                observationForStore.locationPointOfInterestId   =   observation.locationPointOfInterestId;
+                observationForStore.broadcastMessage            =   observation.broadcastMessage;
+                observationForStore.statusRemarks               =   observation.statusRemarks;
+                observationForStore.observationHeading          =   observation.observationHeading;
+                observationForStore.observationText             =   observation.observationText;
+                observationForStore.observationData             =   observation.observationData; 
+                observationForStore.locationIsPrivate           =   observation.locationIsPrivate;
+                observationForStore.polygonService              =   observation.polygonService; 
+                observationForStore.uploaded                    =   observation.uploaded;    
+                observationForStore.observationIllustrationSet  =   observation.observationIllustrationSet;          
 
-
+                This.syncObservationSendPrepareSingleObject(observationForStore);
+            
         });
+        }
     },
 
     syncObservationSendPrepareSingleObject(observation,syncObservationPOST)
@@ -419,25 +427,17 @@ export default {
                     }
 
                 }
-                //console.log('---------*******-----------');
-                //console.log(observation);
-                /** Send observation post data */
-
-                
-
             }
     },
     syncObservationPOST(observation)
     {
-        console.log(this.isSyncNeeded);
+        console.log('------- observation to be uploaded ---------');
+        console.log(observation);
         //if(this.isSyncNeeded)
         {
-            
-            console.log('loading : '+this.loading);
             let userUUID = localStorage.getItem(CommonUtil.CONST_STORAGE_UUID);
 
             let jsonBody = JSON.stringify(observation);
-            console.log(jsonBody);
             fetch(
                     CommonUtil.CONST_URL_DOMAIN + CommonUtil.CONST_URL_SYNC_UPDATE_OBSERVATION,
                     {
@@ -453,8 +453,8 @@ export default {
                     return response.text()
             })
             .then((data)=>{
-                console.log('-- Reading data --');
-                //console.log(data);
+               console.log('------- observation in response ---------');
+                         
                 let updatedObservation = JSON.parse(data);
                 console.log(updatedObservation);
                 if(updatedObservation.observationId === observation.observationId)
@@ -469,14 +469,58 @@ export default {
 
     updateObservation(updatedObservation)
     {
-            let lstObservation = JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST));
-            lstObservation.forEach(function(jsonObservation){
-                if(jsonObservation.observationId === updatedObservation.observationId)
-                {
-                    jsonObservation = Object.assign({}, updatedObservation); // Deep cloning
-                }
+        
+            let lstObservations = JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST));
+            let observationOld = {};
+                let counter = 'undefined';
+                $.each(lstObservations, function(index, jsonObservation){
+                    if(jsonObservation.observationId === updatedObservation.observationId)
+                    {
+                        observationOld = Object.assign({},jsonObservation); 
+                        //jsonObservation = Object.assign({}, updatedObservation); // Deep cloning
+                        counter = index;
+                    }
+                
+                });
 
-            });
+
+            if(counter)
+            {
+
+                let illustrationsUpdated    =   updatedObservation.observationIllustrationSet;
+                let illustrationsOld        =   observationOld.observationIllustrationSet;
+
+                //updatedObservation.observationIllustrationSet   =   observationOld.observationIllustrationSet;
+                illustrationsOld.forEach(function(illOld){
+                    let recFound = false;
+                    if(illustrationsUpdated)
+                    {
+                        illustrationsUpdated.forEach(function(illUpdated){
+                            if(illOld.observationIllustrationPK.fileName === illUpdated.observationIllustrationPK.fileName)
+                            {
+                                recFound = true;
+                                return false;
+                            }
+                        });
+                    }
+                    if(recFound)
+                    {
+                        delete illOld.uploaded;
+                        if(illOld.deleted)
+                        {
+                            console.log('record to delete --- found');
+                        }
+                    }
+                })
+                updatedObservation.observationIllustrationSet = observationOld.observationIllustrationSet;
+
+
+                lstObservations[counter]=updatedObservation;
+                localStorage.setItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST, JSON.stringify(lstObservations) );
+            }
+
+
+            
     },
 
 
