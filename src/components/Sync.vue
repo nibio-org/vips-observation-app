@@ -24,7 +24,7 @@ export default {
       isMounted             : false,
       CONST_URL_DOMAIN      : '',
       booIsSyncOneWayReady  : false,
-      booIsSyncTwoWayReady  : true,
+      booIsSyncTwoWayReady  : false,
       arrSyncOneWay         :   [
                                     {"name":CommonUtil.CONST_STORAGE_CROP_CATEGORY,"complete":false}    ,
                                     {"name":CommonUtil.CONST_STORAGE_CROP_LIST,"complete":false}    ,
@@ -40,6 +40,7 @@ export default {
       loading               : false,
       counterTwoWaySyncPOST : 0,
       totalTwoWaySyncPOST   : 0,  
+      counterTwoWaySyncPOST : 0,
     };
   },
 /*   computed: {
@@ -379,14 +380,15 @@ export default {
                 observationForStore.uploaded                    =   observation.uploaded;    
                 observationForStore.observationIllustrationSet  =   observation.observationIllustrationSet;          
 
-                This.syncObservationSendPrepareSingleObject(observationForStore);
+                This.syncObservationSendPrepareSingleObject(observationForStore,This.totalTwoWaySyncPOST);
             
         });
         }
     },
 
-    syncObservationSendPrepareSingleObject(observation,syncObservationPOST)
+    syncObservationSendPrepareSingleObject(observation,totalTwoWaySyncPOST,syncObservationPOST)
     {
+        
             let This        =   this;
             let entityName  =   CommonUtil.CONST_DB_ENTITY_PHOTO;
             if(observation.uploaded == false)
@@ -423,16 +425,15 @@ export default {
                     }
 
                     transaction.oncomplete = function() {
-                        This.syncObservationPOST(observation);
+                        This.syncObservationPOST(observation, totalTwoWaySyncPOST);
                     }
 
                 }
             }
     },
-    syncObservationPOST(observation)
+    syncObservationPOST(observation,totalTwoWaySyncPOST)
     {
-        console.log('------- observation to be uploaded ---------');
-        console.log(observation);
+        let This = this;
         //if(this.isSyncNeeded)
         {
             let userUUID = localStorage.getItem(CommonUtil.CONST_STORAGE_UUID);
@@ -450,16 +451,23 @@ export default {
                     } 
                 )
             .then(function(response){
+                
+                 if(response.status === 200) {}
+                else{
+                        /** Even if the response is not success, still need to increase the counter, 
+                         * to decide for next action  after all PUSH */
+                        This.counterTwoWaySyncPOST = This.counterTwoWaySyncPOST + 1;
+                }
                     return response.text()
             })
             .then((data)=>{
-               console.log('------- observation in response ---------');
+               //console.log('------- observation in response ---------');
                          
                 let updatedObservation = JSON.parse(data);
-                console.log(updatedObservation);
+               
                 if(updatedObservation.observationId === observation.observationId)
                 {
-                    this.updateObservation(updatedObservation);
+                    this.updateObservation(updatedObservation,totalTwoWaySyncPOST);
                     
                 }
             });
@@ -467,18 +475,19 @@ export default {
         
     },
 
-    updateObservation(updatedObservation)
+    updateObservation(updatedObservation,totalTwoWaySyncPOST)
     {
-        
+
             let lstObservations = JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST));
-            let observationOld = {};
+
+                let observationOld = {};
                 let counter = 'undefined';
                 $.each(lstObservations, function(index, jsonObservation){
                     if(jsonObservation.observationId === updatedObservation.observationId)
                     {
-                        observationOld = Object.assign({},jsonObservation); 
-                        //jsonObservation = Object.assign({}, updatedObservation); // Deep cloning
+                        observationOld = Object.assign({},jsonObservation); // Deep cloning
                         counter = index;
+                        return false;
                     }
                 
                 });
@@ -516,7 +525,9 @@ export default {
 
 
                 lstObservations[counter]=updatedObservation;
-                localStorage.setItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST, JSON.stringify(lstObservations) );
+                //localStorage.setItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST, JSON.stringify(lstObservations) );
+                this.counterTwoWaySyncPOST = this.counterTwoWaySyncPOST + 1;
+                console.log('total number of upload : '+totalTwoWaySyncPOST+' ---- counter value : '+this.counterTwoWaySyncPOST);
             }
 
 

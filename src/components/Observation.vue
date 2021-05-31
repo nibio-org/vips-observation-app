@@ -449,7 +449,7 @@ export default {
               {
                 this.isSync = true;
 
-                this.$refs.sync.syncObservationSendPrepareSingleObject(this.observationForStore);
+                this.$refs.sync.syncObservationSendPrepareSingleObject(this.observationForStore,1);
                 this.isSync = false;
               }
           this.$router.replace({path:'/'});
