@@ -382,8 +382,16 @@ export default {
 
                 This.syncObservationSendPrepareSingleObject(observationForStore,This.totalTwoWaySyncPOST);
             
-        });
+            });
         }
+        else
+        {
+            let totalTwoWaySyncPOST = 0;
+            let updatedObservation  = {};
+            /** GET Observations  */
+            this.getObservationsFromServerTwowaySync(totalTwoWaySyncPOST,updatedObservation);
+        }
+
     },
 
     syncObservationSendPrepareSingleObject(observation,totalTwoWaySyncPOST,syncObservationPOST)
@@ -461,13 +469,11 @@ export default {
                     return response.text()
             })
             .then((data)=>{
-               //console.log('------- observation in response ---------');
-                         
                 let updatedObservation = JSON.parse(data);
                
                 if(updatedObservation.observationId === observation.observationId)
                 {
-                    this.updateObservation(updatedObservation,totalTwoWaySyncPOST);
+                    this.updateObservationPOST(updatedObservation,totalTwoWaySyncPOST);
                     
                 }
             });
@@ -475,7 +481,7 @@ export default {
         
     },
 
-    updateObservation(updatedObservation,totalTwoWaySyncPOST)
+    updateObservationPOST(updatedObservation,totalTwoWaySyncPOST)
     {
 
             let lstObservations = JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST));
@@ -499,7 +505,6 @@ export default {
                 let illustrationsUpdated    =   updatedObservation.observationIllustrationSet;
                 let illustrationsOld        =   observationOld.observationIllustrationSet;
 
-                //updatedObservation.observationIllustrationSet   =   observationOld.observationIllustrationSet;
                 illustrationsOld.forEach(function(illOld){
                     let recFound = false;
                     if(illustrationsUpdated)
@@ -525,14 +530,102 @@ export default {
 
 
                 lstObservations[counter]=updatedObservation;
-                //localStorage.setItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST, JSON.stringify(lstObservations) );
+                localStorage.setItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST, JSON.stringify(lstObservations) );
                 this.counterTwoWaySyncPOST = this.counterTwoWaySyncPOST + 1;
                 console.log('total number of upload : '+totalTwoWaySyncPOST+' ---- counter value : '+this.counterTwoWaySyncPOST);
+                if(this.counterTwoWaySyncPOST === totalTwoWaySyncPOST)
+                {
+                        this.counterTwoWaySyncPOST = 0;
+                        getObservationsFromServerTwowaySync(totalTwoWaySyncPOST,updatedObservation);
+                }
             }
-
-
             
     },
+
+    /** GET Observations */
+    getObservationsFromServerTwowaySync(totalTwoWaySyncPOST,updatedObservation)
+    {
+        let strUUID     = localStorage.getItem(CommonUtil.CONST_STORAGE_UUID);
+        let jsonHeader  = { Authorization: strUUID };
+
+        fetch(CommonUtil.CONST_URL_DOMAIN + CommonUtil.CONST_URL_USER_OBSERVATION_LIST, {
+            method: "GET",
+            headers: jsonHeader,
+            }).then((response) => response.json())
+            .then((data) => { 
+                serverObservations = data;
+                if(localStorage.getItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST))
+                {
+                    serverObservations.forEach(function(srvObservation){
+
+                        let lstLocalObservations = JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST));
+                        let arrIndex        = 'undefined';
+                        let booNoRecordFound = false;
+                        $.each(lstLocalObservations,function(index, localObservation){
+                            if(srvObservation.observationId === localObservation.observationId) {
+                                if(updatedObservation && (totalTwoWaySyncPOST === 1 && updatedObservation.observationId === srvObservation.observationId))
+                                {
+                                    
+                                }
+                                else
+                                {
+                                    if(srvObservation.lastEditedTime)
+                                    {
+                                        if(localObservation.lastEditedTime)
+                                        {
+                                            srvDate     = JSON.parse(srvObservation.lastEditedTime);
+                                            localDate   = JSON.parse(localObservation.lastEditedTime);
+
+                                            if(srvDate >= localDate)
+                                            {
+                                                arrIndex = index;
+                                                return false;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            arrIndex = index;
+                                            return false;                                            
+                                        }
+                                    }
+                                    else
+                                    {
+                                        arrIndex = index;
+                                        return false;
+                                    }
+                                }
+
+                            }
+                            else
+                            {
+                                booNoRecordFound = true;
+                            }
+
+                        })
+
+                        if(arrIndex)
+                        {
+                            lstLocalObservations[arrIndex]=srvObservation;
+                        }
+                        if(booNoRecordFound)
+                        {
+                            lstLocalObservations.push(srvObservation);
+                        }
+
+                        
+                    });
+                    localStorage.setItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST,JSON.stringify(lstLocalObservations));
+                }
+                else
+                {
+                                        
+                    localStorage.setItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST,JSON.stringify(data));
+                    
+                }
+                
+                this.getObservationsFromStore();
+            })
+    }
 
 
 
