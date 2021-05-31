@@ -24,7 +24,7 @@
       <div v-if="mapGeoinfo" id="divMapGeoInfo"><div v-if="isMounted"><map-observation :geoinfo="mapGeoinfo" :isMapPanelVisible="isMapPanelVisible" :locationIsPrivate="observation.locationIsPrivate" :polygonService="observation.polygonService" v-on:visibilityObservationAction="visibilityObservationAction" ></map-observation></div></div> 
     <div v-if="isMounted">
         <photo :isImageVisible=false :observationId="observationId" :organismId="observation.organismId" ></photo>
-        <photo :isImageVisible=true :observationId="observation.observationId" :organismId="observation.organismId" :imageFileName="photo.observationIllustrationPK.fileName" :isDeleted='photo.deleted' v-for="photo in observation.observationIllustrationSet" v-bind:key="photo.observationIllustrationPK.fileName"></photo>
+        <photo :isImageVisible=true :observationId="observation.observationId" :organismId="observation.organismId" :imageFileName="photo.observationIllustrationPK.fileName" :isDeleted='photo.deleted' :isUploaded="photo.uploaded" v-for="photo in observation.observationIllustrationSet" v-bind:key="photo.observationIllustrationPK.fileName"></photo>
       <!-- <photo-observation :observationId="observation.observationId" :organismId="observation.organismId" :imageFileName="photo.observationIllustrationPK.fileName" v-for="photo in observation.observationIllustrationSet" v-bind:key="photo.observationIllustrationPK.fileName"></photo-observation> -->
     </div>      
       <div class="clearfix"/>
@@ -452,6 +452,7 @@ export default {
                 this.$refs.sync.syncObservationSendPrepareSingleObject(this.observationForStore);
                 this.isSync = false;
               }
+          this.$router.replace({path:'/'});
           //this.$router.push({path:'/'});
           //this.$router.go();
            
