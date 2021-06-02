@@ -24,7 +24,7 @@
       <div v-if="mapGeoinfo" id="divMapGeoInfo"><div v-if="isMounted"><map-observation :geoinfo="mapGeoinfo" :isMapPanelVisible="isMapPanelVisible" :locationIsPrivate="observation.locationIsPrivate" :polygonService="observation.polygonService" v-on:visibilityObservationAction="visibilityObservationAction" ></map-observation></div></div> 
     <div v-if="isMounted">
         <photo :isImageVisible=false :observationId="observationId" :organismId="observation.organismId" ></photo>
-        <photo :isImageVisible=true :observationId="observation.observationId" :organismId="observation.organismId" :imageFileName="photo.observationIllustrationPK.fileName" :isDeleted='photo.deleted' v-for="photo in observation.observationIllustrationSet" v-bind:key="photo.observationIllustrationPK.fileName"></photo>
+        <photo :isImageVisible=true :observationId="observation.observationId" :organismId="observation.organismId" :imageFileName="photo.observationIllustrationPK.fileName" :isDeleted='photo.deleted' :isUploaded="photo.uploaded" v-for="photo in observation.observationIllustrationSet" v-bind:key="photo.observationIllustrationPK.fileName"></photo>
       <!-- <photo-observation :observationId="observation.observationId" :organismId="observation.organismId" :imageFileName="photo.observationIllustrationPK.fileName" v-for="photo in observation.observationIllustrationSet" v-bind:key="photo.observationIllustrationPK.fileName"></photo-observation> -->
     </div>      
       <div class="clearfix"/>
@@ -43,7 +43,7 @@
         <input type="text" v-model="observationHeader"/>
         <p><textarea v-model="observationText" /></p>
       </div>
-      
+        <div v-show="isSync"><sync ref="sync" :isSyncNeeded="isSync"/></div>
         <button class="btn btn-secondary float-right" v-on:click="saveObservation">Save</button>
      
   </div>  
@@ -56,15 +56,17 @@ import MapObservation from '@/components/MapObservation'
 import PhotoObservation from '@/components/PhotoObservation'
 import Photo from '@/components/Photo.vue'
 import Quantification from '@/components/Quantification.vue'
+import Sync from '@/components/Sync'
 
 
 
 export default {
   name: 'Observation',
   props: ['observationId','paramGeoinfo','paramObservation'],
-  components: {MapObservation,PhotoObservation,Photo,Quantification},
+  components: {MapObservation,PhotoObservation,Photo,Quantification,Sync},
   data () {
     return {
+      isSync           : false,
       isQuantification : false,
       isMounted : false,
       msg: 'Observasjon',
@@ -143,8 +145,10 @@ export default {
               }
               else
               {
-                jsonObservation         = lstObservations.find(({observationId})=> observationId === id);                           // Selection Observation
-                this.observation        = jsonObservation;
+                jsonObservation                         = lstObservations.find(({observationId})=> observationId === id);                           // Selection Observation
+                this.observation                        = jsonObservation;
+                this.observation.observationData        = JSON.parse(jsonObservation.observationData);
+                
 
                 /* For related Crop and Crop list */
                 this.getObservationCrops(jsonObservation);
@@ -383,15 +387,25 @@ export default {
       /** Save Observation */
       saveObservation()
       {
+        //console.log(this.observation.observationData);
         let This = this;
         let lstObservations = JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST));
 
-          this.observationForStore.cropOrganismId     = this.crop.cropId;
-          this.observationForStore.organismId         = this.pest.pestId;
-          this.observationForStore.timeOfObservation  = this.strDateObservation;
-          this.observationForStore.statusChangedTime  = this.strDateObservation;
-          this.observationForStore.observationHeading = this.observationHeader;
-          this.observationForStore.observationText    = this.observationText;
+          this.observationForStore.cropOrganismId             = this.crop.cropId;
+          this.observationForStore.organismId                 = this.pest.pestId;
+          this.observationForStore.timeOfObservation          = this.strDateObservation;
+          this.observationForStore.statusChangedTime          = this.strDateObservation;
+          this.observationForStore.statusTypeId               = this.observation.statusTypeId;
+          this.observationForStore.isQuantified               = this.observation.isQuantified;
+          this.observationForStore.userId                     = this.observation.userId;
+          this.observationForStore.geoinfo                    = this.observation.geoinfo;
+          this.observationForStore.locationPointOfInterestId  = this.observation.locationPointOfInterestId;
+          this.observationForStore.broadcastMessage           = this.observation.broadcastMessage;
+          this.observationForStore.statusRemarks              = this.observation.statusRemarks;
+          this.observationForStore.observationHeading         = this.observationHeader;
+          this.observationForStore.observationText            = this.observationText;
+          this.observationForStore.observationData            = JSON.stringify(this.observation.observationData)//'{"number":0,"unit":"Number"}'; //"{\"number\":0,\"unit\":\"Number\"}"; 
+          this.observationForStore.observationIllustrationSet = this.observation.observationIllustrationSet;
           
 
          if(this.observationId)
@@ -408,7 +422,7 @@ export default {
                       jobservation.organismId     = localObservationForStore.organismId;
                       jobservation.timeOfObservation  = localObservationForStore.timeOfObservation;
                       jobservation.statusChangedTime  = localObservationForStore.statusChangedTime;
-                      jobservation.observationData    = This.observation.observationData;
+                      jobservation.observationData    = localObservationForStore.observationData;
                       jobservation.observationHeading = localObservationForStore.observationHeading;
                       jobservation.observationText    = localObservationForStore.observationText;
                       jobservation.locationIsPrivate  = localObservationForStore.locationIsPrivate;
@@ -431,11 +445,20 @@ export default {
               lstObservations.push(this.observationForStore);
          }
               localStorage.setItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST, JSON.stringify(lstObservations) );
-          this.$router.push({path:'/'});
-          this.$router.go();
+              if(this.isSync===false)
+              {
+                this.isSync = true;
+
+                this.$refs.sync.syncObservationSendPrepareSingleObject(this.observationForStore,1);
+                this.isSync = false;
+              }
+          this.$router.replace({path:'/'});
+          //this.$router.push({path:'/'});
+          //this.$router.go();
            
       },
       updateQuntificationData(schemaData){
+        //console.log(schemaData);
           this.observation.observationData = schemaData;
       },
 

@@ -31,7 +31,9 @@ export default {
 
     CONST_OBSERVATION_COUNT_START_ID    :    -1,
     CONST_POI_COUNT_START_ID            :    -1,
-    
+
+    CONST_URL_DOMAIN                    :   'http://vipslogic-local.no',
+
     CONST_URL_AUTH_UUID                 :   '/rest/auth/uuid',
     CONST_URL_AUTH_LOGIN                :   '/rest/auth/login',
     CONST_URL_LAST_TIMESTAMP            :   '/rest/observation/organismsystemupdated',
@@ -40,6 +42,9 @@ export default {
     CONST_URL_CROP_LIST                 :   '/rest/organism/crop/list',
     CONST_URL_PEST_LIST                 :   '/rest/organism/pest/list/',
     CONST_URL_CROP_PEST_LIST            :   '/rest/organism/crop/pest/list',
+
+    CONST_URL_SYNC_UPDATE_OBSERVATIONS  :   '/rest/observation/syncobservationlistfromapp',
+    CONST_URL_SYNC_UPDATE_OBSERVATION   :   '/rest/observation/syncobservationfromapp',
     
     CONST_URL_USER_OBSERVATION_LIST     :   '/rest/observation/list/user',
     CONST_URL_USER_POI                  :   '/rest/poi/user',

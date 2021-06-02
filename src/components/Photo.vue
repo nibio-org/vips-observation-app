@@ -7,7 +7,7 @@
                 <div class='divImg' :imgFile='imageFileName'>
                     <div id='divPositionImg' class="float-left imagePosition" >
                         <button class="close" type="button" @click="showModal">×</button>
-                        <img src=''  class='img-thumbnail ' ref="image"  @click='showModalPhoto'/>
+                        <img src=''  class='img-thumbnail border' v-bind:class="{ 'border-primary' : isBorderUploaded}" ref="image"  @click='showModalPhoto'/>
                     </div>
                 </div>
             </div>
@@ -64,7 +64,7 @@ import ModalPhoto from './ModalPhoto.vue'
 export default {
     name        :   'Photo',
     components  :   {CommonUtil, Modal,ModalPhoto,PhotoTag},
-    props       :   ['observationId','organismId','imageFileName','isImageVisible','isDeleted'], 
+    props       :   ['observationId','organismId','imageFileName','isImageVisible','isDeleted','isUploaded'], 
     data ()  {
                 return {
                     take_photo          : "Ta bilde",
@@ -85,6 +85,7 @@ export default {
                                                                                     deleted         : false
                                                                                 } 
                                             },
+                    isBorderUploaded    :   false,
                 }
     },
     methods     : {
@@ -305,6 +306,10 @@ export default {
                                     image.width = CommonUtil.CONST_IMAGE_WIDTH;
                                     image.height = CommonUtil.CONST_IMAGE_HEIGHT;
                                     image.src=imgTextData;
+                                    if(this.isUploaded === false)
+                                    {
+                                        this.isBorderUploaded = true;
+                                    }
                                 }
                         }
 
@@ -313,7 +318,6 @@ export default {
                         /**  Search IndexedDB for available imaages within a observation */
                          searchDBByindex(indexName,indexValue,organismId,imageTextData,storeImage)
                         {
-
                              let This = this;
                              let dbRequest =  indexedDB.open(CommonUtil.CONST_DB_NAME, CommonUtil.CONST_DB_VERSION);
                              dbRequest.onsuccess = function(evt) {
@@ -399,7 +403,6 @@ export default {
                             
                             this.observationImage = observation;
                             this.imageFileName = illustration.fileName;
-
                             //if(this.counterDiv != 1) 
                             {
                                 this.counterDiv = this.counterDiv+1;
@@ -425,8 +428,13 @@ export default {
                                                 observationIllustrationPK.fileName = observation.illustration.fileName;
 
                                                 illustration = {'observationIllustrationPK' : observationIllustrationPK, 'uploaded':false};
-                                            jobservation.observationIllustrationSet.push(illustration);
+                                            if(jobservation.observationIllustrationSet) {}
+                                            else
+                                            {
+                                                jobservation.observationIllustrationSet = [];
+                                            }
                                             
+                                            jobservation.observationIllustrationSet.push(illustration);
                                         }
                                  });
                              }

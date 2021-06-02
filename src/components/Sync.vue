@@ -6,7 +6,7 @@
             </div> <span class="text-danger"> Data Loading...</span>
             <!-- -- Sync :  <div v-html="isSyncNeeded"></div> -->
         </div>
-     <common-util ref="CommonUtil"/>
+     <div v-show="isMounted"><common-util ref="CommonUtil"/></div>
     </div>
 </template>
 
@@ -21,8 +21,10 @@ export default {
   },
   data() {
     return {
+      isMounted             : false,
       CONST_URL_DOMAIN      : '',
       booIsSyncOneWayReady  : false,
+      booIsSyncTwoWayReady  : false,
       arrSyncOneWay         :   [
                                     {"name":CommonUtil.CONST_STORAGE_CROP_CATEGORY,"complete":false}    ,
                                     {"name":CommonUtil.CONST_STORAGE_CROP_LIST,"complete":false}    ,
@@ -30,8 +32,15 @@ export default {
                                     {"name":CommonUtil.CONST_STORAGE_CROP_PEST_LIST,"complete":false}    ,
                                     {"name":CommonUtil.CONST_STORAGE_VISIBILITY_POLYGON,"complete":false}    ,
                                 ],
+      arrSyncTwoWay         :   [
+                                    {"name":CommonUtil.CONST_STORAGE_OBSERVATION_LIST,"complete":false}    ,
+                                    
+                                ],                                
       appUser               : {},
       loading               : false,
+      counterTwoWaySyncPOST : 0,
+      totalTwoWaySyncPOST   : 0,  
+      counterTwoWaySyncPOST : 0,
     };
   },
 /*   computed: {
@@ -52,10 +61,10 @@ export default {
                 {
                     this.loading = true;
                     /* Starting of Sync */
-                    console.log('----- SYNC STARTED -----');
+                    console.log('----- SYNC ONE WAY STARTED -----');
                     this.syncOneWay();
                 }
-                if(typeof(booIsSyncOneWayReady)==='undefined')
+                if(typeof(booIsSyncOneWayReady)===undefined)
                 {
                     this.loading = false;
                     /* refresh for next time */
@@ -67,6 +76,20 @@ export default {
                 }
             }
         },
+        booIsSyncTwoWayReady    :
+        {
+            immediate : true,
+            handler(val, oldVal)
+            {
+                if(val)
+                {
+                     this.loading = true;
+                    console.log('----- SYNC TWO WAY STARTED -----');
+                    this.syncTwoWayAtLogin();
+                     this.loading = false;
+                }
+            }
+        }
         
       /*
       isSyncNeeded : 
@@ -123,6 +146,39 @@ export default {
                     });
              }
         }
+    },
+
+    syncTwoWayAtLogin()
+    {
+        
+            let appUser = this.appUser;
+            let funStorageSet = this.oneWaySyncStorageSet;
+
+             if(typeof(appUser)==undefined || appUser == null || appUser === '')
+             {
+                 // TODO if appUser is not available
+             }
+             else
+             {
+                 
+                    this.syncTwoWay();
+             }
+    },
+    syncTwoWay()
+    {
+            let strUrl =   '';
+            let This = this;
+            $.each(this.arrSyncTwoWay, function(index, value){
+                 switch(value.name) {
+                        case CommonUtil.CONST_STORAGE_OBSERVATION_LIST :
+                            strUrl = This.CONST_URL_DOMAIN +CommonUtil.CONST_URL_USER_OBSERVATION_LIST;
+                            
+                            break; 
+                        default :
+                 }
+
+                 This.syncTwoWayInitiate(value,strUrl);
+            });
     },
 
     /**  Writing server data to localstorage using sync */
@@ -268,9 +324,333 @@ export default {
     },
 
 
+    syncTwoWayInitiate(value, strUrl)
+    {
+        
+         switch(value.name)
+         {
+            case CommonUtil.CONST_STORAGE_OBSERVATION_LIST :
+                
+                this.syncTwoWayObservation(value,strUrl);
+                break;
+            default: 
+         }
+       
+    },
+
+    /** Two way Sync - Observation */
+    syncTwoWayObservation(value,strUrl)
+    {
+        
+        this.syncObservationSendPrepare(value);
+    },
+
+    /** Sync - Observation - embed with image data for POST */
+    syncObservationSendPrepare(value)
+    {
+        let This = this;
+        let lstObservations =   JSON.parse(localStorage.getItem(value.name));
+        if(lstObservations)
+        {
+           
+            let lstObservationUpload = lstObservations.filter(observation => observation.uploaded === false);
+            this.totalTwoWaySyncPOST = lstObservationUpload.length;
+
+            if(lstObservationUpload)
+            {
+                lstObservationUpload.forEach(function(observation) {
+
+                    let observationForStore = {};
+                    observationForStore.observationId               =   observation.observationId;               
+                    observationForStore.cropOrganismId              =   observation.cropOrganismId;
+                    observationForStore.organismId                  =   observation.organismId
+                    observationForStore.timeOfObservation           =   observation.timeOfObservation;
+                    observationForStore.statusChangedTime           =   observation.statusChangedTime;
+                    observationForStore.statusTypeId                =   observation.statusTypeId;
+                    observationForStore.isQuantified                =   observation.isQuantified;
+                    observationForStore.userId                      =   observation.userId;
+                    observationForStore.geoinfo                     =   observation.geoinfo;
+                    observationForStore.locationPointOfInterestId   =   observation.locationPointOfInterestId;
+                    observationForStore.broadcastMessage            =   observation.broadcastMessage;
+                    observationForStore.statusRemarks               =   observation.statusRemarks;
+                    observationForStore.observationHeading          =   observation.observationHeading;
+                    observationForStore.observationText             =   observation.observationText;
+                    observationForStore.observationData             =   observation.observationData; 
+                    observationForStore.locationIsPrivate           =   observation.locationIsPrivate;
+                    observationForStore.polygonService              =   observation.polygonService; 
+                    observationForStore.uploaded                    =   observation.uploaded;    
+                    observationForStore.observationIllustrationSet  =   observation.observationIllustrationSet;          
+                    
+                    This.syncObservationSendPrepareSingleObject(observationForStore,This.totalTwoWaySyncPOST);
+                
+                });
+            }
+            else
+            {
+                let totalTwoWaySyncPOST = 0;
+                let updatedObservation  = {};
+                /** GET Observations  */
+                this.getObservationsFromServerTwowaySync(totalTwoWaySyncPOST,updatedObservation);
+            }
+        }
+        else{
+            
+            this.getObservationsFromServerTwowaySync(0,undefined);
+        }
+
+    },
+
+    syncObservationSendPrepareSingleObject(observation,totalTwoWaySyncPOST,syncObservationPOST)
+    {
+        
+            let This        =   this;
+            let entityName  =   CommonUtil.CONST_DB_ENTITY_PHOTO;
+            if(observation.uploaded == false)
+            {
+                let observationUpload = observation;
+                let observationIllustrationSet = observationUpload.observationIllustrationSet;
+                
+                //  talk to Innodb,  embed image data to JSON POST and exit
+                let dbRequest =  indexedDB.open(CommonUtil.CONST_DB_NAME, CommonUtil.CONST_DB_VERSION);                
+                dbRequest.onsuccess = function(evt) {
+                    let db = evt.target.result;
+                    let transaction      =   db.transaction([entityName],'readwrite'); 
+                    let objectstore      =    transaction.objectStore(entityName);
+                    if(observationIllustrationSet)
+                    {
+                        observationIllustrationSet.forEach(function(illustration)
+                        {
+                                let fileName = illustration.observationIllustrationPK.fileName;
+                                
+                                let objectstoreRequest = objectstore.get(fileName);
+                                
+                                
+                                objectstoreRequest.onsuccess = function(event)
+                                {
+                                    
+                                    let observationImage = event.target.result;
+                                        if(observationImage)
+                                        {
+                                            let imageTextData = observationImage.illustration.imageTextData;
+                                            illustration.imageTextData=imageTextData;
+                                        }
+                                }
+                        });
+                    }
+
+                    transaction.oncomplete = function() {
+                        This.syncObservationPOST(observation, totalTwoWaySyncPOST);
+                    }
+
+                }
+            }
+    },
+    syncObservationPOST(observation,totalTwoWaySyncPOST)
+    {
+        let This = this;
+        //if(this.isSyncNeeded)
+        {
+            let userUUID = localStorage.getItem(CommonUtil.CONST_STORAGE_UUID);
+
+            let jsonBody = JSON.stringify(observation);
+            fetch(
+                    CommonUtil.CONST_URL_DOMAIN + CommonUtil.CONST_URL_SYNC_UPDATE_OBSERVATION,
+                    {
+                        method: "POST",
+                        headers: {
+                                    "Content-Type": "application/json",
+                                    'Authorization' : userUUID
+                        },
+                        body : jsonBody
+                    } 
+                )
+            .then(function(response){
+                
+                 if(response.status === 200) {}
+                else{
+                        /** Even if the response is not success, still need to increase the counter, 
+                         * to decide for next action  after all PUSH */
+                        This.counterTwoWaySyncPOST = This.counterTwoWaySyncPOST + 1;
+                }
+                    return response.text()
+            })
+            .then((data)=>{
+                let updatedObservation = JSON.parse(data);
+               
+                if(updatedObservation.observationId === observation.observationId)
+                {
+                    this.updateObservationPOST(updatedObservation,totalTwoWaySyncPOST);
+                    
+                }
+            });
+        }
+        
+    },
+
+    updateObservationPOST(updatedObservation,totalTwoWaySyncPOST)
+    {
+
+            let lstObservations = JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST));
+
+                let observationOld = {};
+                let counter = undefined;
+                $.each(lstObservations, function(index, jsonObservation){
+                    if(jsonObservation.observationId === updatedObservation.observationId)
+                    {
+                        observationOld = Object.assign({},jsonObservation); // Deep cloning
+                        counter = index;
+                        return false;
+                    }
+                
+                });
+
+
+            if(counter)
+            {
+
+                let illustrationsUpdated    =   updatedObservation.observationIllustrationSet;
+                let illustrationsOld        =   observationOld.observationIllustrationSet;
+
+                illustrationsOld.forEach(function(illOld){
+                    let recFound = false;
+                    if(illustrationsUpdated)
+                    {
+                        illustrationsUpdated.forEach(function(illUpdated){
+                            if(illOld.observationIllustrationPK.fileName === illUpdated.observationIllustrationPK.fileName)
+                            {
+                                recFound = true;
+                                return false;
+                            }
+                        });
+                    }
+                    if(recFound)
+                    {
+                        delete illOld.uploaded;
+                        if(illOld.deleted)
+                        {
+                            console.log('record to delete --- found');
+                        }
+                    }
+                })
+                updatedObservation.observationIllustrationSet = observationOld.observationIllustrationSet;
+
+
+                lstObservations[counter]=updatedObservation;
+                localStorage.setItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST, JSON.stringify(lstObservations) );
+
+                this.counterTwoWaySyncPOST = this.counterTwoWaySyncPOST + 1;
+                console.log('total number of upload : '+totalTwoWaySyncPOST+' ---- counter value : '+this.counterTwoWaySyncPOST);
+                if(this.counterTwoWaySyncPOST === totalTwoWaySyncPOST)
+                {
+                        this.counterTwoWaySyncPOST = 0;
+                        this.getObservationsFromServerTwowaySync(totalTwoWaySyncPOST,updatedObservation);
+                }
+            }
+            
+    },
+
+    /** GET Observations */
+    getObservationsFromServerTwowaySync(totalTwoWaySyncPOST,updatedObservation)
+    {
+        
+        let This = this;
+        let strUUID     = localStorage.getItem(CommonUtil.CONST_STORAGE_UUID);
+        let jsonHeader  = { Authorization: strUUID };
+
+        fetch(CommonUtil.CONST_URL_DOMAIN + CommonUtil.CONST_URL_USER_OBSERVATION_LIST, {
+            method: "GET",
+            headers: jsonHeader,
+            }).then((response) => response.json())
+            .then((data) => { 
+                let serverObservations = data;
+                if(localStorage.getItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST))
+                {
+                    let lstLocalObservations = JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST));
+
+                    serverObservations.forEach(function(srvObservation){
+                        let arrIndex        = undefined;
+                        let booNoRecordFound = false;
+                        let booRecordFound   = false;
+
+                        $.each(lstLocalObservations,function(index, localObservation){
+                            if(srvObservation.observationId === localObservation.observationId) {
+                                booRecordFound = true;
+                                if(updatedObservation && (totalTwoWaySyncPOST === 1 && updatedObservation.observationId === srvObservation.observationId))
+                                {
+                                    
+                                }
+                                else
+                                {
+                                    if(srvObservation.lastEditedTime)
+                                    {
+                                        if(localObservation.lastEditedTime)
+                                        {   
+
+                                            let srvDate     = new Date(srvObservation.lastEditedTime);
+                                            let localDate   = new Date(localObservation.lastEditedTime);
+
+                                            if(srvDate >= localDate)
+                                            {
+                                                arrIndex = index;
+                                                return false;
+                                            }
+                                        }
+                                        else
+                                        {
+                                            arrIndex = index;
+                                            return false;                                            
+                                        }
+                                    }
+                                    else
+                                    {
+                                        arrIndex = index;
+                                        return false;
+                                    }
+                                }
+
+                            }
+                            else
+                            {
+                                //booNoRecordFound = true;
+                            }
+
+                        })
+                        if(booRecordFound){}
+                        else {
+                            booNoRecordFound = true;
+                        }
+                        if(arrIndex)
+                        {
+                            lstLocalObservations[arrIndex]=srvObservation;
+                        }
+                        if(booNoRecordFound)
+                        {
+                            lstLocalObservations.push(srvObservation);
+                            return false;
+                        }
+
+                        
+                    });
+                    localStorage.setItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST,JSON.stringify(lstLocalObservations));
+                }
+                else
+                {
+                    localStorage.setItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST,JSON.stringify(data));
+                    //this.$router.replace({path:'/'});
+                    this.$router.push("/").catch(()=>{});
+                }
+                
+            })
+    }
+
+
+
+
 
   },
   mounted () {
+      console.log('mounted .. --');
+      this.isMounted = true;
       this.CONST_URL_DOMAIN = this.$refs.CommonUtil.getDomain();
   }
  
