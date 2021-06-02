@@ -25,6 +25,12 @@
       <button class="btn btn-primary" type="button" v-on:click="handleLogin()" v-on:keyup.enter="handleLogin()"> 
         Logg inn
       </button>
+      <div v-show="errMsg" class="alert alert-warning alert-dismissible fade show">
+        {{errMsg}}
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>        
+      </div>
      </form>
 
     <div v-else>
@@ -65,6 +71,7 @@ export default {
       password: "",
       appUser:{},
       isSyncNeeded:false,
+      errMsg      : '',
     };
   },
   //emits: {},
@@ -108,6 +115,7 @@ export default {
     },
 
   handleLogin(){
+      let This = this;
       this.$root.sharedState.uuid = '';
     let jsonBody = JSON.stringify({"username": this.username, "password":this.password});
     /** Fetch to get UUID */
@@ -143,16 +151,35 @@ export default {
               headers : jsonHeader
             } 
           )
-            .then((response) => response.json())
+            .then(function(response) {
+              if(response.status === 200)
+              {
+                return response.json()
+              }
+              else
+              {
+                console.log('error : '+response.text());
+                  This.errMsg = response.text();
+                  
+                  
+              }
+            })
+
+              /* (response) => response.json()
+              ) */
             .then((data) => {
               let loggedUser = data;
+              localStorage.setItem(CommonUtil.CONST_STORAGE_USER_DETAIL,JSON.stringify(loggedUser));
+
+              
+              this.getUserFromStorage();
+              $('.offcanvas-collapse').removeClass('open');
               /** Calling of Sync */
               //this.isSyncNeeded = true;
               this.$refs.Sync.isSyncOnewayNeeded(loggedUser);
               this.$refs.Sync.syncTwoWayAtLogin();
-              localStorage.setItem(CommonUtil.CONST_STORAGE_USER_DETAIL,JSON.stringify(loggedUser));
-              this.getUserFromStorage();
-              $('.offcanvas-collapse').removeClass('open');
+                            
+              this.$router.replace({path:'/'});
             });
 
         }

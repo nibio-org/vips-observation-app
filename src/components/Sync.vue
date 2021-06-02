@@ -64,7 +64,7 @@ export default {
                     console.log('----- SYNC ONE WAY STARTED -----');
                     this.syncOneWay();
                 }
-                if(typeof(booIsSyncOneWayReady)==='undefined')
+                if(typeof(booIsSyncOneWayReady)===undefined)
                 {
                     this.loading = false;
                     /* refresh for next time */
@@ -350,46 +350,52 @@ export default {
     {
         let This = this;
         let lstObservations =   JSON.parse(localStorage.getItem(value.name));
-        //totalTwoWaySyncPOST
+        if(lstObservations)
+        {
            
-        let lstObservationUpload = lstObservations.filter(observation => observation.uploaded === false);
-        this.totalTwoWaySyncPOST = lstObservationUpload.length;
+            let lstObservationUpload = lstObservations.filter(observation => observation.uploaded === false);
+            this.totalTwoWaySyncPOST = lstObservationUpload.length;
 
-        if(lstObservationUpload)
-        {
-            lstObservationUpload.forEach(function(observation) {
+            if(lstObservationUpload)
+            {
+                lstObservationUpload.forEach(function(observation) {
 
-                let observationForStore = {};
-                observationForStore.observationId               =   observation.observationId;               
-                observationForStore.cropOrganismId              =   observation.cropOrganismId;
-                observationForStore.organismId                  =   observation.organismId
-                observationForStore.timeOfObservation           =   observation.timeOfObservation;
-                observationForStore.statusChangedTime           =   observation.statusChangedTime;
-                observationForStore.statusTypeId                =   observation.statusTypeId;
-                observationForStore.isQuantified                =   observation.isQuantified;
-                observationForStore.userId                      =   observation.userId;
-                observationForStore.geoinfo                     =   observation.geoinfo;
-                observationForStore.locationPointOfInterestId   =   observation.locationPointOfInterestId;
-                observationForStore.broadcastMessage            =   observation.broadcastMessage;
-                observationForStore.statusRemarks               =   observation.statusRemarks;
-                observationForStore.observationHeading          =   observation.observationHeading;
-                observationForStore.observationText             =   observation.observationText;
-                observationForStore.observationData             =   observation.observationData; 
-                observationForStore.locationIsPrivate           =   observation.locationIsPrivate;
-                observationForStore.polygonService              =   observation.polygonService; 
-                observationForStore.uploaded                    =   observation.uploaded;    
-                observationForStore.observationIllustrationSet  =   observation.observationIllustrationSet;          
-
-                This.syncObservationSendPrepareSingleObject(observationForStore,This.totalTwoWaySyncPOST);
-            
-            });
+                    let observationForStore = {};
+                    observationForStore.observationId               =   observation.observationId;               
+                    observationForStore.cropOrganismId              =   observation.cropOrganismId;
+                    observationForStore.organismId                  =   observation.organismId
+                    observationForStore.timeOfObservation           =   observation.timeOfObservation;
+                    observationForStore.statusChangedTime           =   observation.statusChangedTime;
+                    observationForStore.statusTypeId                =   observation.statusTypeId;
+                    observationForStore.isQuantified                =   observation.isQuantified;
+                    observationForStore.userId                      =   observation.userId;
+                    observationForStore.geoinfo                     =   observation.geoinfo;
+                    observationForStore.locationPointOfInterestId   =   observation.locationPointOfInterestId;
+                    observationForStore.broadcastMessage            =   observation.broadcastMessage;
+                    observationForStore.statusRemarks               =   observation.statusRemarks;
+                    observationForStore.observationHeading          =   observation.observationHeading;
+                    observationForStore.observationText             =   observation.observationText;
+                    observationForStore.observationData             =   observation.observationData; 
+                    observationForStore.locationIsPrivate           =   observation.locationIsPrivate;
+                    observationForStore.polygonService              =   observation.polygonService; 
+                    observationForStore.uploaded                    =   observation.uploaded;    
+                    observationForStore.observationIllustrationSet  =   observation.observationIllustrationSet;          
+                    
+                    This.syncObservationSendPrepareSingleObject(observationForStore,This.totalTwoWaySyncPOST);
+                
+                });
+            }
+            else
+            {
+                let totalTwoWaySyncPOST = 0;
+                let updatedObservation  = {};
+                /** GET Observations  */
+                this.getObservationsFromServerTwowaySync(totalTwoWaySyncPOST,updatedObservation);
+            }
         }
-        else
-        {
-            let totalTwoWaySyncPOST = 0;
-            let updatedObservation  = {};
-            /** GET Observations  */
-            this.getObservationsFromServerTwowaySync(totalTwoWaySyncPOST,updatedObservation);
+        else{
+            
+            this.getObservationsFromServerTwowaySync(0,undefined);
         }
 
     },
@@ -487,7 +493,7 @@ export default {
             let lstObservations = JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST));
 
                 let observationOld = {};
-                let counter = 'undefined';
+                let counter = undefined;
                 $.each(lstObservations, function(index, jsonObservation){
                     if(jsonObservation.observationId === updatedObservation.observationId)
                     {
@@ -531,6 +537,7 @@ export default {
 
                 lstObservations[counter]=updatedObservation;
                 localStorage.setItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST, JSON.stringify(lstObservations) );
+
                 this.counterTwoWaySyncPOST = this.counterTwoWaySyncPOST + 1;
                 console.log('total number of upload : '+totalTwoWaySyncPOST+' ---- counter value : '+this.counterTwoWaySyncPOST);
                 if(this.counterTwoWaySyncPOST === totalTwoWaySyncPOST)
@@ -545,6 +552,8 @@ export default {
     /** GET Observations */
     getObservationsFromServerTwowaySync(totalTwoWaySyncPOST,updatedObservation)
     {
+        
+        let This = this;
         let strUUID     = localStorage.getItem(CommonUtil.CONST_STORAGE_UUID);
         let jsonHeader  = { Authorization: strUUID };
 
@@ -553,16 +562,19 @@ export default {
             headers: jsonHeader,
             }).then((response) => response.json())
             .then((data) => { 
-                serverObservations = data;
+                let serverObservations = data;
                 if(localStorage.getItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST))
                 {
-                    serverObservations.forEach(function(srvObservation){
+                    let lstLocalObservations = JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST));
 
-                        let lstLocalObservations = JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST));
-                        let arrIndex        = 'undefined';
+                    serverObservations.forEach(function(srvObservation){
+                        let arrIndex        = undefined;
                         let booNoRecordFound = false;
+                        let booRecordFound   = false;
+
                         $.each(lstLocalObservations,function(index, localObservation){
                             if(srvObservation.observationId === localObservation.observationId) {
+                                booRecordFound = true;
                                 if(updatedObservation && (totalTwoWaySyncPOST === 1 && updatedObservation.observationId === srvObservation.observationId))
                                 {
                                     
@@ -572,9 +584,10 @@ export default {
                                     if(srvObservation.lastEditedTime)
                                     {
                                         if(localObservation.lastEditedTime)
-                                        {
-                                            srvDate     = JSON.parse(srvObservation.lastEditedTime);
-                                            localDate   = JSON.parse(localObservation.lastEditedTime);
+                                        {   
+
+                                            let srvDate     = new Date(srvObservation.lastEditedTime);
+                                            let localDate   = new Date(localObservation.lastEditedTime);
 
                                             if(srvDate >= localDate)
                                             {
@@ -598,11 +611,14 @@ export default {
                             }
                             else
                             {
-                                booNoRecordFound = true;
+                                //booNoRecordFound = true;
                             }
 
                         })
-
+                        if(booRecordFound){}
+                        else {
+                            booNoRecordFound = true;
+                        }
                         if(arrIndex)
                         {
                             lstLocalObservations[arrIndex]=srvObservation;
@@ -610,6 +626,7 @@ export default {
                         if(booNoRecordFound)
                         {
                             lstLocalObservations.push(srvObservation);
+                            return false;
                         }
 
                         
@@ -618,12 +635,11 @@ export default {
                 }
                 else
                 {
-                                        
                     localStorage.setItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST,JSON.stringify(data));
-                    
+                    //this.$router.replace({path:'/'});
+                    this.$router.push("/").catch(()=>{});
                 }
                 
-                this.getObservationsFromStore();
             })
     }
 

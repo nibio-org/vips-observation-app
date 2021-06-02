@@ -318,7 +318,6 @@ export default {
                         /**  Search IndexedDB for available imaages within a observation */
                          searchDBByindex(indexName,indexValue,organismId,imageTextData,storeImage)
                         {
-
                              let This = this;
                              let dbRequest =  indexedDB.open(CommonUtil.CONST_DB_NAME, CommonUtil.CONST_DB_VERSION);
                              dbRequest.onsuccess = function(evt) {
@@ -404,7 +403,6 @@ export default {
                             
                             this.observationImage = observation;
                             this.imageFileName = illustration.fileName;
-
                             //if(this.counterDiv != 1) 
                             {
                                 this.counterDiv = this.counterDiv+1;
@@ -437,7 +435,6 @@ export default {
                                             }
                                             
                                             jobservation.observationIllustrationSet.push(illustration);
-                                            
                                         }
                                  });
                              }

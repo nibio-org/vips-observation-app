@@ -404,7 +404,7 @@ export default {
           this.observationForStore.statusRemarks              = this.observation.statusRemarks;
           this.observationForStore.observationHeading         = this.observationHeader;
           this.observationForStore.observationText            = this.observationText;
-          this.observationForStore.observationData            = JSON.stringify(this.observation.observationData); //"{\"number\":0,\"unit\":\"Number\"}"; 
+          this.observationForStore.observationData            = JSON.stringify(this.observation.observationData)//'{"number":0,"unit":"Number"}'; //"{\"number\":0,\"unit\":\"Number\"}"; 
           this.observationForStore.observationIllustrationSet = this.observation.observationIllustrationSet;
           
 
