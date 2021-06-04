@@ -179,7 +179,7 @@ export default {
               this.$refs.Sync.isSyncOnewayNeeded(loggedUser);
               this.$refs.Sync.syncTwoWayAtLogin();
                             
-              this.$router.replace({path:'/'});
+              //this.$router.replace({path:'/'});
             });
 
         }

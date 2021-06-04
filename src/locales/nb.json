@@ -1,3 +1,13 @@
 {
-  "startpage": "Startsiden"
+  "startpage": "Startsiden",
+
+
+
+
+
+
+
+
+
+  "prop.err.observation.geoinfo" : "Geo location can not be empty !!"
 }

@@ -356,7 +356,7 @@ export default {
             let lstObservationUpload = lstObservations.filter(observation => observation.uploaded === false);
             this.totalTwoWaySyncPOST = lstObservationUpload.length;
 
-            if(lstObservationUpload)
+            if(lstObservationUpload && lstObservationUpload.length != 0)
             {
                 lstObservationUpload.forEach(function(observation) {
 
@@ -402,7 +402,7 @@ export default {
 
     syncObservationSendPrepareSingleObject(observation,totalTwoWaySyncPOST,syncObservationPOST)
     {
-        
+
             let This        =   this;
             let entityName  =   CommonUtil.CONST_DB_ENTITY_PHOTO;
             if(observation.uploaded == false)
@@ -489,7 +489,6 @@ export default {
 
     updateObservationPOST(updatedObservation,totalTwoWaySyncPOST)
     {
-
             let lstObservations = JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST));
 
                 let observationOld = {};
@@ -552,6 +551,7 @@ export default {
     /** GET Observations */
     getObservationsFromServerTwowaySync(totalTwoWaySyncPOST,updatedObservation)
     {
+        console.log('-- inside GET ');
         
         let This = this;
         let strUUID     = localStorage.getItem(CommonUtil.CONST_STORAGE_UUID);
@@ -637,7 +637,8 @@ export default {
                 {
                     localStorage.setItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST,JSON.stringify(data));
                     //this.$router.replace({path:'/'});
-                    this.$router.push("/").catch(()=>{});
+/*                     this.$router.push("/").catch(()=>{});
+                    this.$router.go(); */
                 }
                 
             })
