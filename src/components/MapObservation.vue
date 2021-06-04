@@ -264,7 +264,6 @@ export default {
                                             dataProjection: 'EPSG:4326',
                                             featureProjection: 'EPSG:3857' 
                                         });
-                console.log(resultGeoGSON);
                                         This.myGeoInfo = JSON.parse(resultGeoGSON);
 
                                     }

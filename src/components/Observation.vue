@@ -1,3 +1,4 @@
+
 <template>
   <div class="hello">
     <h1 ref='titleObservation'>{{ msg }}</h1>
@@ -45,7 +46,24 @@
       </div>
         <div v-show="isSync"><sync ref="sync" :isSyncNeeded="isSync"/></div>
         <button class="btn btn-secondary float-right" v-on:click="saveObservation">Save</button>
-     
+
+      <modal-simple
+        v-show="isModalSimpleVisible" 
+        v-on:close="closeModal"           
+    >
+        <template v-slot:header>
+            !! ERROR !!
+        </template>
+
+        <template v-slot:body>
+            {{ $t("prop.err.observation.geoinfo") }}
+        </template>
+
+        <template v-slot:footer>
+            &nbsp;
+        </template>            
+    </modal-simple>
+
   </div>  
 </template>
 
@@ -57,48 +75,63 @@ import PhotoObservation from '@/components/PhotoObservation'
 import Photo from '@/components/Photo.vue'
 import Quantification from '@/components/Quantification.vue'
 import Sync from '@/components/Sync'
+import ModalSimple from '@/components/ModalSimple'
 
 
 
 export default {
   name: 'Observation',
   props: ['observationId','paramGeoinfo','paramObservation'],
-  components: {MapObservation,PhotoObservation,Photo,Quantification,Sync},
+  components: {MapObservation,PhotoObservation,Photo,Quantification,Sync,ModalSimple},
   data () {
     return {
-      isSync           : false,
-      isQuantification : false,
-      isMounted : false,
-      msg: 'Observasjon',
-      observation:{},
-      crops:[],
-      pests:[],
-      crop:{'cropId':'','cropName':'Select Crop'},
-      pest:{'pestId':'','pestName':'Select Pest'},
-      isActive : false,
-      dateObservation : DateTime,
-      strDateObservation:'',
-      observationHeader : '',
-      observationText : '',
-      mapGeoinfo:'',
-      mapLocationPointOfInterestId:'',
-      isMapPanelVisible:false,
-      newMapPanel:true,
-      observationForStore : 
-      {
-        observationId: '',
-        timeOfObservation: '',
-        statusChangedTime: '',
-        organismId: '',
-        cropOrganismId: '',
-        observationHeading: '',
-        observationText: '',
-        uploaded:false        
-      },
+      isModalSimpleVisible            : false,
+      isSync                          : false,
+      isQuantification                : false,
+      isMounted                       : false,
+      msg                             : 'Observasjon',
+      observation                     : {},
+      crops                           : [],
+      pests                           : [],
+      crop                            : {'cropId':'','cropName':'Select Crop'},
+      pest                            : {'pestId':'','pestName':'Select Pest'},
+      isActive                        : false,
+      dateObservation                 : DateTime,
+      strDateObservation              : '',
+      observationHeader               : '',
+      observationText                 : '',
+      mapGeoinfo                      : null,
+      mapLocationPointOfInterestId    : '',
+      isMapPanelVisible               : false,
+      newMapPanel                     : true,
+      observationForStore             : 
+                                        {
+                                          observationId: '',
+                                          timeOfObservation: '',
+                                          statusChangedTime: '',
+                                          organismId: '',
+                                          cropOrganismId: '',
+                                          observationHeading: '',
+                                          observationText: '',
+                                          uploaded:false        
+                                        },
     }
   },
   methods:{
-
+    closeModal(){
+              this.isModalSimpleVisible   =  false;
+    },
+    validate()
+              {
+                  if(this.mapGeoinfo) {
+                    return true;
+                    }
+                  else
+                  {
+                      this.isModalSimpleVisible = true;
+                      return false;
+                  }
+              },    
     visibilityObservationAction(paramPrivate, paramPolygonService){
        this.observationForStore.locationIsPrivate=paramPrivate;
        if(paramPolygonService)
@@ -160,7 +193,6 @@ export default {
                 this.observationText    =   jsonObservation.observationText;                
               }
 
-
               if(this.paramGeoinfo)
               {
                 this.mapGeoinfo = this.paramGeoinfo;
@@ -178,6 +210,7 @@ export default {
                    this.mapLocationPointOfInterestId    =   jsonObservation.locationPointOfInterestId;
                 }
               }
+              //this.observation.geoinfo = this.mapGeoinfo;
           }
           else {
             //TODO for new Observation
@@ -387,7 +420,10 @@ export default {
       /** Save Observation */
       saveObservation()
       {
-        //console.log(this.observation.observationData);
+        if(this.validate()) {}
+        else {
+          return false
+        }
         let This = this;
         let lstObservations = JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST));
 
@@ -398,7 +434,7 @@ export default {
           this.observationForStore.statusTypeId               = this.observation.statusTypeId;
           this.observationForStore.isQuantified               = this.observation.isQuantified;
           this.observationForStore.userId                     = this.observation.userId;
-          this.observationForStore.geoinfo                    = this.observation.geoinfo;
+          this.observationForStore.geoinfo                    = JSON.stringify(this.mapGeoinfo); //this.observation.geoinfo;
           this.observationForStore.locationPointOfInterestId  = this.observation.locationPointOfInterestId;
           this.observationForStore.broadcastMessage           = this.observation.broadcastMessage;
           this.observationForStore.statusRemarks              = this.observation.statusRemarks;
@@ -418,16 +454,24 @@ export default {
               {
                     if(jobservation.observationId === selectedObservationId)
                     {
-                      jobservation.cropOrganismId     = localObservationForStore.cropOrganismId;
-                      jobservation.organismId     = localObservationForStore.organismId;
-                      jobservation.timeOfObservation  = localObservationForStore.timeOfObservation;
-                      jobservation.statusChangedTime  = localObservationForStore.statusChangedTime;
-                      jobservation.observationData    = localObservationForStore.observationData;
-                      jobservation.observationHeading = localObservationForStore.observationHeading;
-                      jobservation.observationText    = localObservationForStore.observationText;
-                      jobservation.locationIsPrivate  = localObservationForStore.locationIsPrivate;
-                      jobservation.polygonService     = localObservationForStore.polygonService;
-                      jobservation.uploaded           = localObservationForStore.uploaded;
+                      jobservation.cropOrganismId             = localObservationForStore.cropOrganismId;
+                      jobservation.organismId                 = localObservationForStore.organismId;
+                      jobservation.timeOfObservation          = localObservationForStore.timeOfObservation;
+                      jobservation.statusChangedTime          = localObservationForStore.statusChangedTime;
+                      jobservation.statusTypeId               = localObservationForStore.statusTypeId;
+                      jobservation.isQuantified               = localObservationForStore.isQuantified;
+                      jobservation.userId                     = localObservationForStore.userId;
+                      jobservation.geoinfo                    = localObservationForStore.geoinfo;
+                      jobservation.locationPointOfInterestId  = localObservationForStore.locationPointOfInterestId;
+                      jobservation.broadcastMessage           = localObservationForStore.broadcastMessage;
+
+
+                      jobservation.observationData            = localObservationForStore.observationData;
+                      jobservation.observationHeading         = localObservationForStore.observationHeading;
+                      jobservation.observationText            = localObservationForStore.observationText;
+                      jobservation.locationIsPrivate          = localObservationForStore.locationIsPrivate;
+                      jobservation.polygonService             = localObservationForStore.polygonService;
+                      jobservation.uploaded                   = localObservationForStore.uploaded;
 
                       return false;
                     }
@@ -445,20 +489,19 @@ export default {
               lstObservations.push(this.observationForStore);
          }
               localStorage.setItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST, JSON.stringify(lstObservations) );
-              if(this.isSync===false)
+/*               if(this.isSync===false)
               {
                 this.isSync = true;
 
                 this.$refs.sync.syncObservationSendPrepareSingleObject(this.observationForStore,1);
                 this.isSync = false;
-              }
+              } */
           this.$router.replace({path:'/'});
           //this.$router.push({path:'/'});
           //this.$router.go();
            
       },
       updateQuntificationData(schemaData){
-        //console.log(schemaData);
           this.observation.observationData = schemaData;
       },
 
