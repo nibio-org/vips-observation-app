@@ -47,6 +47,13 @@ cordova emulate browser
 cordova emulate android
 ```
 
+### Connecting to a local server
+While developing, you will want to connect to a local instance of VIPSLogic. This is done by editing the property `CONST_URL_DOMAIN` in `/src/components/CommonUtil.vue` (TODO: Refactor this to `CommonUtilLocal.vue`). Set it to whatever domain name you wish (e.g. vipslogic-local.no) and then edit your `/etc/hosts` file to point this to the IP address 10.0.2.2, like this
+
+```
+10.0.2.2        vipslogic-local.no
+```
+
 ## Develop the code
 ### Don't touch the /www folder!
 Normally in Cordova you would put your code here, but this is where vue-cli is putting the things that it builds. 
