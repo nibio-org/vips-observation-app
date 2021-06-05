@@ -635,15 +635,98 @@ export default {
                 }
                 else
                 {
-                    localStorage.setItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST,JSON.stringify(data));
+                    localStorage.setItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST,JSON.stringify(serverObservations));
                     //this.$router.replace({path:'/'});
 /*                     this.$router.push("/").catch(()=>{});
                     this.$router.go(); */
                 }
+
+                serverObservations.forEach(function(srvObservation){
+                        let organismId = srvObservation.organismId;
+                        let illustrations =   srvObservation.observationIllustrationSet;
+                        if(illustrations && illustrations.length != 0)
+                        {
+                            illustrations.forEach(function(illustration){
+                                    let imageFileName = illustration.observationIllustrationPK.fileName;
+                                    if(imageFileName)
+                                    {
+                                        this.fetchImageFromServer(organismId,imageFileName);
+                                    }
+                            })
+                        }
+                });
                 
             })
-    }
+    },
 
+    /** GET image from server */
+    fetchImageFromServer(organismId,imageFileName)
+    {
+
+        let photoURL=CommonUtil.CONST_URL_DOMAIN+CommonUtil.CONST_URL_STATIC_IMAGE_PATH+organismId+'/'+imageFileName;
+        let imgTest;
+        let This = this; 
+        let observationImage    =   {
+                                        observationId               :   '',
+                                        organismId                  :   '',
+                                        illustration                :   {
+                                                                            fileName        : '',
+                                                                            imageTextData   : '', 
+                                                                            deleted         : false
+                                                                        } 
+                                    };        
+        if(organismId)
+        {
+        const toDataURL = url => fetch(url)
+            .then(response => response.blob())
+            .then(blob => new Promise((resolve, reject) => {
+                const reader = new FileReader()
+                reader.onloadend = () => resolve(reader.result)
+                reader.onerror = reject
+                reader.readAsDataURL(blob)
+            }))
+
+
+            toDataURL(photoURL) 
+            .then(imageTextData => {
+                observationImage.illustration.imageTextData = imageTextData;
+                    This.storeImageData(observationImage);
+            })
+        }
+
+    },
+    /** Store image at server  */
+    storeImageData(observationImage)
+    {       let This    =   this;
+            let entityName = CommonUtil.CONST_DB_ENTITY_PHOTO;
+        
+        let dbRequest = indexedDB.open(CommonUtil.CONST_DB_NAME, CommonUtil.CONST_DB_VERSION);
+        dbRequest.onsuccess = function(evt) {
+            let db = evt.target.result;
+            if(db.objectStoreNames.contains(entityName)){
+                let transaction = db.transaction([This.entityName],'readwrite'); 
+                let objectstore = transaction.objectStore(entityName).add(observationImage,observationImage.illustration.fileName);
+            }
+            else
+            {
+                let store = db.createObjectStore(entityName, {keypath : observationImage.illustration.fileName});
+                store.createIndex('observationId', 'observationId', { unique: false });
+                store.createIndex('organismId', 'organismId', { unique: false });                                    
+            }
+        } 
+        
+
+        dbRequest.onupgradeneeded= function (event)
+        {
+            let db = event.target.result;
+            if( !db.objectStoreNames.contains(entityName)){
+                let store = db.createObjectStore(entityName, {keypath : observationImage.illustration.fileName});
+                store.createIndex('observationId', 'observationId', { unique: false });
+                store.createIndex('organismId', 'organismId', { unique: false });
+            }
+        }
+
+    }, 
 
 
 
