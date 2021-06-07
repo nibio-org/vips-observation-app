@@ -8,8 +8,8 @@
   </div>
   
   <div v-if="observations">
-  <ul class="list-group">
-       <router-link :to="{name: 'Observation', params: {observationId:obs.observationId}}" class="list-group-item list-group-item-action " v-for="obs in observations" v-bind:key="obs.observationId">
+  <ul class="list-group" v-if="isInitialized">
+       <router-link :to="{name: 'Observation', params: {observationId:obs.observationId}}" class="list-group-item list-group-item-action " v-bind:class="{'text-danger':obs.isNew, 'text-primary':obs.toUpload}" v-for="obs in observations" v-bind:key="obs.observationId">
 
         {{ obs.timeOfObservation | dateFormat }}  <b>{{obs.observationHeading}}</b> 
     </router-link >
@@ -35,6 +35,7 @@ export default {
   data() {
     return {
       /*msg: 'Startsiden'*/
+      isInitialized     : false,
       CONST_URL_DOMAIN  : '',
       observations      : undefined,
     };
@@ -43,8 +44,22 @@ export default {
   methods : {
         getObservationsFromStore()
         {
+          this.isInitialized = true;
           let strObservations = localStorage.getItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST);
           let lstObservations = JSON.parse(strObservations);
+          lstObservations.forEach(function(observation){
+              if(observation.uploaded==false)
+              {
+                if(observation.observationId < 0)
+                {
+                  observation.isNew = true;
+                }
+                else{
+                  observation.toUpload = true;
+                }
+              }
+
+          });
           this.observations = lstObservations;
         },
 
@@ -57,6 +72,7 @@ export default {
     }
   },
   mounted()  {
+
               let valueObj = {"name":CommonUtil.CONST_STORAGE_OBSERVATION_LIST,"complete":false};
               //this.$refs.Sync.syncObservationSendPrepare(valueObj);
               this.CONST_URL_DOMAIN = this.$refs.CommonUtil.getDomain();

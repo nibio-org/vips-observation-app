@@ -194,7 +194,11 @@ export default {
                 jsonObservation                         = lstObservations.find(({observationId})=> observationId === id);                           // Selection Observation
                 this.observation                        = jsonObservation;
                 this.observation.observationData        = JSON.parse(jsonObservation.observationData);
-                
+                if(jsonObservation.statusTypeId) {}
+                else
+                {
+                  this.observation.statusTypeId = CommonUtil.CONST_STATUS_PENDING;
+                }
 
                 /* For related Crop and Crop list */
                 this.getObservationCrops(jsonObservation);
@@ -438,7 +442,12 @@ export default {
           return false
         }
         let This = this;
+        
+
         let lstObservations = JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST));
+        /** Whether record to be updated */
+        let isRecordAvailable = lstObservations.find(({observationId})=> observationId === this.observationId);
+        
 
           this.observationForStore.cropOrganismId             = this.crop.cropId;
           this.observationForStore.organismId                 = this.pest.pestId;
@@ -457,7 +466,7 @@ export default {
           this.observationForStore.observationIllustrationSet = this.observation.observationIllustrationSet;
           
 
-         if(this.observationId)
+         if(this.observationId && isRecordAvailable)
          {
               this.observationForStore.observationId  = this.observationId;
               let localObservationForStore            = this.observationForStore;
@@ -499,6 +508,7 @@ export default {
                 lstObservations = [];
                 
               }
+              this.observationForStore.statusTypeId=CommonUtil.CONST_STATUS_PENDING;
               lstObservations.push(this.observationForStore);
          }
               localStorage.setItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST, JSON.stringify(lstObservations) );

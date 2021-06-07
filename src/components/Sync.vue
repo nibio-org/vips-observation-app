@@ -453,6 +453,7 @@ export default {
             let userUUID = localStorage.getItem(CommonUtil.CONST_STORAGE_UUID);
 
             let jsonBody = JSON.stringify(observation);
+
             fetch(
                     CommonUtil.CONST_URL_DOMAIN + CommonUtil.CONST_URL_SYNC_UPDATE_OBSERVATION,
                     {
@@ -476,7 +477,29 @@ export default {
             })
             .then((data)=>{
                 let updatedObservation = JSON.parse(data);
-               
+
+               if(observation.observationId < 0)
+               {
+                   let indexPosition = null;
+                   let lstObservations = JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST));
+                   $.each(lstObservations, function(index, jsonObservation){
+                       if(observation.observationId == jsonObservation.observationId)
+                       {
+                           indexPosition = index;
+                           return false;
+
+                       }
+                   })
+
+                    if(indexPosition)
+                    {
+                        /** Remove the Observation with nagative number (localy created ) */
+                        lstObservations.splice(indexPosition,1);
+                        localStorage.setItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST,JSON.stringify(lstObservations));
+                        this.getObservationsFromServerTwowaySync(1,updatedObservation)
+                    }
+
+               }
                 if(updatedObservation.observationId === observation.observationId)
                 {
                     this.updateObservationPOST(updatedObservation,totalTwoWaySyncPOST);
@@ -551,7 +574,6 @@ export default {
     /** GET Observations */
     getObservationsFromServerTwowaySync(totalTwoWaySyncPOST,updatedObservation)
     {
-        console.log('-- inside GET ');
         
         let This = this;
         let strUUID     = localStorage.getItem(CommonUtil.CONST_STORAGE_UUID);
