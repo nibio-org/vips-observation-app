@@ -67,6 +67,7 @@ export default {
     CONST_DB_NAME                       :   'db-index-observation',
     CONST_DB_VERSION                    :   1,
     CONST_DB_ENTITY_PHOTO               :   'entityPhoto',
+    CONST_DB_INDEX_NAME_OBSERVATION_ID  :   'observationId',
 
     data(){
         return {

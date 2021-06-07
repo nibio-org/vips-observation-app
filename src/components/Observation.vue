@@ -5,6 +5,12 @@
         <h1 ref='titleObservation'>{{ msg }}</h1>
     </div>
 
+    <div v-if="observation.deleted">
+        <div class="alert alert-warning" role="alert">
+              {{ $t("prop.err.observation.remove.warn") }}
+        </div>
+    </div>
+
     <div class="row">
       
       <select id="divCropId" ref='divCropId' v-model="crop.cropId" v-on:change="selectCrop($event)">
@@ -57,12 +63,15 @@
       </div>
         <div v-show="isSync"><sync ref="sync" :isSyncNeeded="isSync"/></div>
 
-      
-        <button class="btn btn-secondary float-right" v-on:click="saveObservation">Save</button>
+        <div v-if="observation.deleted"></div>
+        <div v-else class="float-right">
+          <button class="btn btn-secondary " v-on:click="saveObservation">Save</button>
+          <button v-show="isDeleteBttnVisible"  class="btn btn-danger " v-on:click="callForRemoveObservation">Delete</button>
+        </div>
 
       <modal-simple
         v-show="isModalSimpleVisible" 
-        v-on:close="closeModal"           
+        v-on:close="closeModalSimple"           
     >
         <template v-slot:header>
             !! ERROR !!
@@ -77,6 +86,25 @@
         </template>            
     </modal-simple>
 
+    <modal
+        v-show="isModalVisible"
+                    v-on:close="closeModal"
+                    v-on:action="prepareForRemove"
+                >
+            
+                <template v-slot:header>
+                    !! ALERT !!
+                </template>
+
+                <template v-slot:body>
+                    {{ $t("prop.err.observation.remove.msg") }}
+                </template>
+
+                <template v-slot:footer>
+                    Please chose the option below :
+                </template>
+    </modal>      
+
   </div>  
 </template>
 
@@ -89,16 +117,19 @@ import Photo from '@/components/Photo.vue'
 import Quantification from '@/components/Quantification.vue'
 import Sync from '@/components/Sync'
 import ModalSimple from '@/components/ModalSimple'
+import Modal from '@/components/Modal.vue'
 
 
 
 export default {
   name: 'Observation',
   props: ['observationId','paramGeoinfo','paramObservation'],
-  components: {MapObservation,PhotoObservation,Photo,Quantification,Sync,ModalSimple},
+  components: {MapObservation,PhotoObservation,Photo,Quantification,Sync,ModalSimple,Modal},
   data () {
     return {
+      isDeleteBttnVisible             : true,
       isModalSimpleVisible            : false,
+      isModalVisible                  : false,
       isSync                          : false,
       isQuantification                : false,
       isMounted                       : false,
@@ -131,8 +162,83 @@ export default {
     }
   },
   methods:{
-    closeModal(){
+    callForRemoveObservation()
+    {
+            this.isModalVisible = true;
+    },
+    prepareForRemove(){
+            if(this.observationId)
+            {
+              if(this.observationId < 0)
+              {
+                 /** Just remove it locally */
+                  this.removeLocalObservation(this.observationId);
+                  this.$router.replace({path:'/'});
+              }
+              else
+              {
+                /** Mark the record - for sending to server */
+                this.observationForStore.deleted=true;
+                this.saveObservation();
+              }
+            }
+            this.isModalVisible = false;
+
+    },
+    closeModalSimple(){
               this.isModalSimpleVisible   =  false;
+    },
+    closeModal(){
+              this.isModalVisible         = false;
+    },
+
+    /** Remove local Observation */
+    removeLocalObservation(id)
+    {
+        let lstObservations = JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST));
+        let indexPosition       = null;
+        $.each(lstObservations, function(index, observation){
+              if(observation.observationId===id)
+              {
+                 indexPosition = index;
+                 return false;
+              }
+        });
+
+        if(indexPosition)
+        {
+          this.removeImageRecord(id);
+
+          lstObservations.splice(indexPosition,1);
+          localStorage.setItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST,JSON.stringify(lstObservations));
+        }
+    },
+    /**
+     * Remove image data from indexed DB 
+     */
+    removeImageRecord(observationId){
+      let entityName = CommonUtil.CONST_DB_ENTITY_PHOTO;
+      let dbRequest =  indexedDB.open(CommonUtil.CONST_DB_NAME, CommonUtil.CONST_DB_VERSION);
+      let indexName =  CommonUtil.CONST_DB_INDEX_NAME_OBSERVATION_ID;
+      dbRequest.onsuccess = function(evt) {
+        let db = evt.target.result;
+        let transaction     =   db.transaction([entityName],'readwrite'); 
+        let objectstore     =   transaction.objectStore(entityName);
+        let indexStore      =   objectstore.index(indexName);
+        let keyRange        =   IDBKeyRange.only(observationId);
+        let cursorRequest   =   indexStore.openCursor(keyRange);
+        cursorRequest.onsuccess = function(event){
+          let cursor  =  event.target.result;
+          if(cursor)
+          {
+            cursor.delete();
+            cursor.continue();
+          }
+        }
+
+
+      }
+
     },
     validate()
               {
@@ -329,7 +435,9 @@ export default {
       
       /** Get New Observation  */
       getNewObservation()
-      {   let lstCropIds              = [];
+      {
+          this.isDeleteBttnVisible  = false;
+          let lstCropIds              = [];
           //let lstPestIds              = [];
           let cropCategoryIdProp      = CommonUtil.CONST_CROP_CATEGORY_ID; 
           let jsonCrops               = [];
@@ -448,7 +556,7 @@ export default {
         /** Whether record to be updated */
         let isRecordAvailable = lstObservations.find(({observationId})=> observationId === this.observationId);
         
-
+          
           this.observationForStore.cropOrganismId             = this.crop.cropId;
           this.observationForStore.organismId                 = this.pest.pestId;
           this.observationForStore.timeOfObservation          = this.strDateObservation;
@@ -464,7 +572,8 @@ export default {
           this.observationForStore.observationText            = this.observationText;
           this.observationForStore.observationData            = JSON.stringify(this.observation.observationData)//'{"number":0,"unit":"Number"}'; //"{\"number\":0,\"unit\":\"Number\"}"; 
           this.observationForStore.observationIllustrationSet = this.observation.observationIllustrationSet;
-          
+
+          console.log(this.observationForStore);
 
          if(this.observationId && isRecordAvailable)
          {
@@ -494,6 +603,11 @@ export default {
                       jobservation.locationIsPrivate          = localObservationForStore.locationIsPrivate;
                       jobservation.polygonService             = localObservationForStore.polygonService;
                       jobservation.uploaded                   = localObservationForStore.uploaded;
+
+                      if(localObservationForStore.deleted)
+                      {
+                        jobservation.deleted = localObservationForStore.deleted;
+                      }
 
                       return false;
                     }
@@ -571,9 +685,10 @@ export default {
       this.observation.observationId=this.observationId;
     }
     else{
-            let newObservationId  = 0;
-            let lstObservations   = JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST));
-                newObservationId  = this.getNewObservationId(lstObservations);   
+            
+            let newObservationId      = 0;
+            let lstObservations       = JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST));
+                newObservationId      = this.getNewObservationId(lstObservations);   
                 this.observation.observationId  = newObservationId;  
                 this.observation.observationData='';
                 this.getNewObservation();
