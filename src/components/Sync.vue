@@ -642,15 +642,17 @@ export default {
                 }
 
                 serverObservations.forEach(function(srvObservation){
-                        let organismId = srvObservation.organismId;
-                        let illustrations =   srvObservation.observationIllustrationSet;
+                        let observationId   = srvObservation.observationId;
+                        let organismId      = srvObservation.organismId;
+                        let illustrations   =   srvObservation.observationIllustrationSet;
+
                         if(illustrations && illustrations.length != 0)
                         {
                             illustrations.forEach(function(illustration){
                                     let imageFileName = illustration.observationIllustrationPK.fileName;
                                     if(imageFileName)
                                     {
-                                        this.fetchImageFromServer(organismId,imageFileName);
+                                        This.fetchImageFromServer(observationId, organismId,imageFileName);
                                     }
                             })
                         }
@@ -660,7 +662,7 @@ export default {
     },
 
     /** GET image from server */
-    fetchImageFromServer(organismId,imageFileName)
+    fetchImageFromServer(observationId,organismId,imageFileName)
     {
 
         let photoURL=CommonUtil.CONST_URL_DOMAIN+CommonUtil.CONST_URL_STATIC_IMAGE_PATH+organismId+'/'+imageFileName;
@@ -674,7 +676,13 @@ export default {
                                                                             imageTextData   : '', 
                                                                             deleted         : false
                                                                         } 
-                                    };        
+                                    };
+            observationImage.observationId  =   observationId;
+            observationImage.organismId     =   organismId;
+            observationImage.illustration.fileName = imageFileName;
+
+        
+
         if(organismId)
         {
         const toDataURL = url => fetch(url)
@@ -695,7 +703,8 @@ export default {
         }
 
     },
-    /** Store image at server  */
+    /** Store image at server 
+     */
     storeImageData(observationImage)
     {       let This    =   this;
             let entityName = CommonUtil.CONST_DB_ENTITY_PHOTO;
@@ -704,7 +713,7 @@ export default {
         dbRequest.onsuccess = function(evt) {
             let db = evt.target.result;
             if(db.objectStoreNames.contains(entityName)){
-                let transaction = db.transaction([This.entityName],'readwrite'); 
+                let transaction = db.transaction([entityName],'readwrite'); 
                 let objectstore = transaction.objectStore(entityName).add(observationImage,observationImage.illustration.fileName);
             }
             else
