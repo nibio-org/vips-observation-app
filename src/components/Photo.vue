@@ -1,7 +1,7 @@
 <template>
     <div>
- 
-        <div v-if=isImageVisible>
+       
+        <div v-if=isImageVisible >
             <div v-if=isDeleted> </div>
             <div v-else>
                 <div class='divImg' :imgFile='imageFileName'>
@@ -12,12 +12,17 @@
                 </div>
             </div>
         </div>
-        <div v-else>
-            <button type="button" class="btn btn-primary" id="cameraLauncher" ref='cameraLauncher' @click="launchCamera">{{ take_photo }}</button>
-            <button type="button" class="btn btn-primary" id="cameraLauncher" ref='cameraLauncher' @click="launchGallary">{{ choose_photo }}</button>    
-            <div v-for="divImage in divAddPhotos" v-bind:key="divImage">
-                <photo-tag :imageSource='divImage.illustration.imageTextData' :imageFileName='divImage.illustration.fileName' v-on:action="deleteImageByFileName" v-on:showImage="showModalPhoto"> </photo-tag>                
-            </div> 
+        <div v-else >
+            <div class="row">
+                <div ><button type="button" class="btn btn-primary" id="cameraLauncher" ref='cameraLauncher' @click="launchCamera">{{ take_photo }}</button></div>
+                 &nbsp;
+                <div ><button type="button" class="btn btn-primary" id="cameraLauncher" ref='cameraLauncher' @click="launchGallary">{{ choose_photo }}</button></div>
+            </div>
+            <div class="row">
+                <div v-for="divImage in divAddPhotos" v-bind:key="divImage">
+                    <photo-tag :imageSource='divImage.illustration.imageTextData' :imageFileName='divImage.illustration.fileName' v-on:action="deleteImageByFileName" v-on:showImage="showModalPhoto"> </photo-tag>                
+                </div> 
+            </div>
         </div>
         
 

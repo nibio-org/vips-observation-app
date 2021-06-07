@@ -1,37 +1,46 @@
 
 <template>
-  <div class="hello">
-    <h1 ref='titleObservation'>{{ msg }}</h1>
-    
-    <br>
+  <div class="hello container">
+    <div class="row">
+        <h1 ref='titleObservation'>{{ msg }}</h1>
+    </div>
 
-    <select id="divCropId" ref='divCropId' v-model="crop.cropId" v-on:change="selectCrop($event)">
-        <option v-for="crop in crops" v-bind:value='crop.organismId' >{{crop.latinName}}</option>
-    </select>
-    <br>
-      <div class="clearfix"/>
-    <select  v-model="pest.pestId" id='divPestId' ref='divPestId'>
-        <option v-for="pest in pests" v-bind:value='pest.pestId'>{{pest.pestName}}</option>
-    </select>
+    <div class="row">
+      
+      <select id="divCropId" ref='divCropId' v-model="crop.cropId" v-on:change="selectCrop($event)">
+          <option v-for="crop in crops" v-bind:value='crop.organismId' >{{crop.latinName}}</option>
+      </select>
+    </div>
 
-    <div class="clearfix"/>
-    <div ref='divDateTime'>
+    <div class="row">
+        <select  v-model="pest.pestId" id='divPestId' ref='divPestId'>
+            <option v-for="pest in pests" v-bind:value='pest.pestId'>{{pest.pestName}}</option>
+        </select>
+    </div>
+
+    <div ref='divDateTime' class="row">
       <!-- <input type="datetime-local" v-bind='strDateObservation | dateFormat' v-model="strDateObservation"/> -->
         <input type="datetime-local" v-model="strDateObservation" v-on:change="capturedTime($event)"/>
     </div>
-    <div v-if="isMounted">
-    <router-link id="linkMap" ref='linkMap' :to="{name:'MapObservation', params: {observationId:observation.observationId,geoinfo:mapGeoinfo,isMapPanelVisible:newMapPanel,locationPointOfInterestId:mapLocationPointOfInterestId, observation:observation}}">Observation Map </router-link>
+    <div v-if="isMounted" class="row">
+        <router-link id="linkMap" ref='linkMap' :to="{name:'MapObservation', params: {observationId:observation.observationId,geoinfo:mapGeoinfo,isMapPanelVisible:newMapPanel,locationPointOfInterestId:mapLocationPointOfInterestId, observation:observation}}">Observation Map </router-link>
     </div>
-      <div v-if="mapGeoinfo" id="divMapGeoInfo"><div v-if="isMounted"><map-observation :geoinfo="mapGeoinfo" :isMapPanelVisible="isMapPanelVisible" :locationIsPrivate="observation.locationIsPrivate" :polygonService="observation.polygonService" v-on:visibilityObservationAction="visibilityObservationAction" ></map-observation></div></div> 
-    <div v-if="isMounted">
+    <div v-if="mapGeoinfo" id="divMapGeoInfo" class="row">
+      <div v-if="isMounted" class="col">
+            <map-observation :geoinfo="mapGeoinfo" :isMapPanelVisible="isMapPanelVisible" :locationIsPrivate="observation.locationIsPrivate" :polygonService="observation.polygonService" v-on:visibilityObservationAction="visibilityObservationAction" ></map-observation>
+      </div>
+    </div> 
+
+    <div v-if="isMounted" >
         <photo :isImageVisible=false :observationId="observationId" :organismId="observation.organismId" ></photo>
         <photo :isImageVisible=true :observationId="observation.observationId" :organismId="observation.organismId" :imageFileName="photo.observationIllustrationPK.fileName" :isDeleted='photo.deleted' :isUploaded="photo.uploaded" v-for="photo in observation.observationIllustrationSet" v-bind:key="photo.observationIllustrationPK.fileName"></photo>
       <!-- <photo-observation :observationId="observation.observationId" :organismId="observation.organismId" :imageFileName="photo.observationIllustrationPK.fileName" v-for="photo in observation.observationIllustrationSet" v-bind:key="photo.observationIllustrationPK.fileName"></photo-observation> -->
     </div>      
-      <div class="clearfix"/>
 
-      <button class="btn btn-success" v-on:click="showQuantification"><span><h5>Tell/kvantifiser</h5></span></button>
-      <div v-if="isQuantification">
+      <div class="clearfix"/>
+    <div>
+      <div class="row"><button class="btn btn-success" v-on:click="showQuantification"><span><h5>Tell/kvantifiser</h5></span></button></div>
+      <div v-if="isQuantification" class="row">
           <div v-if="isMounted" id='divSchemaForm' class="border border-primary rounded" >
               <button id="btnCloseQuantification" class="border border-primary rounded-circle" type="button" v-on:click="closeQuantification">x</button>              
               <!-- <router-link :to="{name: 'Quantification', params: {observationId:observation.observationId, organismId:observation.organismId, schemaData:observation.observationData}}" >Tell/kvantifiser</router-link> -->
@@ -39,12 +48,16 @@
               <quantification :isEditable="false" :observationId="observation.observationId" :organismId="observation.organismId" :schemaData="observation.observationData" v-on:updateQuntificationData="updateQuntificationData"> </quantification>
           </div>
       </div>
-      <div ref='divObservationText'>
-        <div>Observation Detail</div>
-        <input type="text" v-model="observationHeader"/>
-        <p><textarea v-model="observationText" /></p>
+    </div>
+
+      <div ref='divObservationText' >
+        <div class="row">Observation Detail</div>
+        <div class="row"><input type="text" v-model="observationHeader"/></div>
+        <div class="row"><textarea v-model="observationText" /></div>
       </div>
         <div v-show="isSync"><sync ref="sync" :isSyncNeeded="isSync"/></div>
+
+      
         <button class="btn btn-secondary float-right" v-on:click="saveObservation">Save</button>
 
       <modal-simple
@@ -181,7 +194,11 @@ export default {
                 jsonObservation                         = lstObservations.find(({observationId})=> observationId === id);                           // Selection Observation
                 this.observation                        = jsonObservation;
                 this.observation.observationData        = JSON.parse(jsonObservation.observationData);
-                
+                if(jsonObservation.statusTypeId) {}
+                else
+                {
+                  this.observation.statusTypeId = CommonUtil.CONST_STATUS_PENDING;
+                }
 
                 /* For related Crop and Crop list */
                 this.getObservationCrops(jsonObservation);
@@ -425,7 +442,12 @@ export default {
           return false
         }
         let This = this;
+        
+
         let lstObservations = JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST));
+        /** Whether record to be updated */
+        let isRecordAvailable = lstObservations.find(({observationId})=> observationId === this.observationId);
+        
 
           this.observationForStore.cropOrganismId             = this.crop.cropId;
           this.observationForStore.organismId                 = this.pest.pestId;
@@ -444,7 +466,7 @@ export default {
           this.observationForStore.observationIllustrationSet = this.observation.observationIllustrationSet;
           
 
-         if(this.observationId)
+         if(this.observationId && isRecordAvailable)
          {
               this.observationForStore.observationId  = this.observationId;
               let localObservationForStore            = this.observationForStore;
@@ -486,6 +508,7 @@ export default {
                 lstObservations = [];
                 
               }
+              this.observationForStore.statusTypeId=CommonUtil.CONST_STATUS_PENDING;
               lstObservations.push(this.observationForStore);
          }
               localStorage.setItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST, JSON.stringify(lstObservations) );

@@ -6,6 +6,8 @@ export default {
 
     CONST_EVENT_LOGIN_USER_DETAIL       :   'eventloginuserdetail',
 
+    CONST_STATUS_PENDING                :   1,
+
     CONST_STORAGE_UUID                  :   'user-uuid',
     CONST_STORAGE_USER_DETAIL           :   'store-user-detail',
     CONST_STORE_TIMESTAMP               :   'store-time-stamp',

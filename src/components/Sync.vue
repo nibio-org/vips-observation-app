@@ -453,6 +453,7 @@ export default {
             let userUUID = localStorage.getItem(CommonUtil.CONST_STORAGE_UUID);
 
             let jsonBody = JSON.stringify(observation);
+
             fetch(
                     CommonUtil.CONST_URL_DOMAIN + CommonUtil.CONST_URL_SYNC_UPDATE_OBSERVATION,
                     {
@@ -476,7 +477,29 @@ export default {
             })
             .then((data)=>{
                 let updatedObservation = JSON.parse(data);
-               
+
+               if(observation.observationId < 0)
+               {
+                   let indexPosition = null;
+                   let lstObservations = JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST));
+                   $.each(lstObservations, function(index, jsonObservation){
+                       if(observation.observationId == jsonObservation.observationId)
+                       {
+                           indexPosition = index;
+                           return false;
+
+                       }
+                   })
+
+                    if(indexPosition)
+                    {
+                        /** Remove the Observation with nagative number (localy created ) */
+                        lstObservations.splice(indexPosition,1);
+                        localStorage.setItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST,JSON.stringify(lstObservations));
+                        this.getObservationsFromServerTwowaySync(1,updatedObservation)
+                    }
+
+               }
                 if(updatedObservation.observationId === observation.observationId)
                 {
                     this.updateObservationPOST(updatedObservation,totalTwoWaySyncPOST);
@@ -551,7 +574,6 @@ export default {
     /** GET Observations */
     getObservationsFromServerTwowaySync(totalTwoWaySyncPOST,updatedObservation)
     {
-        console.log('-- inside GET ');
         
         let This = this;
         let strUUID     = localStorage.getItem(CommonUtil.CONST_STORAGE_UUID);
@@ -635,15 +657,107 @@ export default {
                 }
                 else
                 {
-                    localStorage.setItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST,JSON.stringify(data));
+                    localStorage.setItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST,JSON.stringify(serverObservations));
                     //this.$router.replace({path:'/'});
 /*                     this.$router.push("/").catch(()=>{});
                     this.$router.go(); */
                 }
+
+                serverObservations.forEach(function(srvObservation){
+                        let observationId   = srvObservation.observationId;
+                        let organismId      = srvObservation.organismId;
+                        let illustrations   =   srvObservation.observationIllustrationSet;
+
+                        if(illustrations && illustrations.length != 0)
+                        {
+                            illustrations.forEach(function(illustration){
+                                    let imageFileName = illustration.observationIllustrationPK.fileName;
+                                    if(imageFileName)
+                                    {
+                                        This.fetchImageFromServer(observationId, organismId,imageFileName);
+                                    }
+                            })
+                        }
+                });
                 
             })
-    }
+    },
 
+    /** GET image from server */
+    fetchImageFromServer(observationId,organismId,imageFileName)
+    {
+
+        let photoURL=CommonUtil.CONST_URL_DOMAIN+CommonUtil.CONST_URL_STATIC_IMAGE_PATH+organismId+'/'+imageFileName;
+        let imgTest;
+        let This = this; 
+        let observationImage    =   {
+                                        observationId               :   '',
+                                        organismId                  :   '',
+                                        illustration                :   {
+                                                                            fileName        : '',
+                                                                            imageTextData   : '', 
+                                                                            deleted         : false
+                                                                        } 
+                                    };
+            observationImage.observationId  =   observationId;
+            observationImage.organismId     =   organismId;
+            observationImage.illustration.fileName = imageFileName;
+
+        
+
+        if(organismId)
+        {
+        const toDataURL = url => fetch(url)
+            .then(response => response.blob())
+            .then(blob => new Promise((resolve, reject) => {
+                const reader = new FileReader()
+                reader.onloadend = () => resolve(reader.result)
+                reader.onerror = reject
+                reader.readAsDataURL(blob)
+            }))
+
+
+            toDataURL(photoURL) 
+            .then(imageTextData => {
+                observationImage.illustration.imageTextData = imageTextData;
+                    This.storeImageData(observationImage);
+            })
+        }
+
+    },
+    /** Store image at server 
+     */
+    storeImageData(observationImage)
+    {       let This    =   this;
+            let entityName = CommonUtil.CONST_DB_ENTITY_PHOTO;
+        
+        let dbRequest = indexedDB.open(CommonUtil.CONST_DB_NAME, CommonUtil.CONST_DB_VERSION);
+        dbRequest.onsuccess = function(evt) {
+            let db = evt.target.result;
+            if(db.objectStoreNames.contains(entityName)){
+                let transaction = db.transaction([entityName],'readwrite'); 
+                let objectstore = transaction.objectStore(entityName).add(observationImage,observationImage.illustration.fileName);
+            }
+            else
+            {
+                let store = db.createObjectStore(entityName, {keypath : observationImage.illustration.fileName});
+                store.createIndex('observationId', 'observationId', { unique: false });
+                store.createIndex('organismId', 'organismId', { unique: false });                                    
+            }
+        } 
+        
+
+        dbRequest.onupgradeneeded= function (event)
+        {
+            let db = event.target.result;
+            if( !db.objectStoreNames.contains(entityName)){
+                let store = db.createObjectStore(entityName, {keypath : observationImage.illustration.fileName});
+                store.createIndex('observationId', 'observationId', { unique: false });
+                store.createIndex('organismId', 'organismId', { unique: false });
+            }
+        }
+
+    }, 
 
 
 
