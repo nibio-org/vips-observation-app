@@ -379,7 +379,11 @@ export default {
                     observationForStore.locationIsPrivate           =   observation.locationIsPrivate;
                     observationForStore.polygonService              =   observation.polygonService; 
                     observationForStore.uploaded                    =   observation.uploaded;    
-                    observationForStore.observationIllustrationSet  =   observation.observationIllustrationSet;          
+                    observationForStore.observationIllustrationSet  =   observation.observationIllustrationSet;  
+                    if(observation.deleted)
+                    {   
+                        observationForStore.deleted                 =   observation.deleted;
+                    }
                     
                     This.syncObservationSendPrepareSingleObject(observationForStore,This.totalTwoWaySyncPOST);
                 
@@ -451,8 +455,24 @@ export default {
         //if(this.isSyncNeeded)
         {
             let userUUID = localStorage.getItem(CommonUtil.CONST_STORAGE_UUID);
+            let jsonBody = null;
 
-            let jsonBody = JSON.stringify(observation);
+            if(observation.deleted)
+            {
+                let delObservation = {};
+                delObservation.observationId = observation.observationId;
+                delObservation.deleted = observation.deleted;
+                jsonBody = JSON.stringify(delObservation);
+            }
+            else
+            {
+                jsonBody = JSON.stringify(observation);
+            }
+
+            if(observation.deleted)
+            {
+                This.removeLocalObservation(observation.observationId);
+            }
 
             fetch(
                     CommonUtil.CONST_URL_DOMAIN + CommonUtil.CONST_URL_SYNC_UPDATE_OBSERVATION,
@@ -467,7 +487,9 @@ export default {
                 )
             .then(function(response){
                 
-                 if(response.status === 200) {}
+                 if(response.status === 200) {
+                     
+                 }
                 else{
                         /** Even if the response is not success, still need to increase the counter, 
                          * to decide for next action  after all PUSH */
@@ -476,34 +498,37 @@ export default {
                     return response.text()
             })
             .then((data)=>{
-                let updatedObservation = JSON.parse(data);
-
-               if(observation.observationId < 0)
-               {
-                   let indexPosition = null;
-                   let lstObservations = JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST));
-                   $.each(lstObservations, function(index, jsonObservation){
-                       if(observation.observationId == jsonObservation.observationId)
-                       {
-                           indexPosition = index;
-                           return false;
-
-                       }
-                   })
-
-                    if(indexPosition)
+                if(data) {
+                        let updatedObservation = JSON.parse(data);
+               
+                    if(observation.observationId < 0)
                     {
-                        /** Remove the Observation with nagative number (localy created ) */
-                        lstObservations.splice(indexPosition,1);
-                        localStorage.setItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST,JSON.stringify(lstObservations));
-                        this.getObservationsFromServerTwowaySync(1,updatedObservation)
-                    }
+                        let indexPosition = null;
+                        let lstObservations = JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST));
+                        $.each(lstObservations, function(index, jsonObservation){
+                            if(observation.observationId == jsonObservation.observationId)
+                            {
+                                indexPosition = index;
+                                return false;
 
-               }
-                if(updatedObservation.observationId === observation.observationId)
-                {
-                    this.updateObservationPOST(updatedObservation,totalTwoWaySyncPOST);
-                    
+                            }
+                        })
+
+                            if(indexPosition)
+                            {
+                                /** Remove/delete the Observation with nagative number (localy created ) */
+                                lstObservations.splice(indexPosition,1);
+                                localStorage.setItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST,JSON.stringify(lstObservations));
+                                this.getObservationsFromServerTwowaySync(1,updatedObservation)
+                            }
+
+                    }
+                        if(updatedObservation.observationId === observation.observationId)
+                        {
+                            this.updateObservationPOST(updatedObservation,totalTwoWaySyncPOST);
+                            
+                        }
+
                 }
             });
         }
@@ -759,6 +784,54 @@ export default {
 
     }, 
 
+    /** Remove local Observation */
+    removeLocalObservation(id)
+    {
+        let lstObservations = JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST));
+        let indexPosition       = null;
+        $.each(lstObservations, function(index, observation){
+              if(observation.observationId===id)
+              {
+                 indexPosition = index;
+                 return false;
+              }
+        });
+
+        if(indexPosition)
+        {
+          this.removeImageRecord(id);
+
+          lstObservations.splice(indexPosition,1);
+          localStorage.setItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST,JSON.stringify(lstObservations));
+        }
+    },
+    /**
+     * Remove image data from indexed DB 
+     */
+    removeImageRecord(observationId){
+      let entityName = CommonUtil.CONST_DB_ENTITY_PHOTO;
+      let dbRequest =  indexedDB.open(CommonUtil.CONST_DB_NAME, CommonUtil.CONST_DB_VERSION);
+      let indexName =  CommonUtil.CONST_DB_INDEX_NAME_OBSERVATION_ID;
+      dbRequest.onsuccess = function(evt) {
+        let db = evt.target.result;
+        let transaction     =   db.transaction([entityName],'readwrite'); 
+        let objectstore     =   transaction.objectStore(entityName);
+        let indexStore      =   objectstore.index(indexName);
+        let keyRange        =   IDBKeyRange.only(observationId);
+        let cursorRequest   =   indexStore.openCursor(keyRange);
+        cursorRequest.onsuccess = function(event){
+          let cursor  =  event.target.result;
+          if(cursor)
+          {
+            cursor.delete();
+            cursor.continue();
+          }
+        }
+
+
+      }
+
+    },
 
 
 

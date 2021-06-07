@@ -8,5 +8,7 @@
 
 
 
-  "prop.err.observation.geoinfo" : "Geo location can not be empty !!"
+  "prop.err.observation.geoinfo" : "Geo location can not be empty !!",
+  "prop.err.observation.remove.msg" : "This Observation will remove !! Are you sure ?",
+  "prop.err.observation.remove.warn" : "This Observation will remove"
 }

@@ -9,9 +9,13 @@
   
   <div v-if="observations">
   <ul class="list-group" v-if="isInitialized">
-       <router-link :to="{name: 'Observation', params: {observationId:obs.observationId}}" class="list-group-item list-group-item-action " v-bind:class="{'text-danger':obs.isNew, 'text-primary':obs.toUpload}" v-for="obs in observations" v-bind:key="obs.observationId">
-
-        {{ obs.timeOfObservation | dateFormat }}  <b>{{obs.observationHeading}}</b> 
+       <router-link :to="{name: 'Observation', params: {observationId:obs.observationId}}" class="list-group-item list-group-item-action " v-bind:class="{'text-danger':obs.isNew, 'text-primary':obs.toUpload, 'text-secondary':obs.isDeleted}" v-for="obs in observations" v-bind:key="obs.observationId">
+         <div v-if="obs.isDeleted">
+            <strike>  {{ obs.timeOfObservation | dateFormat }}  <b>{{obs.observationHeading}}</b> </strike>
+         </div>
+         <div v-else>
+           {{ obs.timeOfObservation | dateFormat }}  <b>{{obs.observationHeading}}</b>
+         </div>
     </router-link >
 
   </ul>
@@ -50,13 +54,20 @@ export default {
           lstObservations.forEach(function(observation){
               if(observation.uploaded==false)
               {
-                if(observation.observationId < 0)
+                if(observation.deleted)
                 {
-                  observation.isNew = true;
+                    observation.isDeleted = true;
                 }
                 else{
-                  observation.toUpload = true;
+                      if(observation.observationId < 0)
+                      {
+                        observation.isNew = true;
+                      }
+                      else{
+                        observation.toUpload = true;
+                      }
                 }
+
               }
 
           });
