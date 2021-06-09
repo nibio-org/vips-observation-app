@@ -314,7 +314,7 @@ export default{
                                                         source  : new VectorSource ({
                                                                         features    :   [
                                                                                             new Feature({
-                                                                                                geometry : new Point(fromLonLat(coord))
+                                                                                                geometry : new Point(fromLonLat(transFormCord))
                                                                                             })
                                                                                         ],
                                                                 }),
