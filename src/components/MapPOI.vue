@@ -8,19 +8,23 @@
                 <div ><input id='poiName' ref='poiName' v-model="poi.name"/></div>
                 <div class="clearfix"/>
                 <div class='row'>
-                    <div class='col-10'>
+                    <div class='col-7'>
                         <select v-model="poi.pointOfInterestTypeId">
                             <option v-for="poiType in poiTypes" v-bind:key="poiType.point_of_interest_type_id" :value='poiType.point_of_interest_type_id'>{{poiType.default_name}}</option>
                         </select>
                     </div>
-                    <div class="col-1">
+                    <div class="col-2">
                         <button class="btn btn-success" @click="validate">Save</button>
+                    </div>
+                    <div class="col-3">
+                        <button v-show="isDeleteBttnVisible"  class="btn btn-danger " v-on:click="callForRemovePOI"> Delete </button>
                     </div>
                 </div>
             </div>
             <div id="poiMarker" style="display:none">
                 <img src="@/assets/map_icon.png"> 
             </div>
+            <!-- For Saving -->
             <Modal
                     v-show="isModalVisible"
                     v-on:close="closeModal"
@@ -32,6 +36,25 @@
 
                 <template v-slot:body>
                     Saving information for : {{poi.name}} ?
+                </template>
+
+                <template v-slot:footer>
+                    Please chose the option below :
+                </template>
+
+            </Modal>
+            <!-- For Delete -->
+            <Modal
+                    v-show="isModalDelVisible"
+                    v-on:close="closeDelModal"
+                    v-on:action="actionDelModal"
+            >
+                <template v-slot:header>
+                       !! ALERT !!
+                </template>
+
+                <template v-slot:body>
+                        <font color='red'><b> DELETE </b> information for : {{poi.name}} ?</font>
                 </template>
 
                 <template v-slot:footer>
@@ -101,6 +124,8 @@ export default{
 
     data()      {
                     return {
+                        isDeleteBttnVisible     :   true,
+                        isModalDelVisible       :   false,
                         isModalVisible          :   false,
                         isModalSimpleVisible    :   false,
                         poi                     :   {},
@@ -113,6 +138,53 @@ export default{
                     }
     },
     methods :   {
+                callForRemovePOI()
+                {
+                    this.isModalDelVisible = true;
+                },
+                closeDelModal(){
+                    this.isModalDelVisible = false;
+                },
+                actionDelModal()
+                {
+                    if(this.poi.pointOfInterestId)
+                    {
+                        if(this.poi.pointOfInterestId < 0)
+                        {
+                             /** Just remove it locally */
+                            this.removeLocalPOI(this.poi.pointOfInterestId);
+                            this.$router.replace({path:'/places'});
+                        }
+                        else
+                        {
+                            /** Mark the record - for sending to server */
+                            this.poi.deleted=true;
+                            this.saveToStore();
+                        }
+                    }
+
+                     this.isModalDelVisible = false;
+                },
+                removeLocalPOI(id)
+                {
+                        let lstPOI = JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_POI_LIST));
+                        let indexPosition       = null;
+                        $.each(lstPOI, function(index, poi){
+                            if(poi.pointOfInterestId===id)
+                            {
+                                indexPosition = index;
+                                return false;
+                            }
+                        }); 
+
+                        if(indexPosition)
+                        {
+
+                            lstPOI.splice(indexPosition,1);
+                            localStorage.setItem(CommonUtil.CONST_STORAGE_POI_LIST,JSON.stringify(lstPOI));
+                        }                        
+                        
+                },
                 validate()
                 {
                     if((!this.poi.name) || (this.trimString(this.poi.name) === '')) 
@@ -314,7 +386,7 @@ export default{
                                                         source  : new VectorSource ({
                                                                         features    :   [
                                                                                             new Feature({
-                                                                                                geometry : new Point(fromLonLat(coord))
+                                                                                                geometry : new Point(fromLonLat(transFormCord))
                                                                                             })
                                                                                         ],
                                                                 }),

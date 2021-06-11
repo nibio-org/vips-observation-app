@@ -34,6 +34,7 @@ export default {
                                 ],
       arrSyncTwoWay         :   [
                                     {"name":CommonUtil.CONST_STORAGE_OBSERVATION_LIST,"complete":false}    ,
+                                    {"name":CommonUtil.CONST_STORAGE_POI_LIST,"complete":false}    ,
                                     
                                 ],                                
       appUser               : {},
@@ -172,8 +173,11 @@ export default {
                  switch(value.name) {
                         case CommonUtil.CONST_STORAGE_OBSERVATION_LIST :
                             strUrl = This.CONST_URL_DOMAIN +CommonUtil.CONST_URL_USER_OBSERVATION_LIST;
-                            
                             break; 
+                        case CommonUtil.CONST_STORAGE_POI_LIST :
+                            strUrl = This.CONST_URL_DOMAIN +CommonUtil.CONST_URL_USER_POI;
+                            break; 
+
                         default :
                  }
 
@@ -330,18 +334,255 @@ export default {
          switch(value.name)
          {
             case CommonUtil.CONST_STORAGE_OBSERVATION_LIST :
-                
                 this.syncTwoWayObservation(value,strUrl);
                 break;
+            case CommonUtil.CONST_STORAGE_POI_LIST :
+                //this.syncTwoWayPOI(value,strUrl);
+                break;
+            
             default: 
          }
        
     },
 
+    /** Two way Sync  POI */
+    syncTwoWayPOI(value,strUrl)
+    {
+        this.syncPOISendPrepare(value);
+    },
+
+    syncPOISendPrepare(value)
+    {
+        let This = this;
+        let lstPOI = JSON.parse(localStorage.getItem(value.name));
+
+        if(lstPOI)
+        {
+            let lstPOIUpload            = lstPOI.filter(poi => poi.uploaded === false);
+            this.totalTwoWaySyncPOST    = lstPOIUpload.length;
+            if(lstPOIUpload && lstPOIUpload.length != 0)
+            {
+                lstPOIUpload.forEach(function(poi){
+                        this.syncPOIPOST(poi,this.totalTwoWaySyncPOST);
+                })
+            }
+            else{
+                 /** Create the list using GET */
+                let totalTwoWaySyncPOST = 0;
+                let updatedObservation  = {};
+                 this.getPOIFromServerTwowaySync(totalTwoWaySyncPOST,updatedPOI);
+            }
+        }
+        else{
+            /** Create the list using GET */
+            this.getPOIFromServerTwowaySync(0,undefined);
+        }
+    },
+
+    syncPOIPOST(poi,totalTwoWaySyncPOST)
+    {
+        let This = this;
+        let userUUID = localStorage.getItem(CommonUtil.CONST_STORAGE_UUID);
+        let jsonBody = null;
+
+        if(poi.deleted)
+        {
+            /** prepare POI object for server Delete Operation */
+            let delPOI = {};
+            delPOI.pointOfInterestId = poi.pointOfInterestId;
+            delPOI.deleted = poi.deleted;
+            jsonBody = JSON.stringify(delPOI);
+        }
+        else
+        {
+            jsonBody = JSON.stringify(poi);
+        }
+
+        fetch(
+        CommonUtil.CONST_URL_DOMAIN + CommonUtil.CONST_URL_SYNC_UPDATE_POI,
+        {
+            method: "POST",
+            headers: {
+                        "Content-Type": "application/json",
+                        'Authorization' : userUUID
+            },
+            body : jsonBody
+        })
+        .then(function(response){
+            if(response.status === 200) {
+                
+            }
+            else{
+                    /** Even if the response is not success, still need to increase the counter, 
+                     * to decide for next action  after all PUSH */
+                    This.counterTwoWaySyncPOST = This.counterTwoWaySyncPOST + 1;
+            }
+            return response.text()
+        })
+        .then((data) => {
+            if(data) {
+                let updatedPOI = JSON.parse(data);
+                if(poi.pointOfInterestId < 0)
+                {
+                        let indexPosition = null;
+                        let lstPOI = JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_POI_LIST));   
+                        $.each(lstPOI, function(index, jsonPOI){
+                            if(poi.pointOfInterestId == jsonPOI.pointOfInterestId)
+                            {
+                                indexPosition = index;
+                                return false;
+                            }
+                        })
+                        
+                        if(indexPosition)
+                        {
+                            /** Remove/delete the POI with nagative number (localy created ) */
+                            lstPOI.splice(indexPosition,1);
+                            localStorage.setItem(CommonUtil.CONST_STORAGE_POI_LIST,JSON.stringify(lstPOI));
+                            this.getPOIFromServerTwowaySync(1,updatedPOI);
+                        }
+                }
+                if(poi.pointOfInterestId === updatedPOI.pointOfInterestId)
+                {
+                    
+                        this.updatePOIPOST(updatedPOI,totalTwoWaySyncPOST);
+                }
+            }
+        })
+    },
+
+    /** Update POI after response from server */
+    updatePOIPOST(updatedPOI,totalTwoWaySyncPOST)
+    {
+        let lstPOI = JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_POI_LIST));
+        let counter = undefined;
+        $.each(lstPOI, function(index, jsonPOI){
+            if(jsonPOI.pointOfInterestId === updatedPOI.pointOfInterestId)
+            {
+                counter = index;
+                return false;
+            }
+        });        
+
+        if(counter)
+        {
+            lstPOI[counter]=updatedPOI;
+            localStorage.setItem(CommonUtil.CONST_STORAGE_POI_LIST, JSON.stringify(lstPOI) );
+
+            this.counterTwoWaySyncPOST = this.counterTwoWaySyncPOST + 1;
+            console.log('total number of upload : '+totalTwoWaySyncPOST+' ---- counter value : '+this.counterTwoWaySyncPOST);
+
+            if(this.counterTwoWaySyncPOST === totalTwoWaySyncPOST)
+            {
+                    this.counterTwoWaySyncPOST = 0;
+                    this.getPOIFromServerTwowaySync(totalTwoWaySyncPOST,updatedPOI);
+            }
+
+
+        }
+
+    },
+
+  /** GET POIs */
+    getPOIFromServerTwowaySync(totalTwoWaySyncPOST,updatedPOI)
+    {
+        let This = this;
+        let strUUID     = localStorage.getItem(CommonUtil.CONST_STORAGE_UUID);
+        let jsonHeader  = { Authorization: strUUID };
+
+         fetch(CommonUtil.CONST_URL_DOMAIN + CommonUtil.CONST_URL_USER_POI, {
+            method: "GET",
+            headers: jsonHeader,
+            }).then((response) => response.json())
+            .then((data) => { 
+                let serverPOIs = data;
+                if(localStorage.getItem(CommonUtil.CONST_STORAGE_POI_LIST))
+                {
+                    let lstLocalPOI = JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_POI_LIST));
+                    serverPOIs.forEach(function(serverPOI){
+                        let arrIndex        = undefined;
+                        let booNoRecordFound = false;
+                        let booRecordFound   = false;
+                        $.each(lstLocalPOI,function(index, localPOI){
+                            if(serverPOI.pointOfInterestId === localPOI.pointOfInterestId) {
+                                booRecordFound = true;
+                                if(updatedPOI && (totalTwoWaySyncPOST === 1 && updatedPOI.pointOfInterestId === serverPOI.pointOfInterestId ))
+                                {
+
+                                }
+                                else
+                                {
+                                    if(srvObservation.lastEditedTime)
+                                    {
+                                            let srvDate     = new Date(serverPOI.lastEditedTime);
+                                            let localDate   = new Date(localPOI.lastEditedTime);
+
+                                            if(srvDate >= localDate)
+                                            {
+                                                arrIndex = index;
+                                                return false;
+                                            }
+
+                                    }
+                                    else{
+                                        arrIndex = index;
+                                        return false;
+                                    }
+                                }
+
+                            }
+                        });
+                       
+                        if(booRecordFound){}
+                        else {
+                            booNoRecordFound = true;
+                        }
+                        if(arrIndex)
+                        {
+                            lstLocalPOI[arrIndex]=serverPOIs;
+                        }
+                        if(booNoRecordFound)
+                        {
+                            lstLocalPOI.push(serverPOIs);
+                            return false;
+                        }                       
+
+                    });
+                    localStorage.setItem(CommonUtil.CONST_STORAGE_POI_LIST,JSON.stringify(lstLocalPOI));
+
+                }
+                else{
+                    localStorage.setItem(CommonUtil.CONST_STORAGE_POI_LIST,JSON.stringify(serverPOI));
+                }
+
+
+            })
+
+    },
+    /** Remove local POI */
+    removeLocalPOI(id)
+    {
+        let lstPOI = JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_POI_LIST));
+        let indexPosition       = null;
+        $.each(lstPOI, function(index, poi){
+              if(poi.pointOfInterestId===id)
+              {
+                 indexPosition = index;
+                 return false;
+              }
+        });
+
+        if(indexPosition)
+        {
+         
+          lstPOI.splice(indexPosition,1);
+          localStorage.setItem(CommonUtil.CONST_STORAGE_POI_LIST,JSON.stringify(lstPOI));
+        }
+    },
+
     /** Two way Sync - Observation */
     syncTwoWayObservation(value,strUrl)
     {
-        
         this.syncObservationSendPrepare(value);
     },
 
