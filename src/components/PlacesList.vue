@@ -2,9 +2,14 @@
   <div class="hello">
     <h1>{{ msg }}</h1>
     <div class="container">
-            <router-link  class="row fw-bold" ref='linkMapPoi' :to="{name:'MapPOI', params: {pointOfInterestId:poi.pointOfInterestId}}"  v-for="poi in listPOI" v-bind:key="poi.pointOfInterestId">
-                <div class='col-10 '><h5>{{poi.name}}</h5></div>
-                <div class='col'><i class="fas fa-plus-circle fa-2x"></i></div>
+            <router-link  class="row fw-bold" ref='linkMapPoi' :to="{name:'MapPOI', params: {pointOfInterestId:poi.pointOfInterestId}}" v-bind:class="{'text-danger':poi.isNew, 'text-primary':poi.toUpload, 'text-secondary':poi.isDeleted}"  v-for="poi in listPOI" v-bind:key="poi.pointOfInterestId">
+                <div v-if="poi.isDeleted">
+                    <strike> <div ><h5>{{poi.name}}</h5></div> </strike>
+                </div>
+                <div v-else>
+                    <div ><h5>{{poi.name}}</h5></div>                
+                </div>
+                
             </router-link>
           <div class="clearfix" />
     </div>
@@ -56,7 +61,26 @@ export default {
                 getPlacesList()
                 {
                   let lstPOI = JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_POI_LIST));
-                  
+                                lstPOI.forEach(function(poi){
+                                    if(poi.uploaded===false)
+                                    {
+                                      if(poi.deleted)
+                                      {
+                                          poi.isDeleted = true;
+                                      }
+                                      else{
+                                            if(poi.pointOfInterestId < 0)
+                                            {
+                                              poi.isNew = true;
+                                            }
+                                            else{
+                                              poi.toUpload = true;
+                                            }
+                                      }
+
+                                    }
+
+                                });                  
                   return lstPOI;
                 }
 

@@ -47,6 +47,8 @@ export default {
 
     CONST_URL_SYNC_UPDATE_OBSERVATIONS  :   '/rest/observation/syncobservationlistfromapp',
     CONST_URL_SYNC_UPDATE_OBSERVATION   :   '/rest/observation/syncobservationfromapp',
+
+    CONST_URL_SYNC_UPDATE_POI           :   '/rest/poi/syncpoifromapp',
     
     CONST_URL_USER_OBSERVATION_LIST     :   '/rest/observation/list/user',
     CONST_URL_USER_POI                  :   '/rest/poi/user',
