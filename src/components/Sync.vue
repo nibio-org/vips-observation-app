@@ -337,7 +337,7 @@ export default {
                 this.syncTwoWayObservation(value,strUrl);
                 break;
             case CommonUtil.CONST_STORAGE_POI_LIST :
-                //this.syncTwoWayPOI(value,strUrl);
+                this.syncTwoWayPOI(value,strUrl);
                 break;
             
             default: 
@@ -363,14 +363,14 @@ export default {
             if(lstPOIUpload && lstPOIUpload.length != 0)
             {
                 lstPOIUpload.forEach(function(poi){
-                        this.syncPOIPOST(poi,this.totalTwoWaySyncPOST);
+                        This.syncPOIPOST(poi,This.totalTwoWaySyncPOST);
                 })
             }
             else{
                  /** Create the list using GET */
                 let totalTwoWaySyncPOST = 0;
-                let updatedObservation  = {};
-                 this.getPOIFromServerTwowaySync(totalTwoWaySyncPOST,updatedPOI);
+                let updatedPOI  = {};
+                 This.getPOIFromServerTwowaySync(totalTwoWaySyncPOST,updatedPOI);
             }
         }
         else{
@@ -392,6 +392,8 @@ export default {
             delPOI.pointOfInterestId = poi.pointOfInterestId;
             delPOI.deleted = poi.deleted;
             jsonBody = JSON.stringify(delPOI);
+            
+            this.removeLocalPOI(poi.pointOfInterestId);
         }
         else
         {
@@ -416,37 +418,49 @@ export default {
                     /** Even if the response is not success, still need to increase the counter, 
                      * to decide for next action  after all PUSH */
                     This.counterTwoWaySyncPOST = This.counterTwoWaySyncPOST + 1;
+                    if(response.status===500)
+                    {
+                        return false;
+                    }
             }
             return response.text()
         })
         .then((data) => {
             if(data) {
                 let updatedPOI = JSON.parse(data);
-                if(poi.pointOfInterestId < 0)
-                {
-                        let indexPosition = null;
-                        let lstPOI = JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_POI_LIST));   
-                        $.each(lstPOI, function(index, jsonPOI){
-                            if(poi.pointOfInterestId == jsonPOI.pointOfInterestId)
+                 if(updatedPOI.deleted)
+                 {
+                     This.removeLocalPOI(poupdatedPOI.pointOfInterestId);
+                 }
+                 else
+                 {
+                    if(poi.pointOfInterestId < 0)
+                    {
+                            let indexPosition = null;
+                            let lstPOI = JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_POI_LIST));   
+                            $.each(lstPOI, function(index, jsonPOI){
+                                if(poi.pointOfInterestId == jsonPOI.pointOfInterestId)
+                                {
+                                    indexPosition = index;
+                                    return false;
+                                }
+                            })
+                            
+                            if(indexPosition)
                             {
-                                indexPosition = index;
-                                return false;
+                                /** Remove/delete the POI with nagative number (localy created ) */
+                                lstPOI.splice(indexPosition,1);
+                                localStorage.setItem(CommonUtil.CONST_STORAGE_POI_LIST,JSON.stringify(lstPOI));
+                                this.getPOIFromServerTwowaySync(1,updatedPOI);
                             }
-                        })
+                    }
+                    if(poi.pointOfInterestId === updatedPOI.pointOfInterestId)
+                    {
                         
-                        if(indexPosition)
-                        {
-                            /** Remove/delete the POI with nagative number (localy created ) */
-                            lstPOI.splice(indexPosition,1);
-                            localStorage.setItem(CommonUtil.CONST_STORAGE_POI_LIST,JSON.stringify(lstPOI));
-                            this.getPOIFromServerTwowaySync(1,updatedPOI);
-                        }
-                }
-                if(poi.pointOfInterestId === updatedPOI.pointOfInterestId)
-                {
-                    
-                        this.updatePOIPOST(updatedPOI,totalTwoWaySyncPOST);
-                }
+                            this.updatePOIPOST(updatedPOI,totalTwoWaySyncPOST);
+                    }
+                 }
+
             }
         })
     },
@@ -489,7 +503,6 @@ export default {
         let This = this;
         let strUUID     = localStorage.getItem(CommonUtil.CONST_STORAGE_UUID);
         let jsonHeader  = { Authorization: strUUID };
-
          fetch(CommonUtil.CONST_URL_DOMAIN + CommonUtil.CONST_URL_USER_POI, {
             method: "GET",
             headers: jsonHeader,
@@ -508,11 +521,10 @@ export default {
                                 booRecordFound = true;
                                 if(updatedPOI && (totalTwoWaySyncPOST === 1 && updatedPOI.pointOfInterestId === serverPOI.pointOfInterestId ))
                                 {
-
                                 }
                                 else
                                 {
-                                    if(srvObservation.lastEditedTime)
+                                    if(serverPOI.lastEditedTime)
                                     {
                                             let srvDate     = new Date(serverPOI.lastEditedTime);
                                             let localDate   = new Date(localPOI.lastEditedTime);
@@ -539,20 +551,24 @@ export default {
                         }
                         if(arrIndex)
                         {
-                            lstLocalPOI[arrIndex]=serverPOIs;
+
+                            lstLocalPOI[arrIndex]=serverPOI;
                         }
                         if(booNoRecordFound)
                         {
-                            lstLocalPOI.push(serverPOIs);
+                            lstLocalPOI.push(serverPOI);
                             return false;
                         }                       
 
                     });
+
                     localStorage.setItem(CommonUtil.CONST_STORAGE_POI_LIST,JSON.stringify(lstLocalPOI));
 
                 }
                 else{
-                    localStorage.setItem(CommonUtil.CONST_STORAGE_POI_LIST,JSON.stringify(serverPOI));
+
+                    localStorage.setItem(CommonUtil.CONST_STORAGE_POI_LIST,JSON.stringify(serverPOIs));
+                    console.log(serverPOIs);
                 }
 
 

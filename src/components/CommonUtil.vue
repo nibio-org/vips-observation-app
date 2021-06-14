@@ -21,7 +21,8 @@ export default {
     CONST_STORAGE_POI_LIST              :   'store-poi-list',
     CONST_STORAGE_VISIBILITY_POLYGON    :   'store-polygon',
 
-    CONST_POI_TYPES                     :   '[{"point_of_interest_type_id":0,"default_name":"General"},{"point_of_interest_type_id":4,"default_name":"Region"},{"point_of_interest_type_id":1,"default_name":"Weather Station"},{"point_of_interest_type_id":2,"default_name":"Farm"},{"point_of_interest_type_id":3,"default_name":"Field"}]',
+    //CONST_POI_TYPES                     :   '[{"point_of_interest_type_id":0,"default_name":"General"},{"point_of_interest_type_id":4,"default_name":"Region"},{"point_of_interest_type_id":1,"default_name":"Weather Station"},{"point_of_interest_type_id":2,"default_name":"Farm"},{"point_of_interest_type_id":3,"default_name":"Field"}]',
+    CONST_POI_TYPES                     :   '[{"point_of_interest_type_id":0,"default_name":"General"},{"point_of_interest_type_id":2,"default_name":"Farm"},{"point_of_interest_type_id":3,"default_name":"Field"}]',
 
     CONST_IMAGE_WIDTH                   :   100,
     CONST_IMAGE_HEIGHT                  :   100,
