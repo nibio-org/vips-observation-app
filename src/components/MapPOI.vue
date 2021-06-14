@@ -161,6 +161,7 @@ export default{
                             this.poi.deleted=true;
                             this.saveToStore();
                         }
+                        
                     }
 
                      this.isModalDelVisible = false;
@@ -182,6 +183,7 @@ export default{
 
                             lstPOI.splice(indexPosition,1);
                             localStorage.setItem(CommonUtil.CONST_STORAGE_POI_LIST,JSON.stringify(lstPOI));
+
                         }                        
                         
                 },
@@ -245,8 +247,11 @@ export default{
                                 poi.pointOfInterestTypeId=This.poi.pointOfInterestTypeId;
                                 poi.geoJSON=This.poi.geoJSON
                                 poi.uploaded=false;
-                                
-                                return false;
+                                if(This.poi.deleted)
+                                {
+                                    poi.deleted = This.poi.deleted;
+                                }
+                               
                             }
                     })
                     }
@@ -265,8 +270,8 @@ export default{
                         }
                         
                     }
-
                     localStorage.setItem(CommonUtil.CONST_STORAGE_POI_LIST,JSON.stringify(lstPOI));
+                    this.$router.replace({path:'/places'});
                 },
                 /** new POI pointOfInterestId */
                 getNewPoiId(lstPOI)
