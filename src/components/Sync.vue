@@ -568,7 +568,6 @@ export default {
                 else{
 
                     localStorage.setItem(CommonUtil.CONST_STORAGE_POI_LIST,JSON.stringify(serverPOIs));
-                    console.log(serverPOIs);
                 }
 
 

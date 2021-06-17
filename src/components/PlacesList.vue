@@ -95,7 +95,11 @@ export default {
     }  
 }
 </script>
-<style>
+<style scoped>
+a {
+  color: #42b983;
+}
+
   #divNewPOI {
     position: fixed; 
     bottom : 0;
