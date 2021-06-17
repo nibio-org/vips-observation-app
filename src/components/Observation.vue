@@ -505,6 +505,7 @@ export default {
       /** Get Pests */
       getPests(lstPestIds)
       {
+        let This = this;
             let lstPests        = [];
 
            if(! this.observationId)
@@ -518,7 +519,24 @@ export default {
               let jsonPest = {};
               if(jsonDetailPest)
               {
-                jsonPest = {"pestId":jsonDetailPest.organismId, "pestName":jsonDetailPest.latinName};
+                let pestName = jsonDetailPest.latinName;
+                let organismLocaleSet = jsonDetailPest.organismLocaleSet;
+
+                if(organismLocaleSet)
+                {
+                  let strLocale = This.getSystemLocale();
+                  organismLocaleSet.forEach(localObj => {
+                    if(localObj.organismLocalePK.locale === strLocale)
+                    {
+                      if(localObj.localName)
+                      {
+                        pestName = localObj.localName;
+                      }
+                      return false;
+                    }
+                  });
+                }
+                jsonPest = {"pestId":jsonDetailPest.organismId, "pestName":pestName};
               }
               else
               {
