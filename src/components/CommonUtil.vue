@@ -35,7 +35,7 @@ export default {
     CONST_OBSERVATION_COUNT_START_ID    :    -1,
     CONST_POI_COUNT_START_ID            :    -1,
 
-    CONST_URL_DOMAIN                    :   'http://vipslogic-local.no',
+    CONST_URL_DOMAIN                    :   'http://logic.testvips.nibio.no', //'http://vipslogic-local.no',
 
     CONST_URL_AUTH_UUID                 :   '/rest/auth/uuid',
     CONST_URL_AUTH_LOGIN                :   '/rest/auth/login',
