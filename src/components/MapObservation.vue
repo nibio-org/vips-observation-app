@@ -437,7 +437,7 @@ export default {
      },
      mounted() {
          
-         this.CONST_URL_DOMAIN = this.$refs.CommonUtil.getDomain();
+         this.CONST_URL_DOMAIN = CommonUtil.CONST_URL_DOMAIN;
         this.latitude = CommonUtil.CONST_GPS_DEFAULT_LATITUDE_NORWAY;
         this.longitude = CommonUtil.CONST_GPS_DEFAULT_LONGITUDE_NORWAY;
 

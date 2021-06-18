@@ -573,7 +573,7 @@ export default {
 
     },
     mounted(){
-                    this.CONST_URL_DOMAIN                       = this.$refs.CommonUtil.getDomain();
+                    this.CONST_URL_DOMAIN                       = CommonUtil.CONST_URL_DOMAIN;
                     this.entityName                             = CommonUtil.CONST_DB_ENTITY_PHOTO;
 
                     this.observationImage.observationId         =   this.observationId;
