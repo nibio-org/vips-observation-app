@@ -86,7 +86,7 @@ export default {
 
     },
     mounted() {
-            this.CONST_URL_DOMAIN = this.$refs.CommonUtil.getDomain();
+            this.CONST_URL_DOMAIN = CommonUtil.CONST_URL_DOMAIN;
             /** TODO fetch server should be used in sync process and not here */
             //this.fetchFromServer();
 
