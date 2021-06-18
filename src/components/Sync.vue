@@ -401,7 +401,7 @@ export default {
         }
 
         fetch(
-        CommonUtil.CONST_URL_DOMAIN + CommonUtil.CONST_URL_SYNC_UPDATE_POI,
+        This.CONST_URL_DOMAIN + CommonUtil.CONST_URL_SYNC_UPDATE_POI,
         {
             method: "POST",
             headers: {
@@ -503,7 +503,7 @@ export default {
         let This = this;
         let strUUID     = localStorage.getItem(CommonUtil.CONST_STORAGE_UUID);
         let jsonHeader  = { Authorization: strUUID };
-         fetch(CommonUtil.CONST_URL_DOMAIN + CommonUtil.CONST_URL_USER_POI, {
+         fetch(This.CONST_URL_DOMAIN + CommonUtil.CONST_URL_USER_POI, {
             method: "GET",
             headers: jsonHeader,
             }).then((response) => response.json())
@@ -731,7 +731,7 @@ export default {
             }
 
             fetch(
-                    CommonUtil.CONST_URL_DOMAIN + CommonUtil.CONST_URL_SYNC_UPDATE_OBSERVATION,
+                    This.CONST_URL_DOMAIN + CommonUtil.CONST_URL_SYNC_UPDATE_OBSERVATION,
                     {
                         method: "POST",
                         headers: {
@@ -860,7 +860,7 @@ export default {
         let strUUID     = localStorage.getItem(CommonUtil.CONST_STORAGE_UUID);
         let jsonHeader  = { Authorization: strUUID };
 
-        fetch(CommonUtil.CONST_URL_DOMAIN + CommonUtil.CONST_URL_USER_OBSERVATION_LIST, {
+        fetch(This.CONST_URL_DOMAIN + CommonUtil.CONST_URL_USER_OBSERVATION_LIST, {
             method: "GET",
             headers: jsonHeader,
             }).then((response) => response.json())
@@ -968,7 +968,7 @@ export default {
     fetchImageFromServer(observationId,organismId,imageFileName)
     {
 
-        let photoURL=CommonUtil.CONST_URL_DOMAIN+CommonUtil.CONST_URL_STATIC_IMAGE_PATH+organismId+'/'+imageFileName;
+        let photoURL=this.CONST_URL_DOMAIN+CommonUtil.CONST_URL_STATIC_IMAGE_PATH+organismId+'/'+imageFileName;
         let imgTest;
         let This = this; 
         let observationImage    =   {
@@ -1095,7 +1095,7 @@ export default {
   mounted () {
       console.log('mounted .. --');
       this.isMounted = true;
-      this.CONST_URL_DOMAIN = this.$refs.CommonUtil.getDomain();
+      this.CONST_URL_DOMAIN = CommonUtil.CONST_URL_DOMAIN;
   }
  
 };
