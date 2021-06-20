@@ -9,6 +9,8 @@ Build it with 'npm run build' before any cordova
 specific actions - so that vuejs can
 compile to www folder</description>
 	<author email="tor-einar.skog@nibio.no" href="https://www.nibio.no/en/employees/tor-einar-skog">Tor-Einar Skog</author>
+	<author email="bhabesh.mukhopadhyay@nibio.no" href="https://nibio.no/en/employees/bhabesh-bhabani-mukhopadhyay">Bhabesh B Mukhopadhyay</author>
+	<hook src="hooks/versionHook.js" type="after_prepare" />
 	<content src="index.html" />
 	<access origin="*" />
 	<allow-navigation href="*" />
