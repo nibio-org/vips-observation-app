@@ -5,7 +5,7 @@
 
 
 
-
+  "prop.crop.category.empty.alert":"Please select Crop category",
 
 
   "prop.err.observation.geoinfo" : "Geo location can not be empty !!",
