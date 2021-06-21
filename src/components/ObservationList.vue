@@ -49,29 +49,33 @@ export default {
         getObservationsFromStore()
         {
           this.isInitialized = true;
-          let strObservations = localStorage.getItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST);
-          let lstObservations = JSON.parse(strObservations);
-          lstObservations.forEach(function(observation){
-              if(observation.uploaded==false)
-              {
-                if(observation.deleted)
-                {
-                    observation.isDeleted = true;
-                }
-                else{
-                      if(observation.observationId < 0)
+          if(localStorage.getItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST))
+          {
+              let strObservations = localStorage.getItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST);
+              let lstObservations = JSON.parse(strObservations);
+                lstObservations.forEach(function(observation){
+                    if(observation.uploaded==false)
+                    {
+                      if(observation.deleted)
                       {
-                        observation.isNew = true;
+                          observation.isDeleted = true;
                       }
                       else{
-                        observation.toUpload = true;
+                            if(observation.observationId < 0)
+                            {
+                              observation.isNew = true;
+                            }
+                            else{
+                              observation.toUpload = true;
+                            }
                       }
-                }
 
-              }
+                    }
 
-          });
-          this.observations = lstObservations;
+                });
+              this.observations = lstObservations;
+          }
+
         },
 
 
