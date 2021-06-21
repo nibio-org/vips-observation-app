@@ -464,6 +464,7 @@ export default {
       /** Get Crops */
       getCrops(lstCropIds)
       {
+          let This = this;
           let lstCrops                = [];
            if(! this.observationId)
            {
@@ -472,7 +473,29 @@ export default {
           let lstCropList             = JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_CROP_LIST));
                 $.each(lstCropIds, function(index, cropId){
                   let jsonDetailCrop  =   lstCropList.find(({organismId}) => organismId === cropId);
-                  let jsonCrop        =   {'organismId':cropId, 'latinName':jsonDetailCrop.latinName};
+                  let organismLocaleSet = jsonDetailCrop.organismLocaleSet;
+                  let corpName = jsonDetailCrop.latinName;
+
+                  if(organismLocaleSet)
+                  {
+                    let strLocale = This.getSystemLocale();
+                    
+                     organismLocaleSet.forEach(function(localObj) {
+
+                       if(localObj.organismLocalePK.locale === strLocale)
+                       {
+                         if(localObj.localName)
+                         {
+                           corpName = localObj.localName;
+                         }
+
+                         return false;
+
+                       }
+                     });
+
+                  }
+                  let jsonCrop        =   {'organismId':cropId, 'latinName':corpName};
                   lstCrops.push(jsonCrop);
             });
 
@@ -482,6 +505,7 @@ export default {
       /** Get Pests */
       getPests(lstPestIds)
       {
+        let This = this;
             let lstPests        = [];
 
            if(! this.observationId)
@@ -495,7 +519,24 @@ export default {
               let jsonPest = {};
               if(jsonDetailPest)
               {
-                jsonPest = {"pestId":jsonDetailPest.organismId, "pestName":jsonDetailPest.latinName};
+                let pestName = jsonDetailPest.latinName;
+                let organismLocaleSet = jsonDetailPest.organismLocaleSet;
+
+                if(organismLocaleSet)
+                {
+                  let strLocale = This.getSystemLocale();
+                  organismLocaleSet.forEach(localObj => {
+                    if(localObj.organismLocalePK.locale === strLocale)
+                    {
+                      if(localObj.localName)
+                      {
+                        pestName = localObj.localName;
+                      }
+                      return false;
+                    }
+                  });
+                }
+                jsonPest = {"pestId":jsonDetailPest.organismId, "pestName":pestName};
               }
               else
               {
@@ -641,6 +682,18 @@ export default {
       updateQuntificationData(schemaData){
           this.observation.observationData = schemaData;
       },
+      getSystemLocale()
+      {
+          var localePrefer        =   null;
+          var localePrefer2       =   null;
+          if(typeof navigator.language != 'undefined')
+          {
+              localePrefer     =   navigator.language;
+              localePrefer2    =   localePrefer.trim().substring(0,2);
+          }
+
+          return localePrefer2;
+      },     
 
   },
   filters: {
