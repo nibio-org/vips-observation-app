@@ -445,13 +445,14 @@ export default {
           let jsonCropCategoryList    = JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_CROP_CATEGORY));
           //let lstCropPestList         = JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_CROP_PEST_LIST));
 
-
           /* Iterate Selected Crop Ids */
           $.each(arrCropCatIds, function(index, cropCatId){
-
+              if(cropCatId != "")
+              {
                let jsonCropCategory   = jsonCropCategoryList.find(({cropCategoryId}) => cropCategoryId === JSON.parse(cropCatId));
                let jsonCropIds        = jsonCropCategory.cropOrganismIds;
                 lstCropIds            = lstCropIds.concat(jsonCropIds);
+              }
           });
 
           this.getCrops(lstCropIds);
@@ -738,13 +739,30 @@ export default {
       this.observation.observationId=this.observationId;
     }
     else{
-            
-            let newObservationId      = 0;
-            let lstObservations       = JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST));
-                newObservationId      = this.getNewObservationId(lstObservations);   
-                this.observation.observationId  = newObservationId;  
-                this.observation.observationData='';
-                this.getNewObservation();
+          let isCropIdsAvailable = false;
+            if(localStorage.getItem(CommonUtil.CONST_STORAGE_CROP_ID_LIST))
+            {
+              
+              let lstCropIds       = localStorage.getItem(CommonUtil.CONST_STORAGE_CROP_ID_LIST).split(",");
+              if(lstCropIds.length > 0)
+              {
+                isCropIdsAvailable = true;
+              }
+            }
+
+            if(isCropIdsAvailable)
+            {
+              let newObservationId      = 0;
+              let lstObservations       = JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST));
+                  newObservationId      = this.getNewObservationId(lstObservations);   
+                  this.observation.observationId  = newObservationId;  
+                  this.observation.observationData='';
+                  this.getNewObservation();
+            }
+            else
+            {
+                  this.$router.replace({path:'/cropCategory'});
+            }
     }
     if(!this.paramObservation)
     {
