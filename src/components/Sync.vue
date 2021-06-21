@@ -60,7 +60,7 @@ export default {
             {
                 if(val)
                 {
-                    this.loading = true;
+                    
                     /* Starting of Sync */
                     console.log('----- SYNC ONE WAY STARTED -----');
                     this.syncOneWay();
@@ -113,6 +113,8 @@ export default {
     syncOneWay(){
         if (this.booIsSyncOneWayReady)
         {
+            this.loading = true;
+
             let appUser = this.appUser;
             let funStorageSet = this.oneWaySyncStorageSet;
             
@@ -146,6 +148,8 @@ export default {
                         funStorageSet(value,strUrl);
                     });
              }
+
+            this.loading = false;
         }
     },
 
