@@ -86,7 +86,7 @@ export default {
 
               let valueObj = {"name":CommonUtil.CONST_STORAGE_OBSERVATION_LIST,"complete":false};
               //this.$refs.Sync.syncObservationSendPrepare(valueObj);
-              this.CONST_URL_DOMAIN = this.$refs.CommonUtil.getDomain();
+              this.CONST_URL_DOMAIN = CommonUtil.CONST_URL_DOMAIN;
               let strUUID     = localStorage.getItem(CommonUtil.CONST_STORAGE_UUID);
               if(strUUID)
               {

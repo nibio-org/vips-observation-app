@@ -222,7 +222,7 @@ export default {
     },
     mounted()       {
 
-            this.CONST_URL_DOMAIN   = this.$refs.CommonUtil.getDomain();
+            this.CONST_URL_DOMAIN   = CommonUtil.CONST_URL_DOMAIN;
 
             localStorage.removeItem(CommonUtil.CONST_STORAGE_IMAGE_LIST);
             this.fetchFromServer();
