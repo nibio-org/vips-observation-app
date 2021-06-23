@@ -47,7 +47,7 @@ html, body {
     <!-- <login-system v-on:eventloginuserdetail="enableLogin"></login-system> -->
     <login-system ></login-system>
   <hr/>
-    <ul v-if="sharedState.uuid != '' " class="navbar-nav mr-auto">
+    <ul v-if="sharedState.uuid != '' && sharedState.uuid" class="navbar-nav mr-auto">
       <li class="nav-item">
         <router-link class="nav-link" to="/" onclick="$('.offcanvas-collapse').toggleClass('open')">Mine observasjoner (startsiden)</router-link>
       </li>
