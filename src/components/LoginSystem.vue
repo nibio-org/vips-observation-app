@@ -201,13 +201,51 @@ export default {
         }
       });
   },
-    handleLogout()
-    {
-        this.$root.sharedState.uuid = '';                           // remove global uuid for other (e.g. menu items etc)
-        localStorage.removeItem(CommonUtil.CONST_STORAGE_UUID);     // remove uuid from storage
-        this.$emit(CommonUtil.CONST_EVENT_LOGIN_USER_DETAIL,'');
-		$('.offcanvas-collapse').removeClass('open');
-    }
+  handleLogout()
+  {
+      this.$root.sharedState.uuid = '';                           // remove global uuid for other (e.g. menu items etc)
+      /** Remove stored data from app in local system - server data still preserve */
+      this.removeStoredData();
+
+      this.$emit(CommonUtil.CONST_EVENT_LOGIN_USER_DETAIL,'');
+  $('.offcanvas-collapse').removeClass('open');
+  },
+  /** Remove stored data on logout */
+  removeStoredData()
+  {
+    /* Remove localstorage */
+    localStorage.removeItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST);
+    localStorage.removeItem(CommonUtil.CONST_STORAGE_UUID);
+    localStorage.removeItem(CommonUtil.CONST_STORAGE_USER_DETAIL);
+    localStorage.removeItem(CommonUtil.CONST_STORE_TIMESTAMP);
+    localStorage.removeItem(CommonUtil.CONST_STORAGE_CROP_CATEGORY);
+    localStorage.removeItem(CommonUtil.CONST_STORAGE_CROP_ID_LIST);
+    localStorage.removeItem(CommonUtil.CONST_STORAGE_CROP_LIST);
+    localStorage.removeItem(CommonUtil.CONST_STORAGE_PEST_LIST);
+    localStorage.removeItem(CommonUtil.CONST_STORAGE_CROP_PEST_LIST);
+    localStorage.removeItem(CommonUtil.CONST_STORAGE_IMAGE_LIST);
+    localStorage.removeItem(CommonUtil.CONST_STORAGE_POI_LIST);
+    localStorage.removeItem(CommonUtil.CONST_STORAGE_VISIBILITY_POLYGON);
+
+    /* Remove from IndexedDB */
+        let dbRequest =  null;
+        dbRequest = indexedDB.open(CommonUtil.CONST_DB_NAME, CommonUtil.CONST_DB_VERSION);
+        dbRequest.onsuccess = function(evt) {
+              let db = evt.target.result;
+                  db.close();
+        }
+
+        let delReq = indexedDB.deleteDatabase(CommonUtil.CONST_DB_NAME);
+        delReq.onerror = function()
+        {
+            console.log('could not delete database');
+        }
+        delReq.onblocked = function()
+        {
+            console.log('delete DB not successful because of operation block');
+        }
+
+  }
 
   },
   mounted() {

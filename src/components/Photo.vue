@@ -424,20 +424,8 @@ export default {
                                         }
 
                              dbRequest.onsuccess = function(evt) {
-                                 let db = evt.target.result;
-                                if(db.objectStoreNames.contains(This.entityName))
-                                {}
-                                else
-                                {
-                                    //observationImage.illustration.fileName
-                                    //This.createEntity(db,This.entityName, null); 
-                                    //This.checkDBUpgrade(dbRequest,This.entityName, null);
-
-                                    let store = db.createObjectStore(This.entityName,{ keyPath: "1_test.jpg" });
-                                    console.log('inside else');
-                                }
-                                
-                                     let transaction    =   db.transaction([This.entityName],'readwrite'); 
+                                    let db = evt.target.result;
+                                    let transaction    =   db.transaction([This.entityName],'readwrite'); 
                                     let objectstore    =   transaction.objectStore(This.entityName);
                                     let indexStore     =    objectstore.index(indexName);
                                     let keyRange       =   IDBKeyRange.only(indexValue);
@@ -700,12 +688,6 @@ export default {
                             }
 
                         }
-
-
-
-
-
-
 
     },
     mounted(){
