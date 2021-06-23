@@ -4,11 +4,11 @@
 
 
 
+  "prop.login.systems.wrong.credential" :   "Wrong username and/or password. Please try again.",
+  "prop.crop.category.empty.alert"      :   "Please select Crop category",
 
-  "prop.crop.category.empty.alert":"Please select Crop category",
 
-
-  "prop.err.observation.geoinfo" : "Geo location can not be empty !!",
-  "prop.err.observation.remove.msg" : "This Observation will remove !! Are you sure ?",
-  "prop.err.observation.remove.warn" : "This Observation will be removeed"
+  "prop.err.observation.geoinfo"        :   "Geo location can not be empty !!",
+  "prop.err.observation.remove.msg"     :   "This Observation will remove !! Are you sure ?",
+  "prop.err.observation.remove.warn"    :   "This Observation will be removeed"
 }

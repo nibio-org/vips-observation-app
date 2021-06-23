@@ -31,6 +31,9 @@
           <span aria-hidden="true">&times;</span>
         </button>        
       </div>
+      <div v-show="isLogginFail" class="text-danger">
+          {{ $t("prop.login.systems.wrong.credential") }}
+      </div>
      </form>
 
     <div v-else>
@@ -72,6 +75,7 @@ export default {
       appUser:{},
       isSyncNeeded:false,
       errMsg      : '',
+      isLogginFail : false,
     };
   },
   //emits: {},
@@ -129,7 +133,19 @@ export default {
         body : jsonBody
       } 
     )
-      .then((response) => response.json())
+      .then(function(response){
+          if(response.status === 200 || response.status === 201)
+          {
+            This.isLogginFail = false;
+            return response.json();
+          }
+          else
+          {
+              This.isLogginFail = true;
+              return false;
+          }
+        })
+
       .then((data) => {
         let jsonServerResponse = '';
         this.jsonServerResponse = data;
