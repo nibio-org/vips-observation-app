@@ -1,10 +1,10 @@
 <template>
     <main id="app" role="main" class="container">
-    <div v-if="$root.sharedState.uuid == '' ">
-      <Welcome></Welcome>
+    <div v-if="$root.sharedState.uuid">
+      <router-view/>
     </div>
     <div v-else>
-      <router-view/>
+      <Welcome></Welcome>
     </div>
   </main>
 </template>
