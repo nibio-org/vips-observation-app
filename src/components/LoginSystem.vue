@@ -31,6 +31,9 @@
           <span aria-hidden="true">&times;</span>
         </button>        
       </div>
+      <div v-show="isLogginFail" class="text-danger">
+          {{ $t("prop.login.systems.wrong.credential") }}
+      </div>
      </form>
 
     <div v-else>
@@ -72,6 +75,7 @@ export default {
       appUser:{},
       isSyncNeeded:false,
       errMsg      : '',
+      isLogginFail : false,
     };
   },
   //emits: {},
@@ -80,6 +84,9 @@ export default {
       getUserFromStorage() {
       
       let strUser = localStorage.getItem(CommonUtil.CONST_STORAGE_USER_DETAIL);
+      if(strUser && strUser != 'undefined')
+      {
+       
       let user    = JSON.parse(strUser);
       this.appUser  = user; //This user will require in Sync process
 
@@ -87,31 +94,34 @@ export default {
       this.$root.sharedState.user.firstName = user.firstName;
       this.$root.sharedState.user.lastName = user.lastName;
       this.userLoggedInName = this.$root.sharedState.user.firstName + " " + this.$root.sharedState.user.lastName;
+      }
        /** Firing event to parent (main.js)  */
       //this.$emit(CommonUtil.CONST_EVENT_LOGIN_USER_DETAIL,user.userUuid, user.firstName,user.lastName);
     },
 
     /** Check uuid first */
     checkValidUUID() {
-      let userUUID = localStorage.getItem(CommonUtil.CONST_STORAGE_UUID);
-      /** Fetch to get details */
-      let jsonHeader = { Authorization: userUUID };
+      if(localStorage.getItem(CommonUtil.CONST_STORAGE_UUID))
+      {
+        let userUUID = localStorage.getItem(CommonUtil.CONST_STORAGE_UUID);
+        /** Fetch to get details */
+        let jsonHeader = { Authorization: userUUID };
 
-      fetch(this.CONST_URL_DOMAIN + CommonUtil.CONST_URL_AUTH_UUID, {
-        method: "GET",
-        headers: jsonHeader,
-      }).then((response) => {
-        
-        if (response.status != 200) {
-            this.$root.sharedState.uuid = '';
-        } else {
+        fetch(this.CONST_URL_DOMAIN + CommonUtil.CONST_URL_AUTH_UUID, {
+          method: "GET",
+          headers: jsonHeader,
+        }).then((response) => {
           
-          this.getUserFromStorage();
-          /** Sync Operation for valid timestamp */
-          this.$refs.Sync.syncOneWayDifferentTimeStamp(this.appUser);
-        }
-      });
-
+          if (response.status != 200 || response.status != 201) {
+              this.$root.sharedState.uuid = '';
+          } else {
+            
+            this.getUserFromStorage();
+            /** Sync Operation for valid timestamp */
+            this.$refs.Sync.syncOneWayDifferentTimeStamp(this.appUser);
+          }
+        });
+      }
     },
 
   handleLogin(){
@@ -129,69 +139,139 @@ export default {
         body : jsonBody
       } 
     )
-      .then((response) => response.json())
+      .then(function(response){
+          if(response.status === 200 || response.status === 201)
+          {
+            This.isLogginFail = false;
+            return response.json();
+          }
+          else
+          {
+              This.isLogginFail = true;
+              return false;
+          }
+        })
+
       .then((data) => {
         let jsonServerResponse = '';
         this.jsonServerResponse = data;
-        if(this.jsonServerResponse.success == true)
+        
+        if(this.jsonServerResponse.success)
         {
           this.username='';
           this.password='';
           
-          localStorage.setItem(CommonUtil.CONST_STORAGE_UUID,this.jsonServerResponse.UUID);
+
+          localStorage.setItem(CommonUtil.CONST_STORAGE_UUID,data.UUID);
+          
+        } 
 
           /** Fetch to get details */
 
-           let jsonHeader = {Authorization:this.jsonServerResponse.UUID};
-           
+          let uuid = localStorage.getItem(CommonUtil.CONST_STORAGE_UUID);
+
+           let jsonHeader = {Authorization:uuid};
            fetch(
             this.CONST_URL_DOMAIN + CommonUtil.CONST_URL_AUTH_UUID,
             {
+              crossDomain:true,
               method:"GET",
-              headers : jsonHeader
+              //headers : jsonHeader
+              headers: {
+                        "Content-Type": "application/json",
+                        'Authorization' : uuid
+              }
+
             } 
           )
+            .then(response => response.json())        
+          /*
             .then(function(response) {
-              if(response.status === 200)
+              console.log('response status : '+response.status);
+              console.log(response.json());
+              if(response.status === 200 || response.status === 201)
               {
+                
                 return response.json()
               }
               else
               {
                 console.log('error : '+response.text());
-                  This.errMsg = response.text();
-                  
-                  
+                  This.errMsg = 'error with status : '+response.status + ' -- error type : '+response.type+ ' -- error source : '+response.url;
               }
             })
-
-              /* (response) => response.json()
-              ) */
+          */
             .then((data) => {
-              let loggedUser = data;
-              localStorage.setItem(CommonUtil.CONST_STORAGE_USER_DETAIL,JSON.stringify(loggedUser));
-
               
-              this.getUserFromStorage();
-              $('.offcanvas-collapse').removeClass('open');
-              /** Calling of Sync */
-              //this.isSyncNeeded = true;
-              this.$refs.Sync.isSyncOnewayNeeded(loggedUser);
-              this.$refs.Sync.syncTwoWayAtLogin();
-                            
-              //this.$router.replace({path:'/'});
-            });
+              let loggedUser = data;
+              if(loggedUser || loggedUser != 'undefined')
+              {
+                console.log(data);
+                  localStorage.setItem(CommonUtil.CONST_STORAGE_USER_DETAIL,JSON.stringify(loggedUser));
+                  
+                  
+                  this.getUserFromStorage();
+                  $('.offcanvas-collapse').removeClass('open');
+                  /** Calling of Sync */
+                  //this.isSyncNeeded = true;
 
-        }
+                  this.$refs.Sync.isSyncOnewayNeeded(loggedUser);
+                  this.$refs.Sync.syncTwoWayAtLogin();
+                  localStorage.setItem(CommonUtil.CONST_STORAGE_UUID,uuid);             
+                  this.$router.replace({path:'/welcome'});
+              }
+            });
+              
+        
       });
   },
-    handleLogout()
-    {
-        this.$root.sharedState.uuid = '';                           // remove global uuid for other (e.g. menu items etc)
-        localStorage.removeItem(CommonUtil.CONST_STORAGE_UUID);     // remove uuid from storage
-        this.$emit(CommonUtil.CONST_EVENT_LOGIN_USER_DETAIL,'');
-		$('.offcanvas-collapse').removeClass('open');
-    }
+  handleLogout()
+  {
+      this.$root.sharedState.uuid = '';                           // remove global uuid for other (e.g. menu items etc)
+      /** Remove stored data from app in local system - server data still preserve */
+      this.removeStoredData();
+
+      this.$emit(CommonUtil.CONST_EVENT_LOGIN_USER_DETAIL,'');
+      $('.offcanvas-collapse').removeClass('open');
+       this.$router.replace({path:'/logout'});
+  },
+  /** Remove stored data on logout */
+  removeStoredData()
+  {
+    console.log('remove method called');
+    /* Remove localstorage */
+    localStorage.removeItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST);
+    localStorage.removeItem(CommonUtil.CONST_STORAGE_UUID);
+    localStorage.removeItem(CommonUtil.CONST_STORAGE_USER_DETAIL);
+    localStorage.removeItem(CommonUtil.CONST_STORE_TIMESTAMP);
+    localStorage.removeItem(CommonUtil.CONST_STORAGE_CROP_CATEGORY);
+    localStorage.removeItem(CommonUtil.CONST_STORAGE_CROP_ID_LIST);
+    localStorage.removeItem(CommonUtil.CONST_STORAGE_CROP_LIST);
+    localStorage.removeItem(CommonUtil.CONST_STORAGE_PEST_LIST);
+    localStorage.removeItem(CommonUtil.CONST_STORAGE_CROP_PEST_LIST);
+    localStorage.removeItem(CommonUtil.CONST_STORAGE_IMAGE_LIST);
+    localStorage.removeItem(CommonUtil.CONST_STORAGE_POI_LIST);
+    localStorage.removeItem(CommonUtil.CONST_STORAGE_VISIBILITY_POLYGON);
+
+    /* Remove from IndexedDB */
+        let dbRequest =  null;
+        dbRequest = indexedDB.open(CommonUtil.CONST_DB_NAME, CommonUtil.CONST_DB_VERSION);
+        dbRequest.onsuccess = function(evt) {
+              let db = evt.target.result;
+                  db.close();
+        }
+
+        let delReq = indexedDB.deleteDatabase(CommonUtil.CONST_DB_NAME);
+        delReq.onerror = function()
+        {
+            console.log('could not delete database');
+        }
+        delReq.onblocked = function()
+        {
+            console.log('delete DB not successful because of operation block');
+        }
+
+  }
 
   },
   mounted() {

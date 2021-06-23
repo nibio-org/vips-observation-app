@@ -202,10 +202,11 @@ export default {
                                 }
                                 else
                                 {
-                                   let store = db.createObjectStore(This.entityName, {keypath : observationImage.illustration.fileName});
+                                     This.createEntity(db,This.entityName, observationImage.illustration.fileName);
+/*                                    let store = db.createObjectStore(This.entityName, {keypath : observationImage.illustration.fileName});
                                     store.createIndex('observationId', 'observationId', { unique: false });
                                     store.createIndex('organismId', 'organismId', { unique: false });                                    
-                                }
+ */                                }
                             } 
                             
 
@@ -222,12 +223,57 @@ export default {
                             this.getImageFromStore();
 
                         },
+                        /** Create Entity */
+                        createEntity(db,entityName, keyName)
+                        {
+                                
+                                   let store = null;
+                                   if(keyName)
+                                   {
+                                       store = db.createObjectStore(entityName, {keypath : keyName});
+                                   }
+                                   else
+                                   {
+                                       store = db.createObjectStore(entityName);
+                                   }
+                                    store.createIndex('observationId', 'observationId', { unique: false });
+                                    store.createIndex('organismId', 'organismId', { unique: false }); 
+                        },
+                        /** Check requirement for DB upgrade */
+                        async checkDBUpgrade(dbRequest,entityName, keyName){
+                            dbRequest.onupgradeneeded= function (event)
+                            {
+                                let db = event.target.result;
+                                console.log('test - 1');
+                                if( !db.objectStoreNames.contains(entityName)){
+                                    console.log('test - 2');
+                                   let store = null;
+                                   if(keyName)
+                                   {
+                                       console.log('test - 3');
+                                       store = db.createObjectStore(entityName, {keypath : keyName});
+                                   }
+                                   else
+                                   {
+                                       console.log('test - 4');
+                                       store = db.createObjectStore(entityName);
+                                   }
+                                   console.log('test - 5');
+                                    store.createIndex('observationId', 'observationId', { unique: false });
+                                    store.createIndex('organismId', 'organismId', { unique: false });
+                                    console.log('test - 6');
+                                }
+                            }
+
+                        },
                        async getImageFromStore()
                         {
                              let This = this;
                                  let dbRequest = indexedDB.open(CommonUtil.CONST_DB_NAME, CommonUtil.CONST_DB_VERSION);
                                     dbRequest.onsuccess = function(evt) {
                                         let db = evt.target.result;
+                                        if(db.objectStoreNames.contains(This.entityName))
+                                        {
                                             let transaction = db.transaction([This.entityName],'readwrite');  
                                             let objectstore = transaction.objectStore(This.entityName);
 
@@ -254,6 +300,8 @@ export default {
                                                 //console.log(This.observationImage);
                                             }
 
+                                        }
+
                                      }
 
                         },
@@ -263,6 +311,8 @@ export default {
                                  let dbRequest = indexedDB.open(CommonUtil.CONST_DB_NAME, CommonUtil.CONST_DB_VERSION);
                                     dbRequest.onsuccess = function(evt) {
                                         let db = evt.target.result;
+                                        if(db.objectStoreNames.contains(This.entityName))
+                                        {
                                             let transaction = db.transaction([This.entityName],'readwrite');  
                                             let objectstore = transaction.objectStore(This.entityName);
 
@@ -287,6 +337,10 @@ export default {
                                             else{
 
                                             }
+
+                                        }
+
+
 
                                      }
                         },
@@ -324,30 +378,73 @@ export default {
                          searchDBByindex(indexName,indexValue,organismId,imageTextData,storeImage)
                         {
                              let This = this;
-                             let dbRequest =  indexedDB.open(CommonUtil.CONST_DB_NAME, CommonUtil.CONST_DB_VERSION);
-                             dbRequest.onsuccess = function(evt) {
-                                 let db = evt.target.result;
-                                 let transaction    =   db.transaction([This.entityName],'readwrite'); 
-                                 let objectstore    =   transaction.objectStore(This.entityName);
-                                 let indexStore     =    objectstore.index(indexName);
-                                 let keyRange       =   IDBKeyRange.only(indexValue);
-                                 let observationImages = [];
-                                  indexStore.openCursor(keyRange).onsuccess = function(event) {
-                                     let cursor = event.target.result;
-                                     if(cursor)
-                                     {
-                                         observationImages.push(cursor.value);
-                                         
-                                         cursor.continue();
-                                     }
+                             let dbRequest =  null;
+                             if(indexValue===CommonUtil.CONST_OBSERVATION_COUNT_START_ID)
+                             {
+                                 dbRequest = indexedDB.open(CommonUtil.CONST_DB_NAME, CommonUtil.CONST_DB_VERSION);
+                                 dbRequest.onsuccess = function(evt) {
+                                        let db = evt.target.result;
+                                            db.close();
+                                 }
+                                 
 
-                                     
+                                 let delReq = indexedDB.deleteDatabase(CommonUtil.CONST_DB_NAME);
+                                 delReq.onerror = function()
+                                 {
+                                     console.log('could not delete database');
                                  }
-                                 
-                                 transaction.oncomplete = function(){
-                                    This.storeImage(observationImages,indexValue,organismId,imageTextData);
+                                 delReq.onblocked = function()
+                                 {
+                                     console.log('delete DB not successful because of operation block');
                                  }
-                                 
+
+                             }
+
+                             dbRequest = indexedDB.open(CommonUtil.CONST_DB_NAME, CommonUtil.CONST_DB_VERSION);
+
+                                        dbRequest.onupgradeneeded= function (event)
+                                        {
+                                            console.log('inside onupgrade');
+                                            let db = event.target.result;
+
+
+                                                db.onerror = function(event) {
+                                                    note.innerHTML += "<li>Error loading database.</li>";
+                                                    console.log(event);
+                                                };
+
+                                            //if( !db.objectStoreNames.contains(This.entityName)){
+                                            let store = db.createObjectStore(This.entityName);
+                                                store.createIndex('observationId', 'observationId', { unique: false });
+                                                store.createIndex('organismId', 'organismId', { unique: false });
+
+                                                store.transaction.oncomplete = function(event) {
+                                                };
+                                            //}
+                                        }
+
+                             dbRequest.onsuccess = function(evt) {
+                                    let db = evt.target.result;
+                                    let transaction    =   db.transaction([This.entityName],'readwrite'); 
+                                    let objectstore    =   transaction.objectStore(This.entityName);
+                                    let indexStore     =    objectstore.index(indexName);
+                                    let keyRange       =   IDBKeyRange.only(indexValue);
+                                    let observationImages = [];
+                                    indexStore.openCursor(keyRange).onsuccess = function(event) {
+                                        let cursor = event.target.result;
+                                        if(cursor)
+                                        {
+                                            observationImages.push(cursor.value);
+                                            
+                                            cursor.continue();
+                                        }
+
+                                        
+                                    }
+                                    
+                                    transaction.oncomplete = function(){
+                                        This.storeImage(observationImages,indexValue,organismId,imageTextData);
+                                    } 
                              }
                         },
 
@@ -420,28 +517,55 @@ export default {
                         /** Add image file name into localstorage */
                         addImageIntoObservation(observation)
                         {
+                            let isRecordAvailable = false;
                             let lstObservations = JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST));
                              if(observation.observationId)
                              {
-                                 $.each(lstObservations, function(index, jobservation)
+                                 if(lstObservations)
                                  {
-                                        if(jobservation.observationId === observation.observationId)
-                                        {
-                                            let illustration = {};
-                                            let observationIllustrationPK = {};
-                                                observationIllustrationPK.observationId = observation.observationId;
-                                                observationIllustrationPK.fileName = observation.illustration.fileName;
-
-                                                illustration = {'observationIllustrationPK' : observationIllustrationPK, 'uploaded':false};
-                                            if(jobservation.observationIllustrationSet) {}
-                                            else
+                                    $.each(lstObservations, function(index, jobservation)
+                                    {
+                                            if(jobservation.observationId === observation.observationId)
                                             {
-                                                jobservation.observationIllustrationSet = [];
+                                                isRecordAvailable = true;
+                                                let illustration = {};
+                                                let observationIllustrationPK = {};
+                                                    observationIllustrationPK.observationId = observation.observationId;
+                                                    observationIllustrationPK.fileName = observation.illustration.fileName;
+
+                                                    illustration = {'observationIllustrationPK' : observationIllustrationPK, 'uploaded':false};
+                                                if(jobservation.observationIllustrationSet) {}
+                                                else
+                                                {
+                                                    jobservation.observationIllustrationSet = [];
+                                                }
+                                                
+                                                jobservation.observationIllustrationSet.push(illustration);
                                             }
-                                            
-                                            jobservation.observationIllustrationSet.push(illustration);
-                                        }
-                                 });
+                                    });
+                                 }
+
+                                 if(isRecordAvailable === false)
+                                 {
+                                    let observationNew = {};
+                                    let illustration = {};
+                                    let observationIllustrationPK = {};
+                                        observationIllustrationPK.observationId = observation.observationId;
+                                        observationIllustrationPK.fileName = observation.illustration.fileName;
+                                        illustration = {'observationIllustrationPK' : observationIllustrationPK, 'uploaded':false};
+                                        observationNew.observationId=observation.observationId;
+                                        observationNew.organismId=observation.organismId;
+                                        observationNew.observationIllustrationSet = [];
+                                        observationNew.observationIllustrationSet.push(illustration);
+
+                                    if(lstObservations) {}
+                                    else
+                                    {
+                                        lstObservations = [];
+                                    }
+                                    lstObservations.push(observationNew);
+
+                                 }
                              }
 
                              localStorage.setItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST,JSON.stringify(lstObservations));
@@ -564,12 +688,6 @@ export default {
                             }
 
                         }
-
-
-
-
-
-
 
     },
     mounted(){
