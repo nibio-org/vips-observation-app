@@ -1,49 +1,52 @@
 <template>
   <div>
-    <form v-if="$root.sharedState.uuid == ''" class="my-2 my-lg-0">
-      <div class="form-group">
-        <input
-          class="form-control mr-sm-2"
-          type="text"
-          placeholder="Brukernavn"
-          aria-label="Brukernavn"
-          v-model="username"
-          v-on:keyup.enter="handleLogin()"
-        />
-      </div>
-      <div class="form-group">
-        <input
-          class="form-control mr-sm-2"
-          type="password"
-          placeholder="Passord"
-          aria-label="Passord"
-          v-model="password"
-          v-on:keyup.enter="handleLogin()"
-        />
-      </div>
+    <div v-if="$root.sharedState.uuid">
+        <span v-text="userLoggedInName"></span>
+          <br />
+        <button class="btn btn-primary" type="button" v-on:click="handleLogout()">
+          Logg out
+        </button>
+    </div>
 
-      <button class="btn btn-primary" type="button" v-on:click="handleLogin()" v-on:keyup.enter="handleLogin()"> 
-        Logg inn
-      </button>
-      <div v-show="errMsg" class="alert alert-warning alert-dismissible fade show">
-        {{errMsg}}
-        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>        
-      </div>
-      <div v-show="isLogginFail" class="text-danger">
-          {{ $t("prop.login.systems.wrong.credential") }}
-      </div>
-     </form>
+
 
     <div v-else>
+        <form class="my-2 my-lg-0">
+          <div class="form-group">
+            <input
+              class="form-control mr-sm-2"
+              type="text"
+              placeholder="Brukernavn"
+              aria-label="Brukernavn"
+              v-model="username"
+              v-on:keyup.enter="handleLogin()"
+            />
+          </div>
+          <div class="form-group">
+            <input
+              class="form-control mr-sm-2"
+              type="password"
+              placeholder="Passord"
+              aria-label="Passord"
+              v-model="password"
+              v-on:keyup.enter="handleLogin()"
+            />
+          </div>
 
-      <span v-text="userLoggedInName"></span>
-        
-        <br />
-      <button class="btn btn-primary" type="button" v-on:click="handleLogout()">
-        Logg out
-      </button>
+          <button class="btn btn-primary" type="button" v-on:click="handleLogin()" v-on:keyup.enter="handleLogin()"> 
+            Logg inn
+          </button>
+          <div v-show="errMsg" class="alert alert-warning alert-dismissible fade show">
+            {{errMsg}}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>        
+          </div>
+          <div v-show="isLogginFail" class="text-danger">
+              {{ $t("prop.login.systems.wrong.credential") }}
+          </div>
+        </form>
+
     </div>
 
     <!-- <Sync :isSyncNeeded="isSyncNeeded"/>  -->
