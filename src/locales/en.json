@@ -2,7 +2,8 @@
   "startpage": "Start page",
 
   "prop.welcome.header.text"            :   "Observation App",
-  "prop.welcome.login.success.text"     :   "Welcome !!  Login Success ",
+  "prop.welcome.login.success.text"     :   "Welcome !!  ",
+  "prop.welcome.card.description.text"  :   "VIPS is an automatic forecasting system for agricultural pests and diseases, developed by NIBIO (the Norwegian Institute of Bioeconomy Research) and Norsk landbruksrådgivning (The Norwegian agricultural extension service). ",
 
   "prop.logout.header.text"             :   "Logout",
   "prop.logout.success.text"            :   "You successfully log out ",
