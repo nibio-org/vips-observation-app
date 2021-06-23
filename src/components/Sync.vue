@@ -669,7 +669,7 @@ export default {
 
             let This        =   this;
             let entityName  =   CommonUtil.CONST_DB_ENTITY_PHOTO;
-            if(observation.uploaded == false)
+            if(observation.uploaded === false)
             {
                 let observationUpload = observation;
                 let observationIllustrationSet = observationUpload.observationIllustrationSet;
@@ -678,7 +678,8 @@ export default {
                 let dbRequest =  indexedDB.open(CommonUtil.CONST_DB_NAME, CommonUtil.CONST_DB_VERSION);                
                 dbRequest.onsuccess = function(evt) {
                     let db = evt.target.result;
-                    if(db.objectStoreNames.contains(This.entityName))
+                  
+                    if(db.objectStoreNames.contains(entityName))
                     {
                         let transaction      =   db.transaction([entityName],'readwrite'); 
                         let objectstore      =    transaction.objectStore(entityName);
@@ -805,6 +806,7 @@ export default {
 
     updateObservationPOST(updatedObservation,totalTwoWaySyncPOST)
     {
+        
             let lstObservations = JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST));
 
                 let observationOld = {};
@@ -819,8 +821,7 @@ export default {
                 
                 });
 
-
-            if(counter)
+            if(counter || counter === 0)
             {
 
                 let illustrationsUpdated    =   updatedObservation.observationIllustrationSet;
@@ -934,7 +935,7 @@ export default {
                         else {
                             booNoRecordFound = true;
                         }
-                        if(arrIndex)
+                        if(arrIndex || arrIndex===0)
                         {
                             lstLocalObservations[arrIndex]=srvObservation;
                         }
@@ -1081,7 +1082,7 @@ export default {
       let indexName =  CommonUtil.CONST_DB_INDEX_NAME_OBSERVATION_ID;
       dbRequest.onsuccess = function(evt) {
         let db = evt.target.result;
-        if(db.objectStoreNames.contains(this.entityName))
+        if(db.objectStoreNames.contains(entityName))
         {
             let transaction     =   db.transaction([entityName],'readwrite'); 
             let objectstore     =   transaction.objectStore(entityName);
@@ -1106,7 +1107,6 @@ export default {
 
   },
   mounted () {
-      console.log('mounted .. --');
       this.isMounted = true;
       this.CONST_URL_DOMAIN = CommonUtil.CONST_URL_DOMAIN;
   }
