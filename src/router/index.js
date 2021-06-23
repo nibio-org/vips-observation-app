@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import Router from 'vue-router'
+import Welcome from '@/components/Welcome'
 import ObservationList from '@/components/ObservationList'
 import PlacesList from '@/components/PlacesList'
 import Settings from '@/components/Settings'
@@ -8,11 +9,17 @@ import CropCategory from '@/components/CropCategory'
 import MapObservation from '@/components/MapObservation'
 import MapPOI from '@/components/MapPOI'
 import Quantification from '@/components/Quantification'
+import Logout from '@/components/Logout'
 
 Vue.use(Router)
 
 export default new Router({
   routes: [
+    {
+      path: '/welcome',
+      name: 'Welcome',
+      component: Welcome
+    }, 
      {
       path: '/',
       name: 'ObservationList',
@@ -53,7 +60,12 @@ export default new Router({
       path : '/Quantification',
       name : 'Quantification',
       component : Quantification
-    }    
+    },
+    {
+      path : '/logout',
+      name : 'Logout',
+      component : Logout
+    },        
 
   ]
 })
