@@ -38,7 +38,7 @@
     </div> 
 
     <div v-if="isMounted" >
-        <photo :isImageVisible=false :observationId="observationId" :organismId="observation.organismId" ></photo>
+         <photo :isImageVisible=false :observationId="observationId" :organismId="observation.organismId" ></photo>
         <photo :isImageVisible=true :observationId="observation.observationId" :organismId="observation.organismId" :imageFileName="photo.observationIllustrationPK.fileName" :isDeleted='photo.deleted' :isUploaded="photo.uploaded" v-for="photo in observation.observationIllustrationSet" v-bind:key="photo.observationIllustrationPK.fileName"></photo>
       <!-- <photo-observation :observationId="observation.observationId" :organismId="observation.organismId" :imageFileName="photo.observationIllustrationPK.fileName" v-for="photo in observation.observationIllustrationSet" v-bind:key="photo.observationIllustrationPK.fileName"></photo-observation> -->
     </div>      
@@ -596,8 +596,12 @@ export default {
 
         let lstObservations = JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST));
         /** Whether record to be updated */
-        let isRecordAvailable = lstObservations.find(({observationId})=> observationId === this.observationId);
-        
+        let isRecordAvailable = null;
+        if(lstObservations)
+        {
+          isRecordAvailable = lstObservations.find(({observationId})=> observationId === this.observationId);
+        }
+
           
           this.observationForStore.cropOrganismId             = this.crop.cropId;
           this.observationForStore.organismId                 = this.pest.pestId;
@@ -615,7 +619,6 @@ export default {
           this.observationForStore.observationData            = JSON.stringify(this.observation.observationData)//'{"number":0,"unit":"Number"}'; //"{\"number\":0,\"unit\":\"Number\"}"; 
           this.observationForStore.observationIllustrationSet = this.observation.observationIllustrationSet;
 
-          console.log(this.observationForStore);
 
          if(this.observationId && isRecordAvailable)
          {

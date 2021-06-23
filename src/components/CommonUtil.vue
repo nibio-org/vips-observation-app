@@ -8,7 +8,7 @@ export default {
 
     CONST_STATUS_PENDING                :   1,
 
-    CONST_STORAGE_UUID                  :   'user-uuid',
+    CONST_STORAGE_UUID                  :   'store-user-uuid',
     CONST_STORAGE_USER_DETAIL           :   'store-user-detail',
     CONST_STORE_TIMESTAMP               :   'store-time-stamp',
     CONST_STORAGE_CROP_CATEGORY         :   'store-crop-category',
