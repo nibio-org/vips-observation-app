@@ -678,32 +678,39 @@ export default {
                 let dbRequest =  indexedDB.open(CommonUtil.CONST_DB_NAME, CommonUtil.CONST_DB_VERSION);                
                 dbRequest.onsuccess = function(evt) {
                     let db = evt.target.result;
-                    let transaction      =   db.transaction([entityName],'readwrite'); 
-                    let objectstore      =    transaction.objectStore(entityName);
-                    if(observationIllustrationSet)
+                    if(db.objectStoreNames.contains(This.entityName))
                     {
-                        observationIllustrationSet.forEach(function(illustration)
+                        let transaction      =   db.transaction([entityName],'readwrite'); 
+                        let objectstore      =    transaction.objectStore(entityName);
+                        if(observationIllustrationSet)
                         {
-                                let fileName = illustration.observationIllustrationPK.fileName;
-                                
-                                let objectstoreRequest = objectstore.get(fileName);
-                                
-                                
-                                objectstoreRequest.onsuccess = function(event)
-                                {
+                            observationIllustrationSet.forEach(function(illustration)
+                            {
+                                    let fileName = illustration.observationIllustrationPK.fileName;
                                     
-                                    let observationImage = event.target.result;
-                                        if(observationImage)
-                                        {
-                                            let imageTextData = observationImage.illustration.imageTextData;
-                                            illustration.imageTextData=imageTextData;
-                                        }
-                                }
-                        });
-                    }
+                                    let objectstoreRequest = objectstore.get(fileName);
+                                    
+                                    
+                                    objectstoreRequest.onsuccess = function(event)
+                                    {
+                                        
+                                        let observationImage = event.target.result;
+                                            if(observationImage)
+                                            {
+                                                let imageTextData = observationImage.illustration.imageTextData;
+                                                illustration.imageTextData=imageTextData;
+                                            }
+                                    }
+                            });
+                        }
 
-                    transaction.oncomplete = function() {
-                        This.syncObservationPOST(observation, totalTwoWaySyncPOST);
+                        transaction.oncomplete = function() {
+                            This.syncObservationPOST(observation, totalTwoWaySyncPOST);
+                        }
+                    }
+                    else
+                    {
+                         This.syncObservationPOST(observation, totalTwoWaySyncPOST);
                     }
 
                 }
@@ -711,6 +718,7 @@ export default {
     },
     syncObservationPOST(observation,totalTwoWaySyncPOST)
     {
+       console.log(observation);
         let This = this;
         //if(this.isSyncNeeded)
         {
@@ -759,8 +767,9 @@ export default {
             })
             .then((data)=>{
                 if(data) {
+                    
                         let updatedObservation = JSON.parse(data);
-               
+               console.log(updatedObservation);
                     if(observation.observationId < 0)
                     {
                         let indexPosition = null;
@@ -773,8 +782,7 @@ export default {
 
                             }
                         })
-
-                            if(indexPosition)
+                            if(indexPosition || indexPosition === 0)
                             {
                                 /** Remove/delete the Observation with nagative number (localy created ) */
                                 lstObservations.splice(indexPosition,1);
@@ -1056,8 +1064,7 @@ export default {
                  return false;
               }
         });
-
-        if(indexPosition)
+        if(indexPosition || indexPosition === 0)
         {
           this.removeImageRecord(id);
 
@@ -1074,20 +1081,22 @@ export default {
       let indexName =  CommonUtil.CONST_DB_INDEX_NAME_OBSERVATION_ID;
       dbRequest.onsuccess = function(evt) {
         let db = evt.target.result;
-        let transaction     =   db.transaction([entityName],'readwrite'); 
-        let objectstore     =   transaction.objectStore(entityName);
-        let indexStore      =   objectstore.index(indexName);
-        let keyRange        =   IDBKeyRange.only(observationId);
-        let cursorRequest   =   indexStore.openCursor(keyRange);
-        cursorRequest.onsuccess = function(event){
-          let cursor  =  event.target.result;
-          if(cursor)
-          {
-            cursor.delete();
-            cursor.continue();
-          }
+        if(db.objectStoreNames.contains(this.entityName))
+        {
+            let transaction     =   db.transaction([entityName],'readwrite'); 
+            let objectstore     =   transaction.objectStore(entityName);
+            let indexStore      =   objectstore.index(indexName);
+            let keyRange        =   IDBKeyRange.only(observationId);
+            let cursorRequest   =   indexStore.openCursor(keyRange);
+            cursorRequest.onsuccess = function(event){
+                let cursor  =  event.target.result;
+                if(cursor)
+                {
+                    cursor.delete();
+                    cursor.continue();
+                }
+            }
         }
-
 
       }
 
