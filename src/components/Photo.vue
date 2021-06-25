@@ -244,32 +244,29 @@ export default {
                             dbRequest.onupgradeneeded= function (event)
                             {
                                 let db = event.target.result;
-                                console.log('test - 1');
                                 if( !db.objectStoreNames.contains(entityName)){
-                                    console.log('test - 2');
                                    let store = null;
                                    if(keyName)
                                    {
-                                       console.log('test - 3');
                                        store = db.createObjectStore(entityName, {keypath : keyName});
                                    }
                                    else
                                    {
-                                       console.log('test - 4');
                                        store = db.createObjectStore(entityName);
                                    }
-                                   console.log('test - 5');
                                     store.createIndex('observationId', 'observationId', { unique: false });
                                     store.createIndex('organismId', 'organismId', { unique: false });
-                                    console.log('test - 6');
                                 }
                             }
 
                         },
                        async getImageFromStore()
                         {
+
                              let This = this;
+                             let isDBStoreNotAvailable = null;
                                  let dbRequest = indexedDB.open(CommonUtil.CONST_DB_NAME, CommonUtil.CONST_DB_VERSION);
+                                 this.checkDBUpgrade(dbRequest,This.entityName);
                                     dbRequest.onsuccess = function(evt) {
                                         let db = evt.target.result;
                                         if(db.objectStoreNames.contains(This.entityName))
@@ -301,7 +298,17 @@ export default {
                                             }
 
                                         }
+                                        else
+                                        {
+                                            db.close();
+                                            isDBStoreNotAvailable = true;
+                                        }
 
+                                     }
+
+                                     if(isDBStoreNotAvailable)
+                                     {
+                                         this.checkDBUpgrade(dbRequest,This.entityName);
                                      }
 
                         },
@@ -379,32 +386,52 @@ export default {
                         {
                              let This = this;
                              let dbRequest =  null;
-                             if(indexValue===CommonUtil.CONST_OBSERVATION_COUNT_START_ID)
-                             {
-                                 dbRequest = indexedDB.open(CommonUtil.CONST_DB_NAME, CommonUtil.CONST_DB_VERSION);
-                                 dbRequest.onsuccess = function(evt) {
-                                        let db = evt.target.result;
-                                            db.close();
-                                 }
-                                 
+                             let isDBStoreExists = null;
 
-                                 let delReq = indexedDB.deleteDatabase(CommonUtil.CONST_DB_NAME);
-                                 delReq.onerror = function()
-                                 {
-                                     console.log('could not delete database');
-                                 }
-                                 delReq.onblocked = function()
-                                 {
-                                     console.log('delete DB not successful because of operation block');
-                                 }
+                            //if(db.objectStoreNames.contains(This.entityName))
+                             dbRequest  =   indexedDB.open(CommonUtil.CONST_DB_NAME, CommonUtil.CONST_DB_VERSION);
+                                            dbRequest.onsuccess = function(evt) {
+                                                        let db  = evt.target.result;
+                                                            if(db.objectStoreNames.contains(This.entityName))
+                                                            {
+                                                                isDBStoreExists =   true;
+                                                            }
+                                                            else
+                                                            {
+                                                                isDBStoreExists = false;
+                                                            }
+                                                            db.close();
 
-                             }
+                                                    console.log('isDBStoreExists : '+isDBStoreExists);
+                                                        if(indexValue===CommonUtil.CONST_OBSERVATION_COUNT_START_ID || (isDBStoreExists === false))
+                                                        {
+                                                            dbRequest = indexedDB.open(CommonUtil.CONST_DB_NAME, CommonUtil.CONST_DB_VERSION);
+                                                            dbRequest.onsuccess = function(evt) {
+                                                                    let db = evt.target.result;
+                                                                        db.close();
+                                                            }
+                                                            
 
-                             dbRequest = indexedDB.open(CommonUtil.CONST_DB_NAME, CommonUtil.CONST_DB_VERSION);
+                                                            let delReq = indexedDB.deleteDatabase(CommonUtil.CONST_DB_NAME);
+                                                            delReq.onerror = function()
+                                                            {
+                                                                console.log('could not delete database');
+                                                            }
+                                                            delReq.onblocked = function()
+                                                            {
+                                                                console.log('delete DB not successful because of operation block');
+                                                            }
+
+                                                        }
+                                                        
+                                                        
+
+
+                                            }
+ 
 
                                         dbRequest.onupgradeneeded= function (event)
                                         {
-                                            console.log('inside onupgrade');
                                             let db = event.target.result;
 
 
@@ -413,14 +440,10 @@ export default {
                                                     console.log(event);
                                                 };
 
-                                            //if( !db.objectStoreNames.contains(This.entityName)){
                                             let store = db.createObjectStore(This.entityName);
                                                 store.createIndex('observationId', 'observationId', { unique: false });
                                                 store.createIndex('organismId', 'organismId', { unique: false });
 
-                                                store.transaction.oncomplete = function(event) {
-                                                };
-                                            //}
                                         }
 
                              dbRequest.onsuccess = function(evt) {
