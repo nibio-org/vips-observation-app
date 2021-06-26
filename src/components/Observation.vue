@@ -222,7 +222,7 @@ export default {
               }
         });
 
-        if(indexPosition)
+        if(indexPosition || indexPosition === 0)
         {
           this.removeImageRecord(id);
 
@@ -651,13 +651,19 @@ export default {
         {
           isRecordAvailable = lstObservations.find(({observationId})=> observationId === this.observationId);
         }
-
           
           this.observationForStore.cropOrganismId             = this.crop.cropId;
           this.observationForStore.organismId                 = this.pest.pestId;
           this.observationForStore.timeOfObservation          = this.strDateObservation;
           this.observationForStore.statusChangedTime          = this.strDateObservation;
-          this.observationForStore.statusTypeId               = this.observation.statusTypeId;
+          if(this.observation.statusTypeId)
+          {
+            this.observationForStore.statusTypeId              = this.observation.statusTypeId;
+          }
+          else
+          {
+            this.observationForStore.statusTypeId             =  CommonUtil.CONST_STATUS_PENDING;
+          }
           this.observationForStore.isQuantified               = this.observation.isQuantified;
           this.observationForStore.userId                     = this.observation.userId;
           this.observationForStore.geoinfo                    = JSON.stringify(this.mapGeoinfo); //this.observation.geoinfo;
@@ -720,6 +726,7 @@ export default {
               this.observationForStore.statusTypeId=CommonUtil.CONST_STATUS_PENDING;
               lstObservations.push(this.observationForStore);
          }
+         console.log('test-3-1');
               localStorage.setItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST, JSON.stringify(lstObservations) );
 /*               if(this.isSync===false)
               {
