@@ -24,10 +24,16 @@
         </select>
     </div>
 
-    <div ref='divDateTime' class="row">
+    <div ref='divDateTime'>
+      <div class="row">
+        {{ $t("prop.observation.date.label") }}
+      </div>
       <!-- <input type="datetime-local" v-bind='strDateObservation | dateFormat' v-model="strDateObservation"/> -->
-        <input type="datetime-local" v-model="strDateObservation" v-on:change="capturedTime($event)"/>
+       <div class="row">
+         <input ref="strDateObservation" type="datetime-local" v-model="strDateObservation" v-on:change="capturedTime($event)"/>
+       </div>
     </div>
+
     <div v-if="isMounted" class="row">
         <router-link id="linkMap" ref='linkMap' :to="{name:'MapObservation', params: {observationId:observation.observationId,geoinfo:mapGeoinfo,isMapPanelVisible:newMapPanel,locationPointOfInterestId:mapLocationPointOfInterestId, observation:observation}}">Observation Map </router-link>
     </div>
@@ -58,7 +64,7 @@
 
       <div ref='divObservationText' >
         <div class="row">Observation Detail</div>
-        <div class="row"><input type="text" v-model="observationHeader"/></div>
+        <div class="row"><input ref="observationHeader" type="text" v-model="observationHeader"/></div>
         <div class="row"><textarea v-model="observationText" /></div>
       </div>
         <div v-show="isSync"><sync ref="sync" :isSyncNeeded="isSync"/></div>
@@ -78,7 +84,15 @@
         </template>
 
         <template v-slot:body>
-            {{ $t("prop.err.observation.geoinfo") }}
+            <div v-show="isStrDateObservationEmpty">
+                  {{$t("prop.err.observation.date.empty")}}
+            </div>          
+            <div v-show="isGeoInfoNotAvailable">
+                  {{ $t("prop.err.observation.geoinfo") }}
+            </div>
+            <div v-show="isObservationHeaderEmpty">
+                  {{ $t("Observation details can not be empty",) }}
+            </div>
         </template>
 
         <template v-slot:footer>
@@ -127,6 +141,9 @@ export default {
   components: {MapObservation,PhotoObservation,Photo,Quantification,Sync,ModalSimple,Modal},
   data () {
     return {
+      isGeoInfoNotAvailable           : false,
+      isStrDateObservationEmpty       : false,
+      isObservationHeaderEmpty        : false,
       isDeleteBttnVisible             : true,
       isModalSimpleVisible            : false,
       isModalVisible                  : false,
@@ -141,7 +158,7 @@ export default {
       pest                            : {'pestId':'','pestName':'Select Pest'},
       isActive                        : false,
       dateObservation                 : DateTime,
-      strDateObservation              : '',
+      strDateObservation              : null,
       observationHeader               : '',
       observationText                 : '',
       mapGeoinfo                      : null,
@@ -242,14 +259,47 @@ export default {
     },
     validate()
               {
+                let result = false;
+
+                 if(this.strDateObservation)
+                  {
+                     this.isStrDateObservationEmpty = false;
+                    result = true;
+                  }
+                  else
+                  {
+                      this.$refs.strDateObservation.focus();
+                      this.isStrDateObservationEmpty = true;
+                      this.isModalSimpleVisible  = true;
+                      return false;
+                  }
+
+
                   if(this.mapGeoinfo) {
-                    return true;
+                    this.isGeoInfoNotAvailable = false;
+                    result = true;
                     }
                   else
                   {
-                      this.isModalSimpleVisible = true;
+                      this.isGeoInfoNotAvailable = true;
+                      this.isModalSimpleVisible  = true;
                       return false;
                   }
+
+                  if(this.observationHeader) {
+                    this.isObservationHeaderEmpty = false;
+                    result = true;
+                    }
+                  else
+                  {
+                      this.$refs.observationHeader.focus();
+                      this.isObservationHeaderEmpty = true;
+                      this.isModalSimpleVisible  = true;
+                      return false;
+                  }
+
+                return result;
+
               },    
     visibilityObservationAction(paramPrivate, paramPolygonService){
        this.observationForStore.locationIsPrivate=paramPrivate;

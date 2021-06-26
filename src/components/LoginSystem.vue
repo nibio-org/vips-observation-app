@@ -209,7 +209,6 @@ export default {
               let loggedUser = data;
               if(loggedUser || loggedUser != 'undefined')
               {
-                console.log(data);
                   localStorage.setItem(CommonUtil.CONST_STORAGE_USER_DETAIL,JSON.stringify(loggedUser));
                   
                   
@@ -241,7 +240,6 @@ export default {
   /** Remove stored data on logout */
   removeStoredData()
   {
-    console.log('remove method called');
     /* Remove localstorage */
     localStorage.removeItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST);
     localStorage.removeItem(CommonUtil.CONST_STORAGE_UUID);
