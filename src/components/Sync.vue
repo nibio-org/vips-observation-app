@@ -719,7 +719,6 @@ export default {
     },
     syncObservationPOST(observation,totalTwoWaySyncPOST)
     {
-       console.log(observation);
         let This = this;
         //if(this.isSyncNeeded)
         {
@@ -770,7 +769,6 @@ export default {
                 if(data) {
                     
                         let updatedObservation = JSON.parse(data);
-               console.log(updatedObservation);
                     if(observation.observationId < 0)
                     {
                         let indexPosition = null;

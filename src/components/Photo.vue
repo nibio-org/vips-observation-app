@@ -402,7 +402,7 @@ export default {
                                                             }
                                                             db.close();
 
-                                                    console.log('isDBStoreExists : '+isDBStoreExists);
+
                                                         if(indexValue===CommonUtil.CONST_OBSERVATION_COUNT_START_ID || (isDBStoreExists === false))
                                                         {
                                                             dbRequest = indexedDB.open(CommonUtil.CONST_DB_NAME, CommonUtil.CONST_DB_VERSION);
@@ -423,10 +423,6 @@ export default {
                                                             }
 
                                                         }
-                                                        
-                                                        
-
-
                                             }
  
 
@@ -520,6 +516,7 @@ export default {
 
                             observation.observationId           = indexValue;
                             observation.organismId              = organismId;
+                            observation.statusTypeId            = CommonUtil.CONST_STATUS_PENDING;
                             
                             illustration.deleted    = false;
                             illustration.fileName   = selectedFileFirstName+'.jpg';
@@ -578,6 +575,7 @@ export default {
                                         illustration = {'observationIllustrationPK' : observationIllustrationPK, 'uploaded':false};
                                         observationNew.observationId=observation.observationId;
                                         observationNew.organismId=observation.organismId;
+                                        observationNew.statusTypeId = CommonUtil.CONST_STATUS_PENDING
                                         observationNew.observationIllustrationSet = [];
                                         observationNew.observationIllustrationSet.push(illustration);
 

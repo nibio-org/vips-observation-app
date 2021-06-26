@@ -5,14 +5,19 @@
   "prop.welcome.login.success.text"     :   "Velkommen !!  ",
   "prop.welcome.card.description.text"  :   "VIPS (Varsling Innen PlanteSkadegjørere) er utviklet av NIBIO og Norsk Landbruksrådgiving. Rådgivningstjenesten registrerer angrep av skadegjørere i felt, mens NIBIO leverer klimadata og tar seg av utvikling, drift og vedlikehold av systemet. ",
 
-  "prop.logout.header.text"            :   "Logout",
+  "prop.logout.header.text"             :   "Logout",
   "prop.logout.success.text"            :   "You successfully log out ",
 
+  "prop.observation.date.label"         :   "Observation Date",
+
   "prop.login.systems.wrong.credential" :   "Wrong username and/or password. Please try again.",
-  "prop.crop.category.empty.alert":"Please select Crop category",
+  "prop.crop.category.empty.alert"      :   "Please select Crop category",
 
 
-  "prop.err.observation.geoinfo" : "Geo location can not be empty !!",
-  "prop.err.observation.remove.msg" : "This Observation will remove !! Are you sure ?",
-  "prop.err.observation.remove.warn" : "This Observation will be removed"
+
+  "prop.err.observation.date.empty"     :   "Observation Date can not be empty",
+  "prop.err.observation.geoinfo"        :   "Geo location can not be empty !!",
+  "prop.err.observation.header.empty"   :   "Observation details can not be empty",
+  "prop.err.observation.remove.msg"     :   "This Observation will remove !! Are you sure ?",
+  "prop.err.observation.remove.warn"    :   "This Observation will be removed"
 }

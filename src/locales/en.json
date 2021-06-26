@@ -8,12 +8,16 @@
   "prop.logout.header.text"             :   "Logout",
   "prop.logout.success.text"            :   "You successfully log out ",
 
+  "prop.observation.date.label"         :   "Observation Date",
+  
 
   "prop.login.systems.wrong.credential" :   "Wrong username and/or password. Please try again.",
   "prop.crop.category.empty.alert"      :   "Please select Crop category",
 
 
+  "prop.err.observation.date.empty"     :   "Observation Date can not be empty",
   "prop.err.observation.geoinfo"        :   "Geo location can not be empty !!",
+  "prop.err.observation.header.empty"   :   "Observation details can not be empty",
   "prop.err.observation.remove.msg"     :   "This Observation will remove !! Are you sure ?",
   "prop.err.observation.remove.warn"    :   "This Observation will be removeed"
 }
