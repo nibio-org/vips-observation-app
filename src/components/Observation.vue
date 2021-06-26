@@ -222,7 +222,7 @@ export default {
               }
         });
 
-        if(indexPosition)
+        if(indexPosition || indexPosition === 0)
         {
           this.removeImageRecord(id);
 
