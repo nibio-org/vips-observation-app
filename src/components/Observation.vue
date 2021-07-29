@@ -35,7 +35,7 @@
     </div>
 
     <div v-if="isMounted" class="row">
-        <router-link id="linkMap" ref='linkMap' :to="{name:'MapObservation', params: {observationId:observation.observationId,geoinfo:mapGeoinfo,isMapPanelVisible:newMapPanel,locationPointOfInterestId:mapLocationPointOfInterestId, observation:observation}}">Observation Map </router-link>
+        <router-link id="linkMap" ref='linkMap' :to="{name:'MapObservation', params: {observationId:observation.observationId,geoinfo:mapGeoinfo,isMapPanelVisible:newMapPanel,locationPointOfInterestId:mapLocationPointOfInterestId,observationHeader:observationHeader, observationText:observationText,observation:observation}}">Observation Map </router-link>
     </div>
     <div v-if="mapGeoinfo" id="divMapGeoInfo" class="row">
       <div v-if="isMounted" class="col">
@@ -785,6 +785,15 @@ export default {
     if(this.paramObservation)
     {
         this.observation  = this.paramObservation;
+
+        if(this.paramObservation.observationText)
+        {
+          this.observationText = this.paramObservation.observationText;
+        }
+        if(this.paramObservation.observationHeader)
+        {
+          this.observationHeader = this.paramObservation.observationHeader;
+        }
     }
     if(this.paramGeoinfo)
     {

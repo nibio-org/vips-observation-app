@@ -473,6 +473,14 @@ export default {
         {
             this.isMyMapPanelVisible = this.isMapPanelVisible;
         }
+        if(routeParam.observationText)
+        {
+            this.mapObservation.observationText=routeParam.observationText
+        }
+        if(routeParam.observationHeader)
+        {
+            this.mapObservation.observationHeader=routeParam.observationHeader;
+        }
 
 
         if(this.isMyMapPanelVisible)
