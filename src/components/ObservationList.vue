@@ -9,7 +9,7 @@
   
   <div v-if="observations">
   <ul class="list-group" v-if="isInitialized">
-       <router-link :to="{name: 'Observation', params: {observationId:obs.observationId}}" class="list-group-item list-group-item-action " v-bind:class="{'text-danger':obs.isNew, 'text-primary':obs.toUpload, 'text-secondary':obs.isDeleted}" v-for="obs in observations" v-bind:key="obs.observationId">
+       <router-link :to="{name: 'Observation', params: {observationId:obs.observationId}}" class="list-group-item list-group-item-action " v-bind:class="{'text-danger':obs.isNew, 'text-primary':obs.toUpload, 'text-secondary':obs.isDeleted}" v-for="obs in sortedObservations" v-bind:key="obs.observationId">
          <div v-if="obs.isDeleted">
             <strike>  {{ obs.timeOfObservation | dateFormat }}  <b>{{obs.observationHeading}}</b> </strike>
          </div>
@@ -79,6 +79,15 @@ export default {
         },
 
 
+  },
+  computed : {
+        sortedObservations : function() {
+          this.observations.sort( (a,b) => {
+              return new Date(b.timeOfObservation) - new Date(a.timeOfObservation);
+          });
+
+          return this.observations;
+        }
   },
   filters: {
     dateFormat: function(timeStr) {
