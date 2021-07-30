@@ -1,6 +1,7 @@
 
 <template>
-  <div class="hello container">
+  <div id="observation" class="hello container">
+    <div ><router-link id='btnBack' class="btn btn-success " to="/" onclick="$('.offcanvas-collapse').toggleClass('open')">Back</router-link></div>
     <div class="row">
         <h1 ref='titleObservation'>{{ msg }}</h1>
     </div>
@@ -782,6 +783,10 @@ export default {
 
 
   mounted(){
+    var btnBack      =   document.getElementById("btnBack");
+    var navDiv      =   document.getElementById("vipsobsappmenu");
+    btnBack.style.top=(navDiv.offsetHeight) + "px";
+    btnBack.style.left=0+"px";
     if(this.paramObservation)
     {
         this.observation  = this.paramObservation;
