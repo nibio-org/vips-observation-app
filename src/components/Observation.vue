@@ -1,6 +1,7 @@
 
 <template>
-  <div class="hello container">
+  <div id="observation" class="hello container">
+    <div ><router-link id='btnBack' class="btn btn-success " to="/" onclick="$('.offcanvas-collapse').toggleClass('open')">Back</router-link></div>
     <div class="row">
         <h1 ref='titleObservation'>{{ msg }}</h1>
     </div>
@@ -35,7 +36,7 @@
     </div>
 
     <div v-if="isMounted" class="row">
-        <router-link id="linkMap" ref='linkMap' :to="{name:'MapObservation', params: {observationId:observation.observationId,geoinfo:mapGeoinfo,isMapPanelVisible:newMapPanel,locationPointOfInterestId:mapLocationPointOfInterestId, observation:observation}}">Observation Map </router-link>
+        <router-link id="linkMap" ref='linkMap' :to="{name:'MapObservation', params: {observationId:observation.observationId,geoinfo:mapGeoinfo,isMapPanelVisible:newMapPanel,locationPointOfInterestId:mapLocationPointOfInterestId,observationHeader:observationHeader, observationText:observationText,observation:observation}}">Observation Map </router-link>
     </div>
     <div v-if="mapGeoinfo" id="divMapGeoInfo" class="row">
       <div v-if="isMounted" class="col">
@@ -782,9 +783,22 @@ export default {
 
 
   mounted(){
+    var btnBack      =   document.getElementById("btnBack");
+    var navDiv      =   document.getElementById("vipsobsappmenu");
+    btnBack.style.top=(navDiv.offsetHeight) + "px";
+    btnBack.style.left=0+"px";
     if(this.paramObservation)
     {
         this.observation  = this.paramObservation;
+
+        if(this.paramObservation.observationText)
+        {
+          this.observationText = this.paramObservation.observationText;
+        }
+        if(this.paramObservation.observationHeader)
+        {
+          this.observationHeader = this.paramObservation.observationHeader;
+        }
     }
     if(this.paramGeoinfo)
     {
