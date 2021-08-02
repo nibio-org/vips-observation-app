@@ -31,7 +31,7 @@
       </div>
       <!-- <input type="datetime-local" v-bind='strDateObservation | dateFormat' v-model="strDateObservation"/> -->
        <div class="row">
-         <input ref="strDateObservation" type="datetime-local" v-model="strDateObservation" v-on:change="capturedTime($event)"/>
+         <input id="strDateObservation" ref="strDateObservation" type="datetime-local" :max="maxObservationDate" :min="minObservationDate" v-model="strDateObservation" v-on:change="capturedTime($event)"/>
        </div>
     </div>
 
@@ -160,6 +160,8 @@ export default {
       isActive                        : false,
       dateObservation                 : DateTime,
       strDateObservation              : null,
+      maxObservationDate              : null,
+      minObservationDate              : null,
       observationHeader               : '',
       observationText                 : '',
       mapGeoinfo                      : null,
@@ -481,7 +483,6 @@ export default {
       capturedTime(event)
       {
         this.observation.timeOfObservation=this.strDateObservation;
-
       },
       
       /** Get New Observation  */
@@ -564,40 +565,49 @@ export default {
            {
              lstPests.push({"pestId":'', "pestName":'Select Pest'});
            }
-
-          let lstPestList     = JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_PEST_LIST));
-          $.each(lstPestIds, function(index, pestId){
-              let jsonDetailPest = lstPestList.find(({organismId}) => organismId === pestId);
-              let jsonPest = {};
-              if(jsonDetailPest)
-              {
-                let pestName = jsonDetailPest.latinName;
-                let organismLocaleSet = jsonDetailPest.organismLocaleSet;
-
-                if(organismLocaleSet)
-                {
-                  let strLocale = This.getSystemLocale();
-                  organismLocaleSet.forEach(localObj => {
-                    if(localObj.organismLocalePK.locale === strLocale)
-                    {
-                      if(localObj.localName)
+          
+          if(lstPestIds.length===0)
+          {
+              lstPests.push({"pestId":'', "pestName":'Not found in database'});
+          }
+          else{
+                  let lstPestList     = JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_PEST_LIST));
+                  $.each(lstPestIds, function(index, pestId){
+                      let jsonDetailPest = lstPestList.find(({organismId}) => organismId === pestId);
+                      let jsonPest = {};
+                      if(jsonDetailPest)
                       {
-                        pestName = localObj.localName;
+                        let pestName = jsonDetailPest.latinName;
+                        let organismLocaleSet = jsonDetailPest.organismLocaleSet;
+
+                        if(organismLocaleSet)
+                        {
+                          let strLocale = This.getSystemLocale();
+                          organismLocaleSet.forEach(localObj => {
+                            if(localObj.organismLocalePK.locale === strLocale)
+                            {
+                              if(localObj.localName)
+                              {
+                                pestName = localObj.localName;
+                              }
+                              return false;
+                            }
+                          });
+                        }
+                        jsonPest = {"pestId":jsonDetailPest.organismId, "pestName":pestName};
                       }
-                      return false;
-                    }
+                      else
+                      {
+                        jsonPest = {"pestId":pestId, "pestName":'Not Available -- '+pestId};
+                      }
+
+                        lstPests.push(jsonPest);
+                      
                   });
-                }
-                jsonPest = {"pestId":jsonDetailPest.organismId, "pestName":pestName};
-              }
-              else
-              {
-                jsonPest = {"pestId":pestId, "pestName":'Not Available -- '+pestId};
+
               }
 
-                lstPests.push(jsonPest);
-              
-          });
+
 
           this.pests =  lstPests;
       },
@@ -787,6 +797,36 @@ export default {
     var navDiv      =   document.getElementById("vipsobsappmenu");
     btnBack.style.top=(navDiv.offsetHeight) + "px";
     btnBack.style.left=0+"px";
+
+    
+
+        var dtToday = new Date();
+
+      var month = dtToday.getMonth() + 1;
+      var day = dtToday.getDate();
+      var year = dtToday.getFullYear();
+      var hh   = dtToday.getHours();
+      var min   = dtToday.getMinutes();
+
+      if(month < 10)
+          month = '0' + month.toString();
+      if(day < 10)
+          day = '0' + day.toString();
+      if(hh<10)
+          hh  = '0' + hh.toString();
+      if(min<10)
+          min = '0' + min.toString();
+      
+
+      var maxDate = year + '-' + month + '-' + day;
+      var minDate = year + '-' + '01' + '-' + '01';  
+
+      this.maxObservationDate = maxDate+'T00:00';
+      this.minObservationDate = minDate+'T00:00';
+
+      this.strDateObservation = maxDate+'T'+hh+':'+min;
+
+
     if(this.paramObservation)
     {
         this.observation  = this.paramObservation;
