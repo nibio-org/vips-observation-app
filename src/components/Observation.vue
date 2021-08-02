@@ -31,7 +31,7 @@
       </div>
       <!-- <input type="datetime-local" v-bind='strDateObservation | dateFormat' v-model="strDateObservation"/> -->
        <div class="row">
-         <input ref="strDateObservation" type="datetime-local" v-model="strDateObservation" v-on:change="capturedTime($event)"/>
+         <input id="strDateObservation" ref="strDateObservation" type="datetime-local" :max="maxObservationDate" :min="minObservationDate" v-model="strDateObservation" v-on:change="capturedTime($event)"/>
        </div>
     </div>
 
@@ -160,6 +160,8 @@ export default {
       isActive                        : false,
       dateObservation                 : DateTime,
       strDateObservation              : null,
+      maxObservationDate              : null,
+      minObservationDate              : null,
       observationHeader               : '',
       observationText                 : '',
       mapGeoinfo                      : null,
@@ -481,7 +483,6 @@ export default {
       capturedTime(event)
       {
         this.observation.timeOfObservation=this.strDateObservation;
-
       },
       
       /** Get New Observation  */
@@ -796,6 +797,29 @@ export default {
     var navDiv      =   document.getElementById("vipsobsappmenu");
     btnBack.style.top=(navDiv.offsetHeight) + "px";
     btnBack.style.left=0+"px";
+
+    //minObservationDate
+
+        var dtToday = new Date();
+
+      var month = dtToday.getMonth() + 1;
+      var day = dtToday.getDate();
+      var year = dtToday.getFullYear();
+
+      if(month < 10)
+          month = '0' + month.toString();
+      if(day < 10)
+          day = '0' + day.toString();
+
+      var maxDate = year + '-' + month + '-' + day;
+      var minDate = year + '-' + '01' + '-' + '01';  
+
+      this.maxObservationDate = maxDate+'T00:00';
+      this.minObservationDate = minDate+'T00:00';
+
+    
+
+
     if(this.paramObservation)
     {
         this.observation  = this.paramObservation;
