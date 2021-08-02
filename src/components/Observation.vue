@@ -564,40 +564,49 @@ export default {
            {
              lstPests.push({"pestId":'', "pestName":'Select Pest'});
            }
-
-          let lstPestList     = JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_PEST_LIST));
-          $.each(lstPestIds, function(index, pestId){
-              let jsonDetailPest = lstPestList.find(({organismId}) => organismId === pestId);
-              let jsonPest = {};
-              if(jsonDetailPest)
-              {
-                let pestName = jsonDetailPest.latinName;
-                let organismLocaleSet = jsonDetailPest.organismLocaleSet;
-
-                if(organismLocaleSet)
-                {
-                  let strLocale = This.getSystemLocale();
-                  organismLocaleSet.forEach(localObj => {
-                    if(localObj.organismLocalePK.locale === strLocale)
-                    {
-                      if(localObj.localName)
+          
+          if(lstPestIds.length===0)
+          {
+              lstPests.push({"pestId":'', "pestName":'Not found in database'});
+          }
+          else{
+                  let lstPestList     = JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_PEST_LIST));
+                  $.each(lstPestIds, function(index, pestId){
+                      let jsonDetailPest = lstPestList.find(({organismId}) => organismId === pestId);
+                      let jsonPest = {};
+                      if(jsonDetailPest)
                       {
-                        pestName = localObj.localName;
+                        let pestName = jsonDetailPest.latinName;
+                        let organismLocaleSet = jsonDetailPest.organismLocaleSet;
+
+                        if(organismLocaleSet)
+                        {
+                          let strLocale = This.getSystemLocale();
+                          organismLocaleSet.forEach(localObj => {
+                            if(localObj.organismLocalePK.locale === strLocale)
+                            {
+                              if(localObj.localName)
+                              {
+                                pestName = localObj.localName;
+                              }
+                              return false;
+                            }
+                          });
+                        }
+                        jsonPest = {"pestId":jsonDetailPest.organismId, "pestName":pestName};
                       }
-                      return false;
-                    }
+                      else
+                      {
+                        jsonPest = {"pestId":pestId, "pestName":'Not Available -- '+pestId};
+                      }
+
+                        lstPests.push(jsonPest);
+                      
                   });
-                }
-                jsonPest = {"pestId":jsonDetailPest.organismId, "pestName":pestName};
-              }
-              else
-              {
-                jsonPest = {"pestId":pestId, "pestName":'Not Available -- '+pestId};
+
               }
 
-                lstPests.push(jsonPest);
-              
-          });
+
 
           this.pests =  lstPests;
       },
