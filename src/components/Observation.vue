@@ -798,18 +798,25 @@ export default {
     btnBack.style.top=(navDiv.offsetHeight) + "px";
     btnBack.style.left=0+"px";
 
-    //minObservationDate
+    
 
         var dtToday = new Date();
 
       var month = dtToday.getMonth() + 1;
       var day = dtToday.getDate();
       var year = dtToday.getFullYear();
+      var hh   = dtToday.getHours();
+      var min   = dtToday.getMinutes();
 
       if(month < 10)
           month = '0' + month.toString();
       if(day < 10)
           day = '0' + day.toString();
+      if(hh<10)
+          hh  = '0' + hh.toString();
+      if(min<10)
+          min = '0' + min.toString();
+      
 
       var maxDate = year + '-' + month + '-' + day;
       var minDate = year + '-' + '01' + '-' + '01';  
@@ -817,7 +824,7 @@ export default {
       this.maxObservationDate = maxDate+'T00:00';
       this.minObservationDate = minDate+'T00:00';
 
-    
+      this.strDateObservation = maxDate+'T'+hh+':'+min;
 
 
     if(this.paramObservation)
