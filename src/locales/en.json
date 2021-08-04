@@ -9,6 +9,8 @@
   "prop.logout.success.text"            :   "You successfully log out ",
 
   "prop.observation.date.label"         :   "Observation Date",
+
+  "prop.places.search.label"            :   "Search",
   
 
   "prop.login.systems.wrong.credential" :   "Wrong username and/or password. Please try again.",

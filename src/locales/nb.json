@@ -10,6 +10,8 @@
 
   "prop.observation.date.label"         :   "Observation Date",
 
+  "prop.places.search.label"            :   "Search",
+
   "prop.login.systems.wrong.credential" :   "Wrong username and/or password. Please try again.",
   "prop.crop.category.empty.alert"      :   "Please select Crop category",
 

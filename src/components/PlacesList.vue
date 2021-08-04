@@ -7,6 +7,10 @@
           </router-link>
     </div>  
     <div class="container">
+          <div class="row">
+              <div> {{ $t('prop.places.search.label') }} &nbsp;</div> <div><input type="text" v-model.trim="textSearch" @input="search"> </div>
+          </div>
+          <br>
             <router-link  class="row fw-bold" ref='linkMapPoi' :to="{name:'MapPOI', params: {pointOfInterestId:poi.pointOfInterestId}}" v-bind:class="{'text-danger':poi.isNew, 'text-primary':poi.toUpload, 'text-secondary':poi.isDeleted}"  v-for="poi in listPOI" v-bind:key="poi.pointOfInterestId">
                 <div v-if="poi.isDeleted">
                     <strike> <div ><h5>{{poi.name}}</h5></div> </strike>
@@ -39,14 +43,17 @@ import '@fortawesome/fontawesome-free/js/all.js'
 
 export default {
   name: 'PlacesList',
+  components  :   {CommonUtil},
   data () {
     return {
       msg               : 'Mine steder',
       CONST_URL_DOMAIN  : '',
       listPOI           : [],
+      textSearch        : null,
     }
   },
-  components  :   {CommonUtil},
+
+  
     methods : {
                 fetchFromServer()
                 {
@@ -63,9 +70,8 @@ export default {
                         })
 
                 },
-                getPlacesList()
+                getPlacesList(lstPOI)
                 {
-                  let lstPOI = JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_POI_LIST));
                                 lstPOI.forEach(function(poi){
                                     if(poi.uploaded===false)
                                     {
@@ -87,6 +93,25 @@ export default {
 
                                 });                  
                   return lstPOI;
+                },
+
+                search()
+                {
+                  let lstPOI = JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_POI_LIST));
+                  if(this.textSearch)
+                    {
+                      let This = this;
+                     
+                      let lstPOISearch            = lstPOI.filter(function (poi){
+                                                        let poiName = poi.name;
+                                                        return poiName.indexOf(This.textSearch) != -1;
+                                                    });
+                      this.listPOI  = this.getPlacesList(lstPOISearch)
+                    }                  
+                  else
+                  {
+                    this.listPOI  = this.getPlacesList(lstPOI);
+                  }
                 }
 
     },
@@ -94,8 +119,8 @@ export default {
             this.CONST_URL_DOMAIN = CommonUtil.CONST_URL_DOMAIN;
             /** TODO fetch server should be used in sync process and not here */
             //this.fetchFromServer();
-
-            this.listPOI  = this.getPlacesList();
+            let lstPOI = JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_POI_LIST));
+            this.listPOI  = this.getPlacesList(lstPOI);
 
     }  
 }
