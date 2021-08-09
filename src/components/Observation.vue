@@ -1,7 +1,7 @@
 
 <template>
   <div id="observation" class="hello container">
-    <div ><router-link id='btnBack' class="btn btn-success " to="/" onclick="$('.offcanvas-collapse').toggleClass('open')">Back</router-link></div>
+    <div ><router-link id='btnBack' class="btn btn-success " to="/" onclick="$('.offcanvas-collapse').toggleClass('open')">{{ $t("prop.back.label") }}</router-link></div>
     <div class="row">
         <h1 ref='titleObservation'>{{ msg }}</h1>
     </div>
@@ -39,7 +39,7 @@
 
     <div v-if="isMounted" class="row">
       <span v-html="mandatoryField"></span>
-        <router-link id="linkMap" ref='linkMap' :to="{name:'MapObservation', params: {observationId:observation.observationId,geoinfo:mapGeoinfo,isMapPanelVisible:newMapPanel,locationPointOfInterestId:mapLocationPointOfInterestId,observationHeader:observationHeader, observationText:observationText,observation:observation}}">Observation Map </router-link>
+        <router-link id="linkMap" ref='linkMap' :to="{name:'MapObservation', params: {observationId:observation.observationId,geoinfo:mapGeoinfo,isMapPanelVisible:newMapPanel,locationPointOfInterestId:mapLocationPointOfInterestId,observationHeader:observationHeader, observationText:observationText,observation:observation}}">{{ $t("prop.observation.map.label") }}</router-link>
     </div>
     <div v-if="mapGeoinfo" id="divMapGeoInfo" class="row">
       <div v-if="isMounted" class="col">
@@ -55,7 +55,7 @@
 
       <div class="clearfix"/>
     <div>
-      <div class="row"><button class="btn btn-success" v-on:click="showQuantification"><span><h5>Tell/kvantifiser</h5></span></button></div>
+      <div class="row"><button class="btn btn-success" v-on:click="showQuantification"><span><h5>{{ $t("prop.observation.quantification.label") }}</h5></span></button></div>
       <div v-if="isQuantification" class="row">
           <div v-if="isMounted" id='divSchemaForm' class="border border-primary rounded" >
               <button id="btnCloseQuantification" class="border border-primary rounded-circle" type="button" v-on:click="closeQuantification">x</button>              
@@ -67,7 +67,7 @@
     </div>
 
       <div ref='divObservationText' >
-        <div class="row"><span v-html="mandatoryField"></span>Observation Detail</div>
+        <div class="row"><span v-html="mandatoryField"></span> {{ $t("prop.observation.detail.label") }}</div>
         <div class="row"><input ref="observationHeader" type="text" v-model="observationHeader"/></div>
         <div class="row"><textarea v-model="observationText" /></div>
       </div>
@@ -75,8 +75,8 @@
 
         <div v-if="observation.deleted"></div>
         <div v-else class="float-right">
-          <button class="btn btn-secondary " v-on:click="saveObservation">Save</button>
-          <button v-show="isDeleteBttnVisible"  class="btn btn-danger " v-on:click="callForRemoveObservation">Delete</button>
+          <button class="btn btn-secondary " v-on:click="saveObservation">{{$t("prop.save.label")}}</button>
+          <button v-show="isDeleteBttnVisible"  class="btn btn-danger " v-on:click="callForRemoveObservation">{{$t("prop.delete.label")}}</button>
         </div>
 
       <modal-simple
@@ -84,7 +84,7 @@
         v-on:close="closeModalSimple"           
     >
         <template v-slot:header>
-            !! ERROR !!
+            {{$t("prop.alert.header.error.label")}}
         </template>
 
         <template v-slot:body>
@@ -95,7 +95,7 @@
                   {{ $t("prop.err.observation.geoinfo") }}
             </div>
             <div v-show="isObservationHeaderEmpty">
-                  {{ $t("Observation details can not be empty",) }}
+                  {{ $t("prop.err.observation.header.empty") }}
             </div>
         </template>
 
@@ -111,7 +111,7 @@
                 >
             
                 <template v-slot:header>
-                    !! ALERT !!
+                    {{$t("prop.alert.header.label")}}
                 </template>
 
                 <template v-slot:body>
@@ -119,7 +119,7 @@
                 </template>
 
                 <template v-slot:footer>
-                    Please chose the option below :
+                    {{ $t("prop.alert.footer.label") }}
                 </template>
     </modal>      
 

@@ -1,25 +1,39 @@
 {
   "startpage": "Start page",
 
-  "prop.welcome.header.text"            :   "Observation App",
-  "prop.welcome.login.success.text"     :   "Welcome !!  ",
-  "prop.welcome.card.description.text"  :   "VIPS is an automatic forecasting system for agricultural pests and diseases, developed by NIBIO (the Norwegian Institute of Bioeconomy Research) and Norsk landbruksrådgivning (The Norwegian agricultural extension service). ",
+  "prop.welcome.header.text"                      :   "Observation App",
+  "prop.welcome.login.success.text"               :   "Welcome !!  ",
+  "prop.welcome.card.description.text"            :   "VIPS is an automatic forecasting system for agricultural pests and diseases, developed by NIBIO (the Norwegian Institute of Bioeconomy Research) and Norsk landbruksrådgivning (The Norwegian agricultural extension service). ",
 
-  "prop.logout.header.text"             :   "Logout",
-  "prop.logout.success.text"            :   "You successfully log out ",
+  "prop.logout.header.text"                       :   "Logout",
+  "prop.logout.success.text"                      :   "You successfully log out ",
 
-  "prop.observation.date.label"         :   "Observation Date",
+  "prop.observation.date.label"                   :   "Observation Date",
+  "prop.observation.quantification.label"         :   "Tell/kvantifiser",
+  "prop.observation.detail.label"                 :   "Observation Detail",
+  "prop.observation.map.label"                    :   "Observation Map",
 
-  "prop.places.search.label"            :   "Search",
+  "prop.back.label"                               :   "Back",
+  "prop.save.label"                               :   "Save",
+  "prop.delete.label"                             :   "Delete",
+
+  "prop.places.search.label"                      :   "Search",
+
+  
   
 
-  "prop.login.systems.wrong.credential" :   "Wrong username and/or password. Please try again.",
-  "prop.crop.category.empty.alert"      :   "Please select Crop category",
+  "prop.login.systems.wrong.credential"           :   "Wrong username and/or password. Please try again.",
+  "prop.crop.category.empty.alert"                :   "Please select Crop category",
+
+  "prop.alert.header.label"                       :   "!! ALERT !!",
+  "prop.alert.header.error.label"                 :   "!! ERROR !!",
+  "prop.alert.footer.label"                       :   "Please chose the option below",
+  
 
 
-  "prop.err.observation.date.empty"     :   "Observation Date can not be empty",
-  "prop.err.observation.geoinfo"        :   "Geo location can not be empty !!",
-  "prop.err.observation.header.empty"   :   "Observation details can not be empty",
-  "prop.err.observation.remove.msg"     :   "This Observation will remove !! Are you sure ?",
-  "prop.err.observation.remove.warn"    :   "This Observation will be removeed"
+  "prop.err.observation.date.empty"               :   "Observation Date can not be empty",
+  "prop.err.observation.geoinfo"                  :   "Geo location can not be empty !!",
+  "prop.err.observation.header.empty"             :   "Observation details can not be empty",
+  "prop.err.observation.remove.msg"               :   "This Observation will remove !! Are you sure ?",
+  "prop.err.observation.remove.warn"              :   "This Observation will be removeed"
 }
