@@ -13,13 +13,14 @@
     </div>
 
     <div class="row">
-      
+      <span v-html="mandatoryField"></span>
       <select id="divCropId" ref='divCropId' v-model="crop.cropId" v-on:change="selectCrop($event)">
           <option v-for="crop in crops" v-bind:value='crop.organismId' >{{crop.latinName}}</option>
       </select>
     </div>
 
     <div class="row">
+      <span v-html="mandatoryField"></span>
         <select  v-model="pest.pestId" id='divPestId' ref='divPestId'>
             <option v-for="pest in pests" v-bind:value='pest.pestId'>{{pest.pestName}}</option>
         </select>
@@ -31,11 +32,13 @@
       </div>
       <!-- <input type="datetime-local" v-bind='strDateObservation | dateFormat' v-model="strDateObservation"/> -->
        <div class="row">
+         <span v-html="mandatoryField"></span>
          <input id="strDateObservation" ref="strDateObservation" type="datetime-local" :max="maxObservationDate" :min="minObservationDate" v-model="strDateObservation" v-on:change="capturedTime($event)"/>
        </div>
     </div>
 
     <div v-if="isMounted" class="row">
+      <span v-html="mandatoryField"></span>
         <router-link id="linkMap" ref='linkMap' :to="{name:'MapObservation', params: {observationId:observation.observationId,geoinfo:mapGeoinfo,isMapPanelVisible:newMapPanel,locationPointOfInterestId:mapLocationPointOfInterestId,observationHeader:observationHeader, observationText:observationText,observation:observation}}">Observation Map </router-link>
     </div>
     <div v-if="mapGeoinfo" id="divMapGeoInfo" class="row">
@@ -64,7 +67,7 @@
     </div>
 
       <div ref='divObservationText' >
-        <div class="row">Observation Detail</div>
+        <div class="row"><span v-html="mandatoryField"></span>Observation Detail</div>
         <div class="row"><input ref="observationHeader" type="text" v-model="observationHeader"/></div>
         <div class="row"><textarea v-model="observationText" /></div>
       </div>
@@ -179,6 +182,7 @@ export default {
                                           observationText: '',
                                           uploaded:false        
                                         },
+      mandatoryField                  : CommonUtil.CONST_FIELD_MANDATORY,
     }
   },
   methods:{
