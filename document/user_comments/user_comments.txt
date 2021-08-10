@@ -1,0 +1,5 @@
+Date : 12-Aug-2021
+-------------------------------
+Remove lower add my places
+Convert map link to button
+Cancel and OK button in Map instead of Back button
