@@ -13,7 +13,8 @@
             </div>
         </div>
         <div v-else >
-            <div class="row">
+
+            <div class="row" v-show="observationId">
                 <div ><button type="button" class="btn btn-primary" id="cameraLauncher" ref='cameraLauncher' @click="launchCamera">{{ take_photo }}</button></div>
                  &nbsp;
                 <div ><button type="button" class="btn btn-primary" id="cameraLauncher" ref='cameraLauncher' @click="launchGallary">{{ choose_photo }}</button></div>
