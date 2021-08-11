@@ -15,9 +15,17 @@
         <div v-else >
 
             <div class="row" v-show="observationId">
-                <div ><button type="button" class="btn btn-primary" id="cameraLauncher" ref='cameraLauncher' @click="launchCamera">{{ take_photo }}</button></div>
+                <div >
+                    <button type="button" class="btn btn-primary" id="cameraLauncher" ref='cameraLauncher' @click="launchCamera">
+                        {{ take_photo }} <i class="fas fa-camera"></i> 
+                    </button>
+                </div>
                  &nbsp;
-                <div ><button type="button" class="btn btn-primary" id="cameraLauncher" ref='cameraLauncher' @click="launchGallary">{{ choose_photo }}</button></div>
+                <div >
+                    <button type="button" class="btn btn-primary" id="cameraLauncher" ref='cameraLauncher' @click="launchGallary">
+                        {{ choose_photo }} <i class="fas fa-images"></i>
+                    </button>
+                </div>
             </div>
             <div class="row">
                 <div v-for="divImage in divAddPhotos" v-bind:key="divImage">
