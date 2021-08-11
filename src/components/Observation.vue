@@ -39,7 +39,9 @@
 
     <div v-if="isMounted" class="row">
       <span v-html="mandatoryField"></span>
-        <router-link id="linkMap" ref='linkMap' :to="{name:'MapObservation', params: {observationId:observation.observationId,geoinfo:mapGeoinfo,isMapPanelVisible:newMapPanel,locationPointOfInterestId:mapLocationPointOfInterestId,observationHeader:observationHeader, observationText:observationText,observation:observation}}">{{ $t("prop.observation.map.label") }}</router-link>
+        <router-link id="linkMap" class="btn btn-secondary" ref='linkMap' :to="{name:'MapObservation', params: {observationId:observation.observationId,geoinfo:mapGeoinfo,isMapPanelVisible:newMapPanel,locationPointOfInterestId:mapLocationPointOfInterestId,observationHeader:observationHeader, observationText:observationText,observation:observation}}">
+          {{ $t("prop.observation.map.label") }}   <i class="fas fa-map-marker-alt"></i>
+        </router-link>
     </div>
     <div v-if="mapGeoinfo" id="divMapGeoInfo" class="row">
       <div v-if="isMounted" class="col">
@@ -76,7 +78,7 @@
         <div v-if="observation.deleted"></div>
         <div v-else class="float-right">
           <button class="btn btn-secondary " v-on:click="saveObservation">{{$t("prop.save.label")}}</button>
-          <button v-show="isDeleteBttnVisible"  class="btn btn-danger " v-on:click="callForRemoveObservation">{{$t("prop.delete.label")}}</button>
+          <button v-show="isDeleteBttnVisible"  class="btn btn-danger " v-on:click="callForRemoveObservation">{{$t("prop.delete.label")}} <i class="fas fa-trash-alt"></i> </button>
         </div>
 
       <modal-simple

@@ -22,12 +22,12 @@
             </router-link>
           <div class="clearfix" />
     </div>
-    <div id='divNewPOI' class="container">
+<!--     <div id='divNewPOI' class="container">
           <router-link  class="row fw-bold" ref='linkMapPoi' :to="{name:'MapPOI', params: {}}"  >
                 <div class='col-10 '></div>
                 <div class='col'><i class="fas fa-plus-circle fa-2x"></i></div>
           </router-link>
-    </div>
+    </div> -->
    
 
     <common-util ref="CommonUtil"/>
