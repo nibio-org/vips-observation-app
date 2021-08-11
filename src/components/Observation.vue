@@ -78,7 +78,7 @@
         <div v-if="observation.deleted"></div>
         <div v-else class="float-right">
           <button class="btn btn-secondary " v-on:click="saveObservation">{{$t("prop.save.label")}}</button>
-          <button v-show="isDeleteBttnVisible"  class="btn btn-danger " v-on:click="callForRemoveObservation">{{$t("prop.delete.label")}}</button>
+          <button v-show="isDeleteBttnVisible"  class="btn btn-danger " v-on:click="callForRemoveObservation">{{$t("prop.delete.label")}} <i class="fas fa-trash-alt"></i> </button>
         </div>
 
       <modal-simple
