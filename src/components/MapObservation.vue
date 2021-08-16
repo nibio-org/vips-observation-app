@@ -1,7 +1,24 @@
 <template>
     <div>
     <div id='map-observation'>
-        <div v-if="isMyMapPanelVisible"><router-link id='btnBack' :to="{name: 'Observation', params:{observationId:myObservationId, paramGeoinfo:myGeoInfo, paramObservation:mapObservation}}" class="btn btn-success ">Back</router-link></div>
+        <div v-if="isMyMapPanelVisible">
+            <div v-if="isMapClicked">
+                <div id="btnBack">
+                <router-link id='btnBack_1' :to="{name: 'Observation', params:{observationId:myObservationId, paramGeoinfo:'', paramObservation:mapObservation }}" class="btn btn-success ">
+                    Cancel
+                </router-link>
+                &nbsp;
+                <router-link id='btnBack_2' :to="{name: 'Observation', params:{observationId:myObservationId, paramGeoinfo:myGeoInfo, paramObservation:mapObservation}}" class="btn btn-success ">
+                    OK
+                </router-link>
+                </div>
+            </div>
+            <div v-else>
+                <router-link id='btnBack' :to="{name: 'Observation', params:{observationId:myObservationId, paramGeoinfo:myGeoInfo, paramObservation:mapObservation}}" class="btn btn-success ">
+                    {{ $t("prop.map.link.back.label") }}
+                </router-link>
+            </div>
+        </div>
         <div v-if="isMyMapPanelVisible" id='map-mylocation'>
             <button class="border border-primary rounded-circle" v-on:click="myposition"><i class='fas fa-crosshairs'></i></button>
         </div>
@@ -87,6 +104,7 @@ export default {
                     myMap               :   '',
                     myObservationId     :   '',
                     mapObservation      :   {},
+                    isMapClicked        :   false,
              }
      },
      methods : {
@@ -211,6 +229,7 @@ export default {
                     This.myMap.on(['singleclick'],function(event){
                             if(localIsMyMapPanelVisible)
                             {
+                                This.isMapClicked = true;
                                     
                                 This.poi.pointOfInterestId='undefined';
 
