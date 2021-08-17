@@ -16,6 +16,9 @@
   "prop.back.label"                               :   "Back",
   "prop.save.label"                               :   "Save",
   "prop.delete.label"                             :   "Delete",
+  "prop.map.link.back.label"            :   "Back",
+  "prop.map.link.OK.label"              :   "OK",
+  "prop.map.link.cancel.label"          :   "Cancel",
 
   "prop.places.search.label"                      :   "Search",
 
