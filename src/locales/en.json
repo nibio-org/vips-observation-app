@@ -11,6 +11,8 @@
   "prop.observation.date.label"         :   "Observation Date",
 
   "prop.map.link.back.label"            :   "Back",
+  "prop.map.link.OK.label"              :   "OK",
+  "prop.map.link.cancel.label"          :   "Cancel",
 
   "prop.places.search.label"            :   "Search",
   

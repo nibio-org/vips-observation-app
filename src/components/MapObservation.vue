@@ -5,11 +5,11 @@
             <div v-if="isMapClicked">
                 <div id="btnBack">
                 <router-link id='btnBack_1' :to="{name: 'Observation', params:{observationId:myObservationId, paramGeoinfo:'', paramObservation:mapObservation }}" class="btn btn-success ">
-                    Cancel
+                    {{ $t("prop.map.link.cancel.label") }} <i class="fas fa-times"></i> 
                 </router-link>
                 &nbsp;
                 <router-link id='btnBack_2' :to="{name: 'Observation', params:{observationId:myObservationId, paramGeoinfo:myGeoInfo, paramObservation:mapObservation}}" class="btn btn-success ">
-                    OK
+                    {{ $t("prop.map.link.OK.label") }}  <i class="fas fa-check"></i> 
                 </router-link>
                 </div>
             </div>
