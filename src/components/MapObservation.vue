@@ -500,6 +500,10 @@ export default {
         {
             this.mapObservation.observationHeader=routeParam.observationHeader;
         }
+		if(routeParam.timeOfObservation)
+		{
+			this.mapObservation.timeOfObservation = routeParam.timeOfObservation;
+		}
 
 
         if(this.isMyMapPanelVisible)
