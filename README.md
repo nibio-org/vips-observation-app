@@ -111,4 +111,22 @@ export default new VueI18n({
 ### Adding Internationalization 
 ``` bash
 npm install vue-i18n --save
+```
 
+### Troubleshooting
+
+#### Error when running cordova emulate android
+
+If seeing this error message
+
+```bash
+adb: failed to install [...]/vipsobservationapp/platforms/android/app/build/outputs/apk/debug/app-debug.apk: Failure [INSTALL_FAILED_VERSION_DOWNGRADE]`
+```
+
+...The easiest way to fix it is to wipe the emulator for data, using this command:
+
+```bash
+emulator -avd Pixel_3a_API_30_x86 -wipe-data
+```
+
+Replace your emulator name with the example above
