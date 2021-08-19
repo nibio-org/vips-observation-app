@@ -825,7 +825,7 @@ export default {
       
 
       var maxDate = year + '-' + month + '-' + day;
-      var minDate = 2000 + '-' + '01' + '-' + '01';  
+      var minDate = year + '-' + '01' + '-' + '01';  
 
       this.maxObservationDate = maxDate+'T00:00';
       this.minObservationDate = minDate+'T00:00';
