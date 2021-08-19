@@ -1,4 +1,31 @@
+ <!--
+    
+    This file is part of VIPS Observation App
+ 
+    Licensed to the Apache Software Foundation (ASF) under one
+    or more contributor license agreements.  See the NOTICE file
+    distributed with this work for additional information
+    regarding copyright ownership.  The ASF licenses this file
+    to you under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliance
+    with the License.  You may obtain a copy of the License at
 
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+     KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+    
+    Copyright (c) 2021 NIBIO <http://www.nibio.no/>
+    
+    Author : Bhabesh Bhabani Mukhopadhyay
+    Email : bhabesh.mukhopadhyay@nibio.no
+    Dated : 19-Aug-2021
+    
+-->
 <template>
   <div id="observation" class="hello container">
     <div ><router-link id='btnBack' class="btn btn-success " to="/" onclick="$('.offcanvas-collapse').toggleClass('open')">{{ $t("prop.back.label") }}</router-link></div>
@@ -338,14 +365,11 @@ export default {
               
               let lstObservations     = JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST));              // Observation List
 
-              
-/*              
-              let lastQuoteRemoved    = this.observation.observationData.slice(0,0);
-              console.log(lastQuoteRemoved);
-              this.observation.observationData = lastQuoteRemoved.slice(0,0);
-              console.log(this.observation.observationData);
-*/
-              
+              /* 
+                Check availability of observation object 
+              - mainly from map component 
+              - to hold crop, pest data
+              */
               if(this.paramObservation)
               {
                 
@@ -392,7 +416,7 @@ export default {
                    this.mapLocationPointOfInterestId    =   jsonObservation.locationPointOfInterestId;
                 }
               }
-              //this.observation.geoinfo = this.mapGeoinfo;
+              
           }
           else {
             //TODO for new Observation
@@ -408,7 +432,7 @@ export default {
 
               /** Try to get list of crops from crop category ids */
               let lstCropCategories = JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_CROP_CATEGORY));
-              //let testCropIds = lstObservations.find(({cropOrganismIds})=> cropOrganismIds === this.observation.cropOrganismId);
+              
 
             /** For Selected Observation We require List of related crop ids for dropdown   */
             // Iterating crop categories
@@ -434,7 +458,6 @@ export default {
             this.getCrops(lstCropIds);
 
               let jsonSelectedCrop= this.crops.find(({organismId}) => organismId === parseInt(jsonObservation.cropOrganismId));
-            //  this.crops = lstCrops;
               if(jsonSelectedCrop)
               {
                 this.crop = {"cropId":jsonSelectedCrop.organismId, "cropName":jsonSelectedCrop.latinName};
@@ -496,12 +519,10 @@ export default {
       {
           this.isDeleteBttnVisible  = false;
           let lstCropIds              = [];
-          //let lstPestIds              = [];
           let cropCategoryIdProp      = CommonUtil.CONST_CROP_CATEGORY_ID; 
           let jsonCrops               = [];
           let arrCropCatIds           = localStorage.getItem(CommonUtil.CONST_STORAGE_CROP_ID_LIST).split(",");
           let jsonCropCategoryList    = JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_CROP_CATEGORY));
-          //let lstCropPestList         = JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_CROP_PEST_LIST));
 
           /* Iterate Selected Crop Ids */
           $.each(arrCropCatIds, function(index, cropCatId){
@@ -743,18 +764,9 @@ export default {
               this.observationForStore.statusTypeId=CommonUtil.CONST_STATUS_PENDING;
               lstObservations.push(this.observationForStore);
          }
-         console.log('test-3-1');
-              localStorage.setItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST, JSON.stringify(lstObservations) );
-/*               if(this.isSync===false)
-              {
-                this.isSync = true;
+          localStorage.setItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST, JSON.stringify(lstObservations) );
+         this.$router.replace({path:'/'});
 
-                this.$refs.sync.syncObservationSendPrepareSingleObject(this.observationForStore,1);
-                this.isSync = false;
-              } */
-          this.$router.replace({path:'/'});
-          //this.$router.push({path:'/'});
-          //this.$router.go();
            
       },
       updateQuntificationData(schemaData){
@@ -806,7 +818,7 @@ export default {
 
     
 
-        var dtToday = new Date();
+      var dtToday = new Date();
 
       var month = dtToday.getMonth() + 1;
       var day = dtToday.getDate();
@@ -832,7 +844,9 @@ export default {
 
       this.strDateObservation = maxDate+'T'+hh+':'+min;
 
-
+    /* Check existing Observation Object - Mainly from Map component
+        It helps to retain the data back to Observation from Map
+    */
     if(this.paramObservation)
     {
         this.observation  = this.paramObservation;
@@ -852,7 +866,7 @@ export default {
     }
 
 
-
+    /* Get details of existing Observation */
     if(this.observationId)
     {
       this.getObservationFromStore(this.observationId);
