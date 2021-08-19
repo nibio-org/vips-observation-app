@@ -39,7 +39,7 @@
 
     <div v-if="isMounted" class="row">
       <span v-html="mandatoryField"></span>
-        <router-link id="linkMap" class="btn btn-secondary" ref='linkMap' :to="{name:'MapObservation', params: {observationId:observation.observationId,geoinfo:mapGeoinfo,isMapPanelVisible:newMapPanel,locationPointOfInterestId:mapLocationPointOfInterestId,observationHeader:observationHeader, observationText:observationText,observation:observation}}">
+        <router-link id="linkMap" class="btn btn-secondary" ref='linkMap' :to="{name:'MapObservation', params: {observationId:observation.observationId,geoinfo:mapGeoinfo,isMapPanelVisible:newMapPanel,locationPointOfInterestId:mapLocationPointOfInterestId,observationHeader:observationHeader, observationText:observationText, timeOfObservation:strDateObservation, observation:observation}}">
           {{ $t("prop.observation.map.label") }}   <i class="fas fa-map-marker-alt"></i>
         </router-link>
     </div>
@@ -825,7 +825,7 @@ export default {
       
 
       var maxDate = year + '-' + month + '-' + day;
-      var minDate = year + '-' + '01' + '-' + '01';  
+      var minDate = 2000 + '-' + '01' + '-' + '01';  
 
       this.maxObservationDate = maxDate+'T00:00';
       this.minObservationDate = minDate+'T00:00';
