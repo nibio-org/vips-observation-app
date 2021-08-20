@@ -1,3 +1,31 @@
+ <!--
+    
+    This file is part of VIPS Observation App
+ 
+    Licensed to the Apache Software Foundation (ASF) under one
+    or more contributor license agreements.  See the NOTICE file
+    distributed with this work for additional information
+    regarding copyright ownership.  The ASF licenses this file
+    to you under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliance
+    with the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+     KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+    
+    Copyright (c) 2021 NIBIO <http://www.nibio.no/>
+    
+    Author : Bhabesh Bhabani Mukhopadhyay
+    Email : bhabesh.mukhopadhyay@nibio.no
+    Dated : 19-Aug-2021
+    
+-->
 <template>
     <div>
     <div id='map-observation'>
@@ -28,19 +56,14 @@
 
     <div id="ObservationMapPanel" v-if="isMyMapPanelVisible" ref='ObservationMapPanel'> 
         <div>
-<!--             <input value="" placeholder="name">
 
-            <br> -->
             <select v-model="poi.pointOfInterestId" v-on:change="selectPOI($event)" ref="dropDownPOI">
                 <option v-for="poi in lstPOI" v-bind:value="poi.pointOfInterestId" >{{poi.name}}</option>
             </select>
             <div id="poiMarker">
                 <img src="@/assets/map_icon.png"> 
             </div>
-<!--             <br>
-            <select>
-                <option>Select test 2</option>
-            </select> -->
+
         </div>
     </div>
     <div v-else >
@@ -116,10 +139,11 @@ export default {
             {
                 let options = { enableHighAccuracy: true };
                 navigator.geolocation.getCurrentPosition(this.geolocationSuccess, this.geolocationError, options);
-                //navigator.geolocation.getCurrentPosition(this.geolocationSuccess, this.geolocationError, this.geolocationOptions);
-
-                
-            },         
+                                
+            }, 
+            /**
+             * Get GeoInfo
+             *  */        
             geolocationSuccess(pos) {
                     this.poi.pointOfInterestId='undefined';                    
                     this.longitude= pos.coords.latitude;
@@ -159,15 +183,16 @@ export default {
                 console.log('geolocation error : '+geolocationError);
             },
 
+            /** Display of Map */
             initMap(myLatitude,myLongitude){
-                //let thisMap           =   this.myMap;
+                
                 let pointOfInterestId   =   this.poi.pointOfInterestId;
 				let This                = this;
-                let urlMap              =   CommonUtil.CONST_GPS_URL_NORWAY_MAP;
+                let urlMap              =   CommonUtil.CONST_GPS_URL_NORWAY_MAP;    // Norway Map
 
                 let myGeoInfo           =   this.myGeoInfo;
-                let latitude            =   myLatitude;//this.latitude;
-                let longitude           =   myLongitude;//this.longitude;
+                let latitude            =   myLatitude;
+                let longitude           =   myLongitude;
                 let mapZoom             =   this.mapZoom;
 
                 let image               =   this.myImage();
@@ -188,7 +213,7 @@ export default {
                 let pointMarker         =   this.myOverLay (coordinate);
                 let pointMarkerCoord    =   this.myOverLayCoord(latitude,longitude);
 
-            
+                /* Fetch Norway Map */
 
                 fetch(urlMap)
                 .then(function (response){
@@ -225,7 +250,7 @@ export default {
 
                    
                    
-
+                    /* On click event of map to get the location */
                     This.myMap.on(['singleclick'],function(event){
                             if(localIsMyMapPanelVisible)
                             {
@@ -239,19 +264,6 @@ export default {
                                 let mapNewCord = toStringXY(transform(event.coordinate,'EPSG:3857','EPSG:4326'),4);
 
 
-                                /** Below code for image marker */
-    /* 
-                                This.myMap.addOverlay(pointMarker);
-                                pointMarker.setPosition(fromLonLat(transFormCord));
-    
-                                let view =  new View ({
-                                            center:fromLonLat(transFormCord),
-                                            zoom : mapZoom
-                                        }) 
-
-                                This.myMap.setView(view);
-                                vectorSource.clear();
-    */
                                 This.myMap.getView().setCenter(fromLonLat(transFormCord));
 
                                     /******* Below code for vector marker positioning */
@@ -362,6 +374,7 @@ export default {
             return (mapInteractions) ? [] : '';
         },
 
+        /* Get point of interest */
         getMyPointOfInterst(lstPOI)
         {
             let userUUID = localStorage.getItem(CommonUtil.CONST_STORAGE_UUID);
@@ -381,13 +394,14 @@ export default {
             })
             .then((jsonLstPOI) => {
                 $.each(jsonLstPOI, function(index, poi){
-                        let myPOI = poi;//{'pointOfInterestId':poi.pointOfInterestId,'name':poi.name,'longitude':poi.longitude, 'latitude':poi.latitude};
+                        let myPOI = poi;
                         lstPOI.push(myPOI);
                 })
                 
             })
         },
 
+        /* Clear existing sources in map layers */
         clearMapLayers()
         {
             let myLayers = this.myMap.getLayers();
