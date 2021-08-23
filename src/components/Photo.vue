@@ -1,3 +1,31 @@
+ <!--
+    
+    This file is part of VIPS Observation App
+ 
+    Licensed to the Apache Software Foundation (ASF) under one
+    or more contributor license agreements.  See the NOTICE file
+    distributed with this work for additional information
+    regarding copyright ownership.  The ASF licenses this file
+    to you under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliance
+    with the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+     KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+    
+    Copyright (c) 2021 NIBIO <http://www.nibio.no/>
+    
+    Author : Bhabesh Bhabani Mukhopadhyay
+    Email : bhabesh.mukhopadhyay@nibio.no
+    Dated : 19-Aug-2021
+    
+-->
 <template>
     <div>
        
@@ -36,6 +64,8 @@
         
 
         <common-util ref="CommonUtil"/>
+
+        <!-- Modal component for image deletion -->
         <Modal
             v-show="isModalVisible"
              v-on:close="closeModal"
@@ -56,6 +86,7 @@
 
         </Modal>
 
+<!-- modal-photo component for image viewing -->
     <modal-photo :propImageSource='observationImage.illustration.imageTextData' v-show="isModalPhotoVisible" v-on:close="closeModalPhoto">
         <template v-slot:header>
             !! Observation Photo !!
@@ -109,13 +140,19 @@ export default {
                     closeModal() {
                         this.isModalVisible = false;
                     },
+
+                    /**
+                     * Delete an image
+                     */
                     actionModal() {
 
                         this.deleteImage(this.observationImage);
                         this.isModalVisible = false;
                         
                     },
-
+                    /**
+                     * Display an image
+                     */
                     showModalPhoto(fileName)
                     {
                                               
@@ -143,6 +180,7 @@ export default {
                         this.searchDBByindex('observationId',this.observationId,this.organismId,imageURI);
 
                     },
+                    /** Camera plugin Launcher */
                      launchCamera: function() {
                         if(navigator.camera)
                         {
@@ -158,6 +196,7 @@ export default {
                             console.log('WARNING : Functional Cordova plugin needed to launch camera');
                         }
                     },
+                    /** Image gallary launcher with same camera plugin  */
                     launchGallary : function() {
                         if(navigator.camera)
                         {
@@ -174,6 +213,8 @@ export default {
                             console.log('WARNING : Functional Cordova plugin needed to launch camera');
                         }
                     },
+
+                    /** Get image from VIPS Server */
                     fetchFromServer()
                         {
                             let photoURL=this.CONST_URL_DOMAIN+CommonUtil.CONST_URL_STATIC_IMAGE_PATH+this.organismId+'/'+this.imageFileName;
@@ -199,6 +240,7 @@ export default {
                             }
 
                         },
+                        /** Store image in local IndexDB */
                         async storeData(observationImage)
                         {       let This    =   this;
                            
@@ -212,10 +254,7 @@ export default {
                                 else
                                 {
                                      This.createEntity(db,This.entityName, observationImage.illustration.fileName);
-/*                                    let store = db.createObjectStore(This.entityName, {keypath : observationImage.illustration.fileName});
-                                    store.createIndex('observationId', 'observationId', { unique: false });
-                                    store.createIndex('organismId', 'organismId', { unique: false });                                    
- */                                }
+                                }
                             } 
                             
 
@@ -248,6 +287,7 @@ export default {
                                     store.createIndex('observationId', 'observationId', { unique: false });
                                     store.createIndex('organismId', 'organismId', { unique: false }); 
                         },
+
                         /** Check requirement for DB upgrade */
                         async checkDBUpgrade(dbRequest,entityName, keyName){
                             dbRequest.onupgradeneeded= function (event)
@@ -269,6 +309,10 @@ export default {
                             }
 
                         },
+         
+                       /**
+                        * Get image from local indexedDB
+                        */
                        async getImageFromStore()
                         {
 
@@ -321,6 +365,8 @@ export default {
                                      }
 
                         },
+                        
+                        /** Get image content e.g. Base64 of particular image file */
                         getImageDataFromStore(fileName)
                         {
                              let This = this;
@@ -332,35 +378,36 @@ export default {
                                             let transaction = db.transaction([This.entityName],'readwrite');  
                                             let objectstore = transaction.objectStore(This.entityName);
 
-                                            if(This.observationImage.illustration.fileName)
-                                            {
-                                                let objectstoreRequest = objectstore.get(fileName);
-                                                
-                                                objectstoreRequest.onsuccess = function(event)
+                                                if(This.observationImage.illustration.fileName)
                                                 {
-                                                    let observationImage = event.target.result;
-                                                    if(observationImage)
+                                                    let objectstoreRequest = objectstore.get(fileName);
+                                                    
+                                                    objectstoreRequest.onsuccess = function(event)
                                                     {
-                                                        //This.displayImage(observationImage.illustration.imageTextData);
-                                                        This.observationImage.illustration.imageTextData = observationImage.illustration.imageTextData;
-                                                        
-                                                    }
-                                                    else{
-                                                        console.log('Image filename mentioned in Observation, but no image data found');
+                                                        let observationImage = event.target.result;
+                                                        if(observationImage)
+                                                        {
+                                                            //This.displayImage(observationImage.illustration.imageTextData);
+                                                            This.observationImage.illustration.imageTextData = observationImage.illustration.imageTextData;
+                                                            
+                                                        }
+                                                        else{
+                                                            console.log('Image filename mentioned in Observation, but no image data found');
+                                                        }
                                                     }
                                                 }
-                                            }
-                                            else{
+                                                else{
 
-                                            }
+                                                }
 
                                         }
-
-
 
                                      }
                         },
 
+                        /**
+                         * Display image with predefined width and height
+                         */
                         displayImage(imgTextData)
                         {
                             if(imgTextData)
@@ -375,7 +422,7 @@ export default {
                                 else{
                                     this.divAddPhotos.push(this.observationImage);
 
-                            }
+                                }
                                 if(image)
                                 {
                                     image.width = CommonUtil.CONST_IMAGE_WIDTH;
@@ -386,18 +433,18 @@ export default {
                                         this.isBorderUploaded = true;
                                     }
                                 }
-                        }
+                            }
 
                         },
 
-                        /**  Search IndexedDB for available imaages within a observation */
+                        /**  Search IndexedDB for available imaages within an observation */
                          searchDBByindex(indexName,indexValue,organismId,imageTextData,storeImage)
                         {
                              let This = this;
                              let dbRequest =  null;
                              let isDBStoreExists = null;
 
-                            //if(db.objectStoreNames.contains(This.entityName))
+                            
                              dbRequest  =   indexedDB.open(CommonUtil.CONST_DB_NAME, CommonUtil.CONST_DB_VERSION);
                                             dbRequest.onsuccess = function(evt) {
                                                         let db  = evt.target.result;
@@ -432,7 +479,7 @@ export default {
                                                             }
 
                                                         }
-                                            }
+                                                }
  
 
                                         dbRequest.onupgradeneeded= function (event)
@@ -601,6 +648,8 @@ export default {
                              localStorage.setItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST,JSON.stringify(lstObservations));
 
                         },
+                        
+                        /** Call for removing image by file name */
                         deleteImageByFileName(fileName)
                         {
                             let This = this;
@@ -616,6 +665,7 @@ export default {
                                 }
                             }
                         },
+
                         /* Delete Image */
                         deleteImage(observationImage)
                         {
@@ -625,6 +675,7 @@ export default {
                             divImg.remove();
                         },
 
+                        /** Remove image reference from local storage */
                         deleteImageFromLocalStore(observationImage)
                         {
                                 let This = this;
@@ -691,6 +742,7 @@ export default {
                                 }
 
                         },
+                        /** Remove the image data from IndexedDB */
                         deleteImageFromIndexedDB(observationImage, isMarkDeleted)
                         {
                             let This = this;
