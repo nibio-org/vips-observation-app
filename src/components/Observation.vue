@@ -293,6 +293,7 @@ export default {
       }
 
     },
+    /** Validation on save */
     validate()
               {
                 let result = false;
