@@ -1,3 +1,31 @@
+ <!--
+    
+    This file is part of VIPS Observation App
+ 
+    Licensed to the Apache Software Foundation (ASF) under one
+    or more contributor license agreements.  See the NOTICE file
+    distributed with this work for additional information
+    regarding copyright ownership.  The ASF licenses this file
+    to you under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliance
+    with the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+     KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+    
+    Copyright (c) 2021 NIBIO <http://www.nibio.no/>
+    
+    Author : Bhabesh Bhabani Mukhopadhyay
+    Email : bhabesh.mukhopadhyay@nibio.no
+    Dated : 19-Aug-2021
+    
+-->
 <template>
     <div>
         <div v-if="loading">
@@ -331,7 +359,7 @@ export default {
         }
     },
 
-
+    /** Decide which two way sync  will start */
     syncTwoWayInitiate(value, strUrl)
     {
         
@@ -355,6 +383,7 @@ export default {
         this.syncPOISendPrepare(value);
     },
 
+    /** Findout which data at POI need to be synced */
     syncPOISendPrepare(value)
     {
         let This = this;
@@ -383,6 +412,7 @@ export default {
         }
     },
 
+    /** Posting required POI data for sync */
     syncPOIPOST(poi,totalTwoWaySyncPOST)
     {
         let This = this;
@@ -664,6 +694,7 @@ export default {
 
     },
 
+    /** Prepare a single object includes image data */
     syncObservationSendPrepareSingleObject(observation,totalTwoWaySyncPOST,syncObservationPOST)
     {
 
@@ -717,6 +748,8 @@ export default {
                 }
             }
     },
+
+    /** Posting Observation data to VIPS server for sync */
     syncObservationPOST(observation,totalTwoWaySyncPOST)
     {
         let This = this;
@@ -802,6 +835,7 @@ export default {
         
     },
 
+    /** After App's POST opecation, update local observation when response received from VIPS Server */
     updateObservationPOST(updatedObservation,totalTwoWaySyncPOST)
     {
         
@@ -863,7 +897,7 @@ export default {
             
     },
 
-    /** GET Observations */
+    /** GET Observations from server to sync local data */
     getObservationsFromServerTwowaySync(totalTwoWaySyncPOST,updatedObservation)
     {
         
@@ -1017,7 +1051,7 @@ export default {
         }
 
     },
-    /** Store image at server 
+    /** Store image from server 
      */
     storeImageData(observationImage)
     {       let This    =   this;
