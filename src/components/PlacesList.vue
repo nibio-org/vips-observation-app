@@ -36,7 +36,7 @@
     </div>  
     <div class="container">
           <div class="row">
-              <div> {{ $t('prop.places.search.label') }} &nbsp;</div> <div><input type="text" v-model.trim="textSearch" @input="search"> </div>
+              <div><input type="text" v-model.trim="textSearch" @input="search">  <a class="fw-bold btn btn-outline-success" href="#"><i class="fas fa-search"> </i>{{ $t('prop.places.search.label') }} </a></div>
           </div>
           <br>
             <router-link  class="row fw-bold" ref='linkMapPoi' :to="{name:'MapPOI', params: {pointOfInterestId:poi.pointOfInterestId}}" v-bind:class="{'text-danger':poi.isNew, 'text-primary':poi.toUpload, 'text-secondary':poi.isDeleted}"  v-for="poi in listPOI" v-bind:key="poi.pointOfInterestId">
