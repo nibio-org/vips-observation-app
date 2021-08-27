@@ -1,6 +1,34 @@
+ <!--
+    
+    This file is part of VIPS Observation App
+ 
+    Licensed to the Apache Software Foundation (ASF) under one
+    or more contributor license agreements.  See the NOTICE file
+    distributed with this work for additional information
+    regarding copyright ownership.  The ASF licenses this file
+    to you under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliance
+    with the License.  You may obtain a copy of the License at
 
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+     KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+    
+    Copyright (c) 2021 NIBIO <http://www.nibio.no/>
+    
+    Author : Bhabesh Bhabani Mukhopadhyay
+    Email : bhabesh.mukhopadhyay@nibio.no
+    Dated : 19-Aug-2021
+    
+-->
 <template>
-  <div class="hello container">
+  <div id="observation" class="hello container">
+    <div ><router-link id='btnBack' class="btn btn-success " to="/" onclick="$('.offcanvas-collapse').toggleClass('open')">{{ $t("prop.back.label") }}</router-link></div>
     <div class="row">
         <h1 ref='titleObservation'>{{ msg }}</h1>
     </div>
@@ -12,13 +40,14 @@
     </div>
 
     <div class="row">
-      
+      <span v-html="mandatoryField"></span>
       <select id="divCropId" ref='divCropId' v-model="crop.cropId" v-on:change="selectCrop($event)">
           <option v-for="crop in crops" v-bind:value='crop.organismId' >{{crop.latinName}}</option>
       </select>
     </div>
 
     <div class="row">
+      <span v-html="mandatoryField"></span>
         <select  v-model="pest.pestId" id='divPestId' ref='divPestId'>
             <option v-for="pest in pests" v-bind:value='pest.pestId'>{{pest.pestName}}</option>
         </select>
@@ -30,12 +59,16 @@
       </div>
       <!-- <input type="datetime-local" v-bind='strDateObservation | dateFormat' v-model="strDateObservation"/> -->
        <div class="row">
-         <input ref="strDateObservation" type="datetime-local" v-model="strDateObservation" v-on:change="capturedTime($event)"/>
+         <span v-html="mandatoryField"></span>
+         <input id="strDateObservation" ref="strDateObservation" type="datetime-local" :max="maxObservationDate" :min="minObservationDate" v-model="strDateObservation" v-on:change="capturedTime($event)"/>
        </div>
     </div>
 
     <div v-if="isMounted" class="row">
-        <router-link id="linkMap" ref='linkMap' :to="{name:'MapObservation', params: {observationId:observation.observationId,geoinfo:mapGeoinfo,isMapPanelVisible:newMapPanel,locationPointOfInterestId:mapLocationPointOfInterestId, observation:observation}}">Observation Map </router-link>
+      <span v-html="mandatoryField"></span>
+        <router-link id="linkMap" class="btn btn-secondary" ref='linkMap' :to="{name:'MapObservation', params: {observationId:observation.observationId,geoinfo:mapGeoinfo,isMapPanelVisible:newMapPanel,locationPointOfInterestId:mapLocationPointOfInterestId,observationHeader:observationHeader, observationText:observationText, timeOfObservation:strDateObservation, observation:observation}}">
+          {{ $t("prop.observation.map.label") }}   <i class="fas fa-map-marker-alt"></i>
+        </router-link>
     </div>
     <div v-if="mapGeoinfo" id="divMapGeoInfo" class="row">
       <div v-if="isMounted" class="col">
@@ -51,7 +84,7 @@
 
       <div class="clearfix"/>
     <div>
-      <div class="row"><button class="btn btn-success" v-on:click="showQuantification"><span><h5>Tell/kvantifiser</h5></span></button></div>
+      <div class="row"><button class="btn btn-success" v-on:click="showQuantification"><span><h5>{{ $t("prop.observation.quantification.label") }}</h5></span></button></div>
       <div v-if="isQuantification" class="row">
           <div v-if="isMounted" id='divSchemaForm' class="border border-primary rounded" >
               <button id="btnCloseQuantification" class="border border-primary rounded-circle" type="button" v-on:click="closeQuantification">x</button>              
@@ -63,7 +96,7 @@
     </div>
 
       <div ref='divObservationText' >
-        <div class="row">Observation Detail</div>
+        <div class="row"><span v-html="mandatoryField"></span> {{ $t("prop.observation.detail.label") }}</div>
         <div class="row"><input ref="observationHeader" type="text" v-model="observationHeader"/></div>
         <div class="row"><textarea v-model="observationText" /></div>
       </div>
@@ -71,8 +104,8 @@
 
         <div v-if="observation.deleted"></div>
         <div v-else class="float-right">
-          <button class="btn btn-secondary " v-on:click="saveObservation">Save</button>
-          <button v-show="isDeleteBttnVisible"  class="btn btn-danger " v-on:click="callForRemoveObservation">Delete</button>
+          <button class="btn btn-secondary " v-on:click="saveObservation">{{$t("prop.save.label")}}</button>
+          <button v-show="isDeleteBttnVisible"  class="btn btn-danger " v-on:click="callForRemoveObservation">{{$t("prop.delete.label")}} <i class="fas fa-trash-alt"></i> </button>
         </div>
 
       <modal-simple
@@ -80,7 +113,7 @@
         v-on:close="closeModalSimple"           
     >
         <template v-slot:header>
-            !! ERROR !!
+            {{$t("prop.alert.header.error.label")}}
         </template>
 
         <template v-slot:body>
@@ -91,7 +124,7 @@
                   {{ $t("prop.err.observation.geoinfo") }}
             </div>
             <div v-show="isObservationHeaderEmpty">
-                  {{ $t("Observation details can not be empty",) }}
+                  {{ $t("prop.err.observation.header.empty") }}
             </div>
         </template>
 
@@ -107,7 +140,7 @@
                 >
             
                 <template v-slot:header>
-                    !! ALERT !!
+                    {{$t("prop.alert.header.label")}}
                 </template>
 
                 <template v-slot:body>
@@ -115,7 +148,7 @@
                 </template>
 
                 <template v-slot:footer>
-                    Please chose the option below :
+                    {{ $t("prop.alert.footer.label") }}
                 </template>
     </modal>      
 
@@ -159,6 +192,8 @@ export default {
       isActive                        : false,
       dateObservation                 : DateTime,
       strDateObservation              : null,
+      maxObservationDate              : null,
+      minObservationDate              : null,
       observationHeader               : '',
       observationText                 : '',
       mapGeoinfo                      : null,
@@ -176,6 +211,7 @@ export default {
                                           observationText: '',
                                           uploaded:false        
                                         },
+      mandatoryField                  : CommonUtil.CONST_FIELD_MANDATORY,
     }
   },
   methods:{
@@ -257,6 +293,7 @@ export default {
       }
 
     },
+    /** Validation on save */
     validate()
               {
                 let result = false;
@@ -329,14 +366,11 @@ export default {
               
               let lstObservations     = JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST));              // Observation List
 
-              
-/*              
-              let lastQuoteRemoved    = this.observation.observationData.slice(0,0);
-              console.log(lastQuoteRemoved);
-              this.observation.observationData = lastQuoteRemoved.slice(0,0);
-              console.log(this.observation.observationData);
-*/
-              
+              /* 
+                Check availability of observation object 
+              - mainly from map component 
+              - to hold crop, pest data
+              */
               if(this.paramObservation)
               {
                 
@@ -383,7 +417,7 @@ export default {
                    this.mapLocationPointOfInterestId    =   jsonObservation.locationPointOfInterestId;
                 }
               }
-              //this.observation.geoinfo = this.mapGeoinfo;
+              
           }
           else {
             //TODO for new Observation
@@ -399,7 +433,7 @@ export default {
 
               /** Try to get list of crops from crop category ids */
               let lstCropCategories = JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_CROP_CATEGORY));
-              //let testCropIds = lstObservations.find(({cropOrganismIds})=> cropOrganismIds === this.observation.cropOrganismId);
+              
 
             /** For Selected Observation We require List of related crop ids for dropdown   */
             // Iterating crop categories
@@ -425,7 +459,6 @@ export default {
             this.getCrops(lstCropIds);
 
               let jsonSelectedCrop= this.crops.find(({organismId}) => organismId === parseInt(jsonObservation.cropOrganismId));
-            //  this.crops = lstCrops;
               if(jsonSelectedCrop)
               {
                 this.crop = {"cropId":jsonSelectedCrop.organismId, "cropName":jsonSelectedCrop.latinName};
@@ -480,7 +513,6 @@ export default {
       capturedTime(event)
       {
         this.observation.timeOfObservation=this.strDateObservation;
-
       },
       
       /** Get New Observation  */
@@ -488,12 +520,10 @@ export default {
       {
           this.isDeleteBttnVisible  = false;
           let lstCropIds              = [];
-          //let lstPestIds              = [];
           let cropCategoryIdProp      = CommonUtil.CONST_CROP_CATEGORY_ID; 
           let jsonCrops               = [];
           let arrCropCatIds           = localStorage.getItem(CommonUtil.CONST_STORAGE_CROP_ID_LIST).split(",");
           let jsonCropCategoryList    = JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_CROP_CATEGORY));
-          //let lstCropPestList         = JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_CROP_PEST_LIST));
 
           /* Iterate Selected Crop Ids */
           $.each(arrCropCatIds, function(index, cropCatId){
@@ -563,40 +593,49 @@ export default {
            {
              lstPests.push({"pestId":'', "pestName":'Select Pest'});
            }
-
-          let lstPestList     = JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_PEST_LIST));
-          $.each(lstPestIds, function(index, pestId){
-              let jsonDetailPest = lstPestList.find(({organismId}) => organismId === pestId);
-              let jsonPest = {};
-              if(jsonDetailPest)
-              {
-                let pestName = jsonDetailPest.latinName;
-                let organismLocaleSet = jsonDetailPest.organismLocaleSet;
-
-                if(organismLocaleSet)
-                {
-                  let strLocale = This.getSystemLocale();
-                  organismLocaleSet.forEach(localObj => {
-                    if(localObj.organismLocalePK.locale === strLocale)
-                    {
-                      if(localObj.localName)
+          
+          if(lstPestIds.length===0)
+          {
+              lstPests.push({"pestId":'', "pestName":'Not found in database'});
+          }
+          else{
+                  let lstPestList     = JSON.parse(localStorage.getItem(CommonUtil.CONST_STORAGE_PEST_LIST));
+                  $.each(lstPestIds, function(index, pestId){
+                      let jsonDetailPest = lstPestList.find(({organismId}) => organismId === pestId);
+                      let jsonPest = {};
+                      if(jsonDetailPest)
                       {
-                        pestName = localObj.localName;
+                        let pestName = jsonDetailPest.latinName;
+                        let organismLocaleSet = jsonDetailPest.organismLocaleSet;
+
+                        if(organismLocaleSet)
+                        {
+                          let strLocale = This.getSystemLocale();
+                          organismLocaleSet.forEach(localObj => {
+                            if(localObj.organismLocalePK.locale === strLocale)
+                            {
+                              if(localObj.localName)
+                              {
+                                pestName = localObj.localName;
+                              }
+                              return false;
+                            }
+                          });
+                        }
+                        jsonPest = {"pestId":jsonDetailPest.organismId, "pestName":pestName};
                       }
-                      return false;
-                    }
+                      else
+                      {
+                        jsonPest = {"pestId":pestId, "pestName":'Not Available -- '+pestId};
+                      }
+
+                        lstPests.push(jsonPest);
+                      
                   });
-                }
-                jsonPest = {"pestId":jsonDetailPest.organismId, "pestName":pestName};
-              }
-              else
-              {
-                jsonPest = {"pestId":pestId, "pestName":'Not Available -- '+pestId};
+
               }
 
-                lstPests.push(jsonPest);
-              
-          });
+
 
           this.pests =  lstPests;
       },
@@ -726,18 +765,9 @@ export default {
               this.observationForStore.statusTypeId=CommonUtil.CONST_STATUS_PENDING;
               lstObservations.push(this.observationForStore);
          }
-         console.log('test-3-1');
-              localStorage.setItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST, JSON.stringify(lstObservations) );
-/*               if(this.isSync===false)
-              {
-                this.isSync = true;
+          localStorage.setItem(CommonUtil.CONST_STORAGE_OBSERVATION_LIST, JSON.stringify(lstObservations) );
+         this.$router.replace({path:'/'});
 
-                this.$refs.sync.syncObservationSendPrepareSingleObject(this.observationForStore,1);
-                this.isSync = false;
-              } */
-          this.$router.replace({path:'/'});
-          //this.$router.push({path:'/'});
-          //this.$router.go();
            
       },
       updateQuntificationData(schemaData){
@@ -782,9 +812,54 @@ export default {
 
 
   mounted(){
+    var btnBack      =   document.getElementById("btnBack");
+    var navDiv      =   document.getElementById("vipsobsappmenu");
+    btnBack.style.top=(navDiv.offsetHeight) + "px";
+    btnBack.style.left=0+"px";
+
+    
+
+      var dtToday = new Date();
+
+      var month = dtToday.getMonth() + 1;
+      var day = dtToday.getDate();
+      var year = dtToday.getFullYear();
+      var hh   = dtToday.getHours();
+      var min   = dtToday.getMinutes();
+
+      if(month < 10)
+          month = '0' + month.toString();
+      if(day < 10)
+          day = '0' + day.toString();
+      if(hh<10)
+          hh  = '0' + hh.toString();
+      if(min<10)
+          min = '0' + min.toString();
+      
+
+      var maxDate = year + '-' + month + '-' + day;
+      var minDate = year + '-' + '01' + '-' + '01';  
+
+      this.maxObservationDate = maxDate+'T00:00';
+      this.minObservationDate = minDate+'T00:00';
+
+      this.strDateObservation = maxDate+'T'+hh+':'+min;
+
+    /* Check existing Observation Object - Mainly from Map component
+        It helps to retain the data back to Observation from Map
+    */
     if(this.paramObservation)
     {
         this.observation  = this.paramObservation;
+
+        if(this.paramObservation.observationText)
+        {
+          this.observationText = this.paramObservation.observationText;
+        }
+        if(this.paramObservation.observationHeader)
+        {
+          this.observationHeader = this.paramObservation.observationHeader;
+        }
     }
     if(this.paramGeoinfo)
     {
@@ -792,7 +867,7 @@ export default {
     }
 
 
-
+    /* Get details of existing Observation */
     if(this.observationId)
     {
       this.getObservationFromStore(this.observationId);

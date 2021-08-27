@@ -72,6 +72,8 @@ export default {
     CONST_DB_ENTITY_PHOTO               :   'entityPhoto',
     CONST_DB_INDEX_NAME_OBSERVATION_ID  :   'observationId',
 
+    CONST_FIELD_MANDATORY               :   '<font color=red>*</font>',
+
     data(){
         return {
             isEmulator                          :   false,

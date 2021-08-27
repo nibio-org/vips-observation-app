@@ -38,6 +38,7 @@ export default {
     },
   },
   methods: {
+    /** Save crop category  */
     funSaveCategoryId: function () {
       localStorage.setItem(CommonUtil.CONST_STORAGE_CROP_ID_LIST, this.listSelectedIds);
       let localListSelectedIds = localStorage.getItem(CommonUtil.CONST_STORAGE_CROP_ID_LIST).split(",");
