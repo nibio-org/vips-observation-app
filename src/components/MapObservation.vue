@@ -32,7 +32,7 @@
         <div v-if="isMyMapPanelVisible">
             <div v-if="isMapClicked">
                 <div id="btnBack">
-                <router-link id='btnBack_1' :to="{name: 'Observation', params:{observationId:myObservationId, paramGeoinfo:'', paramObservation:mapObservation }}" class="btn btn-success ">
+                <router-link id='btnBack_1' :to="{name: 'Observation', params:{observationId:myObservationId, paramGeoinfo:initGeoInfo, paramObservation:mapObservation }}" class="btn btn-success ">
                     {{ $t("prop.map.link.cancel.label") }} <i class="fas fa-times"></i> 
                 </router-link>
                 &nbsp;
@@ -118,6 +118,7 @@ export default {
                     CONST_URL_DOMAIN    :   '',
                     isMyMapPanelVisible :   '',
                     myGeoInfo           :   '',
+                    initGeoInfo         :   '',
                     latitude            :   0,
                     longitude           :   0,
                     mapZoom             :   0,
@@ -540,10 +541,12 @@ export default {
         if(routeParam.geoinfo)
         {
              this.myGeoInfo = routeParam.geoinfo;
+             this.initGeoInfo = routeParam.geoinfo;
         }
         if(this.geoinfo)
         {
             this.myGeoInfo = this.geoinfo;
+            this.initGeoInfo = this.geoinfo;
         }
 
 
